@@ -1,0 +1,3411 @@
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         1
+
+0100              1             PAGE    64
+0100              2             ORG     100H
+0100              3     LSTWID  EQU     6
+0100              4     MAXLEN  EQU     100H
+0100              5     DEFORG  EQU     100H
+0100              6     DEFPAG  EQU     50
+0100              7     PGMVAR  EQU     BUF5
+0100              8     USER    EQU     BUF5+80H
+0100              9     FUNC    EQU     USER
+0100              10    TXTBUF  EQU     USER+2
+0100              11    BINBUF  EQU     USER+4
+0100              12    PC      EQU     USER+6
+0100              13    USIZE   EQU     USER+8
+0100              14    VORG    EQU     USER+0AH
+0100              15    SYM     EQU     USER+0CH
+0100              16    STK     EQU     USER+0EH
+0100              17    WADJ    EQU     USER+10H
+0100              18    ARGS    EQU     USER+12H
+0100              19    FLAGS   EQU     USER+16H
+0100              20    SEGPRE  EQU     USER+17H
+0100              21    OPCODE  EQU     USER+18H
+0100              22    MODRM   EQU     USER+19H
+0100              23    DISP    EQU     USER+1AH
+0100              24    IMM     EQU     USER+1CH
+0100              25    BINLEN  EQU     USER+1EH
+0100              26    TXTLEN  EQU     USER+20H
+0100              27    OUTHDL  EQU     PGMVAR
+0100              28    LSTHDL  EQU     PGMVAR+2
+0100              29    INCLEV  EQU     PGMVAR+4
+0100              30    ERRORS  EQU     PGMVAR+6
+0100              31    TEMP    EQU     PGMVAR+8
+0100              32    PASS    EQU     PGMVAR+0AH
+0100              33    OLDPC   EQU     PGMVAR+0CH
+0100              34    PAGNUM  EQU     PGMVAR+0EH
+0100              35    LSTLIN  EQU     PGMVAR+10H
+0100              36    INFN    EQU     BUF4
+0100              37    OUTFN   EQU     BUF4+40H
+0100              38    LSTFN   EQU     BUF4+80H
+0100              39    DEFFN   EQU     BUF4+0C0H
+0100 B409         40    START:  MOV     AH,9
+0102 BA121F       41            MOV     DX,AMSG
+0105 CD21         42            INT     21H
+0107 B430         43            MOV     AH,30H
+0109 CD21         44            INT     21H
+010B 84C0         45            TEST    AL,AL
+010D 751A         46            JNZ     MAIN
+010F B409         47            MOV     AH,9
+0111 BA311F       48            MOV     DX,DOSERR
+0114 CD21         49            INT     21H
+0116 CD20         50            INT     20H
+0118 B409         51    ERROR:  MOV     AH,9
+011A CD21         52            INT     21H
+011C B8004C       53            MOV     AX,4C00H
+011F CD21         54            INT     21H
+0121 E87B05       55    BAH:    CALL    CLOSE
+0124 B8014C       56    OVER:   MOV     AX,4C01H
+0127 CD21         57            INT     21H
+0129 E86006       58    MAIN:   CALL    INIT
+012C BE8100       59            MOV     SI,81H
+012F E8A000       60            CALL    PARAM
+0132 72E4         61            JC      ERROR
+0134 E89C05       62            CALL    OPEN
+0137 72EB         63            JC      OVER
+0139 8B3E2F24     64            MOV     DI,[TEMP]
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         2
+
+013D BE071F       65            MOV     SI,INM
+0140 E8F501       66            CALL    WRM
+0143 BE2723       67            MOV     SI,INFN
+0146 E8EF01       68            CALL    WRM
+0149 E82706       69            CALL    PRUNT
+014C FF36A724     70            PUSH    WORD [FUNC]
+0150 8B3E2F24     71    RUN:    MOV     DI,[TEMP]
+0154 BE011F       72            MOV     SI,PASSM
+0157 E8DE01       73            CALL    WRM
+015A A13124       74            MOV     AX,[PASS]
+015D B90A00       75            MOV     CX,10
+0160 E8B508       76            CALL    WN
+0163 E80D06       77            CALL    PRUNT
+0166 FF063124     78            INC     WORD [PASS]
+016A E83A01       79            CALL    PROCF
+016D 72B2         80            JC      BAH
+016F BE2728       81            MOV     SI,SYMBS
+0172 E8BC06       82            CALL    SYMLST
+0175 A12D24       83            MOV     AX,[ERRORS]
+0178 85C0         84            TEST    AX,AX
+017A 7541         85            JNZ     HUMBUG
+017C A1A724       86            MOV     AX,[FUNC]
+017F 30C0         87            XOR     AL,AL
+0181 86E0         88            XCHG    AL,AH
+0183 A3A724       89            MOV     [FUNC],AX
+0186 84C0         90            TEST    AL,AL
+0188 75C6         91            JNZ     RUN
+018A 8F06A724     92            POP     WORD [FUNC]
+018E 8B3E2F24     93            MOV     DI,[TEMP]
+0192 BE0C1F       94            MOV     SI,OUTM
+0195 E8A001       95            CALL    WRM
+0198 B81010       96            MOV     AX,1010H
+019B BE6723       97            MOV     SI,OUTFN
+019E E82400       98            CALL    NOTHER
+01A1 F706A7248080 99            TEST    WORD [FUNC],8080H
+01A7 7509         100           JNZ     NOWLST
+01A9 B84040       101           MOV     AX,4040H
+01AC BEA723       102           MOV     SI,LSTFN
+01AF E81300       103           CALL    NOTHER
+01B2 E8BE05       104   NOWLST: CALL    PRUNT
+01B5 E8E704       105           CALL    CLOSE
+01B8 B8004C       106           MOV     AX,4C00H
+01BB CD21         107           INT     21H
+01BD E8DF04       108   HUMBUG: CALL    CLOSE
+01C0 B8024C       109           MOV     AX,4C02H
+01C3 CD21         110           INT     21H
+01C5 8506A724     111   NOTHER: TEST    [FUNC],AX
+01C9 7406         112           JZ      NOTH0
+01CB E86A01       113           CALL    WRM
+01CE B020         114           MOV     AL,20H
+01D0 AA           115           STOSB
+01D1 C3           116   NOTH0:  RET
+01D2 E88201       117   PARAM:  CALL    RFN
+01D5 722D         118           JC      PARASC
+01D7 7503         119           JNZ     PARAIN
+01D9 E97800       120           JMP     PARAEN
+01DC BF2723       121   PARAIN: MOV     DI,INFN
+01DF 8A05         122           MOV     AL,[DI]
+01E1 84C0         123           TEST    AL,AL
+01E3 7548         124           JNZ     PARARG
+01E5 89F2         125   PARAWF: MOV     DX,SI
+01E7 E85701       126           CALL    WFN
+01EA A0E723       127           MOV     AL,[DEFFN]
+01ED 84C0         128           TEST    AL,AL
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         3
+
+01EF 75E1         129           JNZ     PARAM
+01F1 56           130           PUSH    SI
+01F2 89D6         131           MOV     SI,DX
+01F4 BFE723       132           MOV     DI,DEFFN
+01F7 E84701       133           CALL    WFN
+01FA BEE723       134           MOV     SI,DEFFN
+01FD F9           135           STC
+01FE E88401       136           CALL    ADDEX
+0201 5E           137           POP     SI
+0202 EBCE         138           JMP     SHORT PARAM
+0204 BFA723       139   PARASC: MOV     DI,LSTFN
+0207 BA0142       140           MOV     DX,4201H
+020A 3C4C         141           CMP     AL,4CH
+020C 7424         142           JZ      PARAFN
+020E BF6723       143           MOV     DI,OUTFN
+0211 BAD000       144           MOV     DX,0D0H
+0214 3C44         145           CMP     AL,44H
+0216 741A         146           JZ      PARAFN
+0218 BA9000       147           MOV     DX,90H
+021B 3C55         148           CMP     AL,55H
+021D 7413         149           JZ      PARAFN
+021F BA0112       150           MOV     DX,1201H
+0222 3C41         151           CMP     AL,41H
+0224 740C         152           JZ      PARAFN
+0226 BFCD1D       153           MOV     DI,ORIGIN
+0229 3C4F         154           CMP     AL,4FH
+022B 7413         155           JZ      PARARN
+022D BA571F       156   PARARG: MOV     DX,USAGE
+0230 F9           157           STC
+0231 C3           158           RET
+0232 0916A724     159   PARAFN: OR      [FUNC],DX
+0236 E81E01       160           CALL    RFN
+0239 72C9         161           JC      PARASC
+023B 7417         162           JZ      PARAEN
+023D E9A5FF       163           JMP     PARAWF
+0240 E8F606       164   PARARN: CALL    CC
+0243 740A         165           JZ      PARANO
+0245 E8AC0C       166           CALL    RNC
+0248 7205         167           JC      PARANO
+024A 8915         168           MOV     [DI],DX
+024C E983FF       169           JMP     PARAM
+024F BA431F       170   PARANO: MOV     DX,NOPAR
+0252 F9           171           STC
+0253 C3           172           RET
+0254 A0E723       173   PARAEN: MOV     AL,[DEFFN]
+0257 84C0         174           TEST    AL,AL
+0259 74F4         175           JZ      PARANO
+025B A1A724       176           MOV     AX,[FUNC]
+025E 85C0         177           TEST    AX,AX
+0260 7506         178           JNZ     PARAFS
+0262 B80152       179           MOV     AX,5201H
+0265 A3A724       180           MOV     [FUNC],AX
+0268 BDF91E       181   PARAFS: MOV     BP,DOTCOM
+026B BAF51E       182           MOV     DX,DOTASM
+026E BF2723       183           MOV     DI,INFN
+0271 A98080       184           TEST    AX,8080H
+0274 7402         185           JZ      PARANS
+0276 87D5         186           XCHG    BP,DX
+0278 BEE723       187   PARANS: MOV     SI,DEFFN
+027B E8EC00       188           CALL    RFN2
+027E E80E00       189           CALL    PARAWN
+0281 89EA         190           MOV     DX,BP
+0283 BF6723       191           MOV     DI,OUTFN
+0286 E80600       192           CALL    PARAWN
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         4
+
+0289 BAFD1E       193           MOV     DX,DOTLST
+028C BFA723       194           MOV     DI,LSTFN
+028F 53           195   PARAWN: PUSH    BX
+0290 56           196           PUSH    SI
+0291 57           197           PUSH    DI
+0292 8B05         198           MOV     AX,[DI]
+0294 84C0         199           TEST    AL,AL
+0296 7503         200           JNZ     PARANX
+0298 E8A600       201           CALL    WFN
+029B 5E           202   PARANX: POP     SI
+029C E8CB00       203           CALL    RFN2
+029F F8           204           CLC
+02A0 E8E200       205           CALL    ADDEX
+02A3 5E           206           POP     SI
+02A4 5B           207           POP     BX
+02A5 F8           208           CLC
+02A6 C3           209           RET
+02A7 A1CD1D       210   PROCF:  MOV     AX,[ORIGIN]
+02AA A3B124       211           MOV     [VORG],AX
+02AD 31C0         212           XOR     AX,AX
+02AF A3AD24       213           MOV     [PC],AX
+02B2 A3AF24       214           MOV     [USIZE],AX
+02B5 A32D24       215           MOV     [ERRORS],AX
+02B8 A33724       216           MOV     [LSTLIN],AX
+02BB A32726       217           MOV     [BUF7],AX
+02BE 40           218           INC     AX
+02BF A33524       219           MOV     [PAGNUM],AX
+02C2 E8EC00       220           CALL    CALF
+02C5 AD           221           LODSW
+02C6 BB0042       222           MOV     BX,4200H
+02C9 93           223           XCHG    AX,BX
+02CA 31C9         224           XOR     CX,CX
+02CC 31D2         225           XOR     DX,DX
+02CE 8914         226           MOV     [SI],DX
+02D0 CD21         227           INT     21H
+02D2 E8C102       228   PROCF1: CALL    READ
+02D5 761B         229           JBE     PROCF3
+02D7 A1AD24       230           MOV     AX,[PC]
+02DA A33324       231           MOV     [OLDPC],AX
+02DD E89209       232           CALL    ASM
+02E0 7217         233           JC      PROCF4
+02E2 E82901       234           CALL    WLST
+02E5 7205         235           JC      PROCF2
+02E7 E84C03       236           CALL    WRITE
+02EA 73E6         237           JNC     PROCF1
+02EC E80801       238   PROCF2: CALL    DECF
+02EF 73FB         239           JNC     PROCF2
+02F1 C3           240           RET
+02F2 E80201       241   PROCF3: CALL    DECF
+02F5 73DB         242           JNC     PROCF1
+02F7 F8           243           CLC
+02F8 C3           244           RET
+02F9 84C0         245   PROCF4: TEST    AL,AL
+02FB 7920         246           JNS     PROCF6
+02FD 98           247           CBW
+02FE 40           248           INC     AX
+02FF 74F1         249           JZ      PROCF3
+0301 F7D8         250           NEG     AX
+0303 48           251           DEC     AX
+0304 7503         252           JNZ     PROCF5
+0306 E80501       253           CALL    WLST
+0309 50           254   PROCF5: PUSH    AX
+030A BFD11D       255           MOV     DI,ADIR
+030D D1E0         256           SHL     AX,1
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         5
+
+030F 01C7         257           ADD     DI,AX
+0311 FF15         258           CALL    [DI]
+0313 59           259           POP     CX
+0314 7207         260           JC      PROCF6
+0316 E3BA         261           JCXZ    PROCF1
+0318 E8F300       262           CALL    WLST
+031B EBB5         263           JMP     SHORT PROCF1
+031D E8EE00       264   PROCF6: CALL    WLST
+0320 E8FD03       265           CALL    SCREAM
+0323 FF062D24     266           INC     WORD [ERRORS]
+0327 A0A724       267           MOV     AL,[FUNC]
+032A A840         268           TEST    AL,40H
+032C 74A4         269           JZ      PROCF1
+032E B440         270           MOV     AH,40H
+0330 8B1E2924     271           MOV     BX,[LSTHDL]
+0334 CD21         272           INT     21H
+0336 EB9A         273           JMP     SHORT PROCF1
+0338 FC           274   WRM:    CLD
+0339 AC           275   WRML:   LODSB
+033A AA           276           STOSB
+033B 3C20         277           CMP     AL,20H
+033D 73FA         278           JNC     WRML
+033F 4F           279           DEC     DI
+0340 C3           280           RET
+0341 FC           281   WFN:    CLD
+0342 53           282           PUSH    BX
+0343 AC           283   WFN1:   LODSB
+0344 3C61         284           CMP     AL,61H
+0346 7206         285           JC      WFN2
+0348 3C7B         286           CMP     AL,7BH
+034A 7302         287           JNC     WFN2
+034C 24DF         288           AND     AL,0DFH
+034E AA           289   WFN2:   STOSB
+034F 4B           290           DEC     BX
+0350 75F1         291           JNZ     WFN1
+0352 30C0         292           XOR     AL,AL
+0354 AA           293           STOSB
+0355 5B           294           POP     BX
+0356 C3           295           RET
+0357 FC           296   RFN:    CLD
+0358 AC           297   RFN1:   LODSB
+0359 84C0         298           TEST    AL,AL
+035B 7422         299           JZ      RFN0
+035D 3C0D         300           CMP     AL,0DH
+035F 741E         301           JZ      RFN0
+0361 3C21         302           CMP     AL,21H
+0363 72F3         303           JC      RFN1
+0365 3C2F         304           CMP     AL,2FH
+0367 7417         305           JZ      RFN5
+0369 4E           306           DEC     SI
+036A FC           307   RFN2:   CLD
+036B 89F3         308           MOV     BX,SI
+036D AC           309   RFN3:   LODSB
+036E 3C2F         310           CMP     AL,2FH
+0370 7404         311           JZ      RFN4
+0372 3C21         312           CMP     AL,21H
+0374 73F7         313           JNC     RFN3
+0376 4E           314   RFN4:   DEC     SI
+0377 29DE         315           SUB     SI,BX
+0379 87DE         316           XCHG    SI,BX
+037B 8A04         317           MOV     AL,[SI]
+037D 85DB         318           TEST    BX,BX
+037F C3           319   RFN0:   RET
+0380 AC           320   RFN5:   LODSB
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         6
+
+0381 24DF         321           AND     AL,0DFH
+0383 F9           322           STC
+0384 C3           323           RET
+0385 9F           324   ADDEX:  LAHF
+0386 8D38         325           LEA     DI,[BX+SI]
+0388 B02E         326           MOV     AL,2EH
+038A 89D9         327           MOV     CX,BX
+038C FD           328           STD
+038D F2AE         329           REPNE SCASB
+038F 7506         330           JNZ     ADDEX1
+0391 9E           331           SAHF
+0392 7317         332           JNC     ADDEX0
+0394 47           333           INC     DI
+0395 EB10         334           JMP     SHORT ADDEX3
+0397 9E           335   ADDEX1: SAHF
+0398 7211         336           JC      ADDEX0
+039A 8D38         337           LEA     DI,[BX+SI]
+039C 87D6         338           XCHG    SI,DX
+039E FC           339           CLD
+039F AA           340   ADDEX2: STOSB
+03A0 AC           341           LODSB
+03A1 84C0         342           TEST    AL,AL
+03A3 75FA         343           JNZ     ADDEX2
+03A5 87D6         344           XCHG    SI,DX
+03A7 89FB         345   ADDEX3: MOV     BX,DI
+03A9 29F3         346           SUB     BX,SI
+03AB 8D38         347   ADDEX0: LEA     DI,[BX+SI]
+03AD 30C0         348           XOR     AL,AL
+03AF AA           349           STOSB
+03B0 C3           350           RET
+03B1 A12B24       351   CALF:   MOV     AX,[INCLEV]
+03B4 85C0         352           TEST    AX,AX
+03B6 743D         353           JZ      CALF0
+03B8 FC           354           CLD
+03B9 48           355           DEC     AX
+03BA 9C           356           PUSHF
+03BB 86E0         357           XCHG    AL,AH
+03BD D1E8         358           SHR     AX,1
+03BF D1E8         359           SHR     AX,1
+03C1 BE2727       360           MOV     SI,INCBUF
+03C4 01C6         361           ADD     SI,AX
+03C6 9D           362           POPF
+03C7 F8           363           CLC
+03C8 C3           364           RET
+03C9 FF062B24     365   INCF:   INC     WORD [INCLEV]
+03CD 89F7         366           MOV     DI,SI
+03CF E8DFFF       367           CALL    CALF
+03D2 721D         368           JC      INCF0
+03D4 87F7         369           XCHG    DI,SI
+03D6 57           370           PUSH    DI
+03D7 FC           371           CLD
+03D8 31C0         372           XOR     AX,AX
+03DA AB           373           STOSW
+03DB AB           374           STOSW
+03DC 89FA         375           MOV     DX,DI
+03DE E860FF       376           CALL    WFN
+03E1 B8003D       377           MOV     AX,3D00H
+03E4 CD21         378           INT     21H
+03E6 5F           379           POP     DI
+03E7 7208         380           JC      INCF0
+03E9 AB           381           STOSW
+03EA A1CF1D       382           MOV     AX,[PAGLEN]
+03ED A33724       383           MOV     [LSTLIN],AX
+03F0 C3           384           RET
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         7
+
+03F1 FF0E2B24     385   INCF0:  DEC     WORD [INCLEV]
+03F5 F9           386   CALF0:  STC
+03F6 C3           387           RET
+03F7 E8B7FF       388   DECF:   CALL    CALF
+03FA 76F9         389           JBE     CALF0
+03FC B43E         390           MOV     AH,3EH
+03FE 8B1C         391           MOV     BX,[SI]
+0400 CD21         392           INT     21H
+0402 FF0E2B24     393           DEC     WORD [INCLEV]
+0406 A1CF1D       394           MOV     AX,[PAGLEN]
+0409 A33724       395           MOV     [LSTLIN],AX
+040C F8           396           CLC
+040D C3           397           RET
+040E 8926B524     398   WLST:   MOV     [STK],SP
+0412 50           399           PUSH    AX
+0413 52           400           PUSH    DX
+0414 53           401           PUSH    BX
+0415 56           402           PUSH    SI
+0416 57           403           PUSH    DI
+0417 8B36AB24     404           MOV     SI,[BINBUF]
+041B 8B3E2F24     405           MOV     DI,[TEMP]
+041F 8B1EC524     406           MOV     BX,[BINLEN]
+0423 8B163324     407           MOV     DX,[OLDPC]
+0427 0316B124     408           ADD     DX,[VORG]
+042B A0A724       409           MOV     AL,[FUNC]
+042E 89FD         410           MOV     BP,DI
+0430 A8C0         411           TEST    AL,0C0H
+0432 746F         412           JZ      WLSTE
+0434 A840         413           TEST    AL,40H
+0436 7408         414           JZ      WLSTT
+0438 E86F00       415           CALL    WLSTS
+043B E8A100       416           CALL    WLSTI
+043E 89FD         417           MOV     BP,DI
+0440 53           418   WLSTT:  PUSH    BX
+0441 56           419           PUSH    SI
+0442 8B36A924     420           MOV     SI,[TXTBUF]
+0446 8B1EC724     421           MOV     BX,[TXTLEN]
+044A 85DB         422           TEST    BX,BX
+044C 7424         423           JZ      WLSTM
+044E AC           424   WLSTL:  LODSB
+044F 84C0         425           TEST    AL,AL
+0451 741F         426           JZ      WLSTM
+0453 3C0D         427           CMP     AL,0DH
+0455 741B         428           JZ      WLSTM
+0457 3C0A         429           CMP     AL,0AH
+0459 74F3         430           JZ      WLSTL
+045B 3C09         431           CMP     AL,9
+045D 750F         432           JNZ     WLSTN
+045F 89F8         433           MOV     AX,DI
+0461 29E8         434           SUB     AX,BP
+0463 250700       435           AND     AX,7
+0466 B90800       436           MOV     CX,8
+0469 29C1         437           SUB     CX,AX
+046B B020         438           MOV     AL,20H
+046D F3           439           REP
+046E AA           440   WLSTN:  STOSB
+046F 4B           441           DEC     BX
+0470 75DC         442           JNZ     WLSTL
+0472 5E           443   WLSTM:  POP     SI
+0473 5B           444           POP     BX
+0474 B80D0A       445   WLSTB:  MOV     AX,0A0DH
+0477 AB           446           STOSW
+0478 52           447           PUSH    DX
+0479 53           448           PUSH    BX
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         8
+
+047A 56           449           PUSH    SI
+047B E89700       450           CALL    WTITLE
+047E 8B162F24     451           MOV     DX,[TEMP]
+0482 B440         452           MOV     AH,40H
+0484 8B1E2924     453           MOV     BX,[LSTHDL]
+0488 89F9         454           MOV     CX,DI
+048A 29D1         455           SUB     CX,DX
+048C CD21         456           INT     21H
+048E 7247         457           JC      WLSTF
+0490 5E           458           POP     SI
+0491 5B           459           POP     BX
+0492 5A           460           POP     DX
+0493 A0A724       461           MOV     AL,[FUNC]
+0496 A840         462           TEST    AL,40H
+0498 7409         463           JZ      WLSTE
+049A 8B3E2F24     464           MOV     DI,[TEMP]
+049E E80900       465           CALL    WLSTS
+04A1 75D1         466           JNZ     WLSTB
+04A3 5F           467   WLSTE:  POP     DI
+04A4 5E           468           POP     SI
+04A5 5B           469           POP     BX
+04A6 5A           470           POP     DX
+04A7 58           471           POP     AX
+04A8 F8           472           CLC
+04A9 C3           473           RET
+04AA 88F0         474   WLSTS:  MOV     AL,DH
+04AC E82105       475           CALL    HALX
+04AF 88D0         476           MOV     AL,DL
+04B1 E81C05       477           CALL    HALX
+04B4 85DB         478           TEST    BX,BX
+04B6 741E         479           JZ      WLSTX
+04B8 89D9         480           MOV     CX,BX
+04BA 83F906       481           CMP     CX,LSTWID
+04BD 7203         482           JC      WLSTG
+04BF B90600       483           MOV     CX,LSTWID
+04C2 29CB         484   WLSTG:  SUB     BX,CX
+04C4 7302         485           JNC     WLSTR
+04C6 31DB         486           XOR     BX,BX
+04C8 01CA         487   WLSTR:  ADD     DX,CX
+04CA B020         488           MOV     AL,20H
+04CC FC           489           CLD
+04CD AA           490           STOSB
+04CE AC           491   WLSTP:  LODSB
+04CF E8FE04       492           CALL    HALX
+04D2 E2FA         493           LOOP    WLSTP
+04D4 84C0         494           TEST    AL,AL
+04D6 C3           495   WLSTX:  RET
+04D7 BAA723       496   WLSTF:  MOV     DX,LSTFN
+04DA B00F         497           MOV     AL,0FH
+04DC E94102       498           JMP     SCREAM
+04DF 52           499   WLSTI:  PUSH    DX
+04E0 53           500           PUSH    BX
+04E1 56           501           PUSH    SI
+04E2 8B0E2F24     502           MOV     CX,[TEMP]
+04E6 29F9         503           SUB     CX,DI
+04E8 83C112       504           ADD     CX,LSTWID+LSTWID+6
+04EB B020         505           MOV     AL,20H
+04ED F3AA         506           REP STOSB
+04EF F606A72480   507           TEST    BYTE [FUNC],80H
+04F4 751B         508           JNZ     WLSTO
+04F6 E8B8FE       509           CALL    CALF
+04F9 7216         510           JC      WLSTO
+04FB 89FD         511           MOV     BP,DI
+04FD 8B4402       512           MOV     AX,[SI+2]
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         9
+
+0500 B90A00       513           MOV     CX,10
+0503 E81205       514           CALL    WN
+0506 89E9         515           MOV     CX,BP
+0508 29F9         516           SUB     CX,DI
+050A 83C106       517           ADD     CX,6
+050D B020         518           MOV     AL,20H
+050F F3AA         519           REP STOSB
+0511 5E           520   WLSTO:  POP     SI
+0512 5B           521           POP     BX
+0513 5A           522           POP     DX
+0514 C3           523           RET
+0515 FC           524   WTITLE: CLD
+0516 57           525           PUSH    DI
+0517 BF2725       526           MOV     DI,BUF6
+051A A0A724       527           MOV     AL,[FUNC]
+051D A840         528           TEST    AL,40H
+051F 746E         529           JZ      WTITL5
+0521 A13724       530           MOV     AX,[LSTLIN]
+0524 85C0         531           TEST    AX,AX
+0526 7413         532           JZ      WTITL1
+0528 3B06CF1D     533           CMP     AX,[PAGLEN]
+052C 7261         534           JC      WTITL5
+052E FF063524     535           INC     WORD [PAGNUM]
+0532 C70637240000 536           MOV     WORD [LSTLIN],0
+0538 B00C         537           MOV     AL,0CH
+053A AA           538           STOSB
+053B BE121F       539   WTITL1: MOV     SI,AMSG
+053E E8F7FD       540           CALL    WRM
+0541 B020         541           MOV     AL,20H
+0543 B90800       542           MOV     CX,8
+0546 F3AA         543           REP STOSB
+0548 E866FE       544           CALL    CALF
+054B 7216         545           JC      WTITL3
+054D 57           546           PUSH    DI
+054E 83C604       547           ADD     SI,4
+0551 E8E4FD       548           CALL    WRM
+0554 59           549           POP     CX
+0555 29F9         550           SUB     CX,DI
+0557 83C110       551           ADD     CX,10H
+055A 7903         552           JNS     WTITL2
+055C B90100       553           MOV     CX,1
+055F B020         554   WTITL2: MOV     AL,20H
+0561 F3AA         555           REP STOSB
+0563 A13524       556   WTITL3: MOV     AX,[PAGNUM]
+0566 B90A00       557           MOV     CX,10
+0569 E8AC04       558           CALL    WN
+056C B80D0A       559           MOV     AX,0A0DH
+056F AB           560           STOSW
+0570 BE2726       561           MOV     SI,BUF7
+0573 F604FF       562           TEST    BYTE PTR [SI],0FFH
+0576 7407         563           JZ      WTITL4
+0578 E8BDFD       564           CALL    WRM
+057B B80D0A       565           MOV     AX,0A0DH
+057E AB           566           STOSW
+057F AB           567   WTITL4: STOSW
+0580 BA2725       568           MOV     DX,BUF6
+0583 89F9         569           MOV     CX,DI
+0585 29D1         570           SUB     CX,DX
+0587 8B1E2924     571           MOV     BX,[LSTHDL]
+058B B440         572           MOV     AH,40H
+058D CD21         573           INT     21H
+058F FF063724     574   WTITL5: INC     WORD [LSTLIN]
+0593 5F           575           POP     DI
+0594 F8           576           CLC
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         10
+
+0595 C3           577           RET
+0596 8926B524     578   READ:   MOV     [STK],SP
+059A E814FE       579           CALL    CALF
+059D 7229         580           JC      READ1
+059F FF4402       581           INC     WORD [SI+2]
+05A2 8B1C         582           MOV     BX,[SI]
+05A4 A0A724       583           MOV     AL,[FUNC]
+05A7 84C0         584           TEST    AL,AL
+05A9 7920         585           JNS     READ2
+05AB B80042       586           MOV     AX,4200H
+05AE 31C9         587           XOR     CX,CX
+05B0 8B16AD24     588           MOV     DX,[PC]
+05B4 CD21         589           INT     21H
+05B6 7274         590           JC      READ8
+05B8 B43F         591           MOV     AH,3FH
+05BA B90800       592           MOV     CX,8
+05BD 8B16AB24     593           MOV     DX,[BINBUF]
+05C1 CD21         594           INT     21H
+05C3 7267         595           JC      READ8
+05C5 85C0         596           TEST    AX,AX
+05C7 C3           597           RET
+05C8 29C0         598   READ1:  SUB     AX,AX
+05CA C3           599           RET
+05CB B43F         600   READ2:  MOV     AH,3FH
+05CD B90001       601           MOV     CX,MAXLEN
+05D0 8B16A924     602           MOV     DX,[TXTBUF]
+05D4 CD21         603           INT     21H
+05D6 7254         604           JC      READ8
+05D8 85C0         605           TEST    AX,AX
+05DA 74EC         606           JZ      READ1
+05DC 89C1         607           MOV     CX,AX
+05DE 89C2         608           MOV     DX,AX
+05E0 31DB         609           XOR     BX,BX
+05E2 8B3EA924     610           MOV     DI,[TXTBUF]
+05E6 8A01         611   READ3:  MOV     AL,[BX+DI]
+05E8 43           612           INC     BX
+05E9 B40A         613           MOV     AH,0AH
+05EB 3C0D         614           CMP     AL,0DH
+05ED 741E         615           JZ      READ6
+05EF B40D         616           MOV     AH,0DH
+05F1 3C0A         617           CMP     AL,0AH
+05F3 7418         618           JZ      READ6
+05F5 E2EF         619           LOOP    READ3
+05F7 81FB0001     620           CMP     BX,MAXLEN
+05FB 730B         621           JNC     READ5
+05FD 8821         622           MOV     [BX+DI],AH
+05FF 43           623           INC     BX
+0600 891EC724     624   READ4:  MOV     [TXTLEN],BX
+0604 85DB         625           TEST    BX,BX
+0606 F8           626           CLC
+0607 C3           627           RET
+0608 B00E         628   READ5:  MOV     AL,0EH
+060A E91301       629           JMP     SCREAM
+060D E305         630   READ6:  JCXZ    READ7
+060F 3821         631           CMP     [BX+DI],AH
+0611 7501         632           JNZ     READ7
+0613 43           633           INC     BX
+0614 30C0         634   READ7:  XOR     AL,AL
+0616 8801         635           MOV     [BX+DI],AL
+0618 89D8         636           MOV     AX,BX
+061A 29D0         637           SUB     AX,DX
+061C 74E2         638           JZ      READ4
+061E 99           639           CWD
+061F 53           640           PUSH    BX
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         11
+
+0620 B90142       641           MOV     CX,4201H
+0623 92           642           XCHG    AX,DX
+0624 91           643           XCHG    AX,CX
+0625 8B1C         644           MOV     BX,[SI]
+0627 CD21         645           INT     21H
+0629 5B           646           POP     BX
+062A 73D4         647           JNC     READ4
+062C BA0400       648   READ8:  MOV     DX,4
+062F 01F2         649           ADD     DX,SI
+0631 B00F         650           MOV     AL,0FH
+0633 E9EA00       651           JMP     SCREAM
+0636 8926B524     652   WRITE:  MOV     [STK],SP
+063A A0A724       653           MOV     AL,[FUNC]
+063D 84C0         654           TEST    AL,AL
+063F 785C         655           JS      WRITE5
+0641 A810         656           TEST    AL,10H
+0643 7453         657           JZ      WRITE0
+0645 8B0EC524     658           MOV     CX,[BINLEN]
+0649 E352         659           JCXZ    WRITE5
+064B 8B16AF24     660           MOV     DX,[USIZE]
+064F 85D2         661           TEST    DX,DX
+0651 742B         662           JZ      WRITE3
+0653 8B3E2F24     663           MOV     DI,[TEMP]
+0657 B90001       664           MOV     CX,100H
+065A 30C0         665           XOR     AL,AL
+065C FC           666           CLD
+065D F3AA         667           REP STOSB
+065F 52           668   WRITE1: PUSH    DX
+0660 B90001       669           MOV     CX,100H
+0663 39D1         670           CMP     CX,DX
+0665 7202         671           JC      WRITE2
+0667 89D1         672           MOV     CX,DX
+0669 51           673   WRITE2: PUSH    CX
+066A B440         674           MOV     AH,40H
+066C 8B162F24     675           MOV     DX,[TEMP]
+0670 8B1E2724     676           MOV     BX,[OUTHDL]
+0674 CD21         677           INT     21H
+0676 7218         678           JC      WRITE4
+0678 59           679           POP     CX
+0679 5A           680           POP     DX
+067A 29CA         681           SUB     DX,CX
+067C 77E1         682           JA      WRITE1
+067E B440         683   WRITE3: MOV     AH,40H
+0680 8B0EC524     684           MOV     CX,[BINLEN]
+0684 8B16AB24     685           MOV     DX,[BINBUF]
+0688 8B1E2724     686           MOV     BX,[OUTHDL]
+068C CD21         687           INT     21H
+068E 7308         688           JNC     WRITE0
+0690 BA6723       689   WRITE4: MOV     DX,OUTFN
+0693 B00F         690           MOV     AL,0FH
+0695 E98800       691           JMP     SCREAM
+0698 31C0         692   WRITE0: XOR     AX,AX
+069A A3AF24       693           MOV     [USIZE],AX
+069D F8           694   WRITE5: CLC
+069E C3           695           RET
+069F E80FFD       696   CLOSE:  CALL    CALF
+06A2 7206         697           JC      NOIN
+06A4 B43E         698           MOV     AH,3EH
+06A6 8B1C         699           MOV     BX,[SI]
+06A8 CD21         700           INT     21H
+06AA F706A7244040 701   NOIN:   TEST    WORD [FUNC],4040H
+06B0 7410         702           JZ      NOLST
+06B2 F706A7248080 703           TEST    WORD [FUNC],8080H
+06B8 7508         704           JNZ     NOLST
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         12
+
+06BA B43E         705           MOV     AH,3EH
+06BC 8B1E2924     706           MOV     BX,[LSTHDL]
+06C0 CD21         707           INT     21H
+06C2 F706A7241010 708   NOLST:  TEST    WORD [FUNC],1010H
+06C8 7408         709           JZ      NOOUT
+06CA B43E         710           MOV     AH,3EH
+06CC 8B1E2724     711           MOV     BX,[OUTHDL]
+06D0 CD21         712           INT     21H
+06D2 C3           713   NOOUT:  RET
+06D3 BE2723       714   OPEN:   MOV     SI,INFN
+06D6 E891FC       715           CALL    RFN2
+06D9 E8EDFC       716           CALL    INCF
+06DC B00B         717           MOV     AL,0BH
+06DE 7240         718           JC      SCREAM
+06E0 F706A7241010 719           TEST    WORD [FUNC],1010H
+06E6 740E         720           JZ      OPEN2
+06E8 B43C         721           MOV     AH,3CH
+06EA 31C9         722           XOR     CX,CX
+06EC BA6723       723           MOV     DX,OUTFN
+06EF CD21         724           INT     21H
+06F1 722B         725           JC      OPEN4
+06F3 A32724       726           MOV     [OUTHDL],AX
+06F6 F706A7248080 727   OPEN2:  TEST    WORD [FUNC],8080H
+06FC 7518         728           JNZ     OPEN3
+06FE F706A7244040 729           TEST    WORD [FUNC],4040H
+0704 740E         730           JZ      OPEN1
+0706 B43C         731           MOV     AH,3CH
+0708 31C9         732           XOR     CX,CX
+070A BAA723       733           MOV     DX,LSTFN
+070D CD21         734           INT     21H
+070F 720A         735           JC      OPEN5
+0711 A32924       736           MOV     [LSTHDL],AX
+0714 F8           737   OPEN1:  CLC
+0715 C3           738           RET
+0716 A32924       739   OPEN3:  MOV     [LSTHDL],AX
+0719 F8           740           CLC
+071A C3           741           RET
+071B E8A4FF       742   OPEN5:  CALL    NOLST
+071E B00B         743   OPEN4:  MOV     AL,0BH
+0720 FC           744   SCREAM: CLD
+0721 98           745           CBW
+0722 8B3E2F24     746           MOV     DI,[TEMP]
+0726 89C1         747           MOV     CX,AX
+0728 3C0F         748           CMP     AL,0FH
+072A 7427         749           JZ      SCRUM
+072C E882FC       750           CALL    CALF
+072F 7218         751           JC      SCROOM
+0731 AD           752           LODSW
+0732 AD           753           LODSW
+0733 50           754           PUSH    AX
+0734 E801FC       755           CALL    WRM
+0737 B028         756           MOV     AL,28H
+0739 AA           757           STOSB
+073A 58           758           POP     AX
+073B 51           759           PUSH    CX
+073C 52           760           PUSH    DX
+073D B90A00       761           MOV     CX,10
+0740 E8D502       762           CALL    WN
+0743 5A           763           POP     DX
+0744 59           764           POP     CX
+0745 B82920       765           MOV     AX,2029H
+0748 AB           766           STOSW
+0749 80F905       767   SCROOM: CMP     CL,5
+074C 740C         768           JZ      SCROYM
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         13
+
+074E 80F90B       769           CMP     CL,0BH
+0751 7511         770           JNZ     SCROME
+0753 89D6         771   SCRUM:  MOV     SI,DX
+0755 E8E0FB       772           CALL    WRM
+0758 EB0A         773           JMP     SHORT SCROME
+075A 51           774   SCROYM: PUSH    CX
+075B 89D0         775           MOV     AX,DX
+075D B90A00       776           MOV     CX,10
+0760 E8B502       777           CALL    WN
+0763 59           778           POP     CX
+0764 BEDB1D       779   SCROME: MOV     SI,EM0
+0767 E307         780           JCXZ    SCRAM
+0769 AC           781   SCREM:  LODSB
+076A 84C0         782           TEST    AL,AL
+076C 75FB         783           JNZ     SCREM
+076E E2F9         784           LOOP    SCREM
+0770 E8C5FB       785   SCRAM:  CALL    WRM
+0773 8B162F24     786   PRUNT:  MOV     DX,[TEMP]
+0777 B80D0A       787           MOV     AX,0A0DH
+077A AB           788           STOSW
+077B 89F9         789           MOV     CX,DI
+077D 29D1         790           SUB     CX,DX
+077F 51           791           PUSH    CX
+0780 52           792           PUSH    DX
+0781 B440         793           MOV     AH,40H
+0783 BB0100       794           MOV     BX,1
+0786 CD21         795           INT     21H
+0788 5A           796           POP     DX
+0789 59           797           POP     CX
+078A F9           798           STC
+078B C3           799           RET
+078C B82720       800   INIT:   MOV     AX,BUF1
+078F A3A924       801           MOV     [TXTBUF],AX
+0792 B82721       802           MOV     AX,BUF2
+0795 A3AB24       803           MOV     [BINBUF],AX
+0798 B82722       804           MOV     AX,BUF3
+079B A32F24       805           MOV     [TEMP],AX
+079E B82728       806           MOV     AX,SYMBS
+07A1 A3B324       807           MOV     [SYM],AX
+07A4 31FF         808           XOR     DI,DI
+07A6 97           809           XCHG    DI,AX
+07A7 AB           810           STOSW
+07A8 A32B24       811           MOV     [INCLEV],AX
+07AB A3A724       812           MOV     [FUNC],AX
+07AE A32723       813           MOV     [INFN],AX
+07B1 A36723       814           MOV     [OUTFN],AX
+07B4 A3A723       815           MOV     [LSTFN],AX
+07B7 A3E723       816           MOV     [DEFFN],AX
+07BA 40           817           INC     AX
+07BB A33124       818           MOV     [PASS],AX
+07BE C3           819           RET
+07BF 30C0         820   P2:     XOR     AL,AL
+07C1 8800         821           MOV     [BX+SI],AL
+07C3 E803FC       822           CALL    INCF
+07C6 B00B         823   P2F:    MOV     AL,0BH
+07C8 C3           824           RET
+07C9 B8003D       825   P3:     MOV     AX,3D00H
+07CC 8800         826           MOV     [BX+SI],AL
+07CE 89F2         827           MOV     DX,SI
+07D0 CD21         828           INT     21H
+07D2 72F2         829           JC      P2F
+07D4 89C3         830           MOV     BX,AX
+07D6 B43F         831   P3L:    MOV     AH,3FH
+07D8 8B162F24     832           MOV     DX,[TEMP]
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         14
+
+07DC B90001       833           MOV     CX,100H
+07DF CD21         834           INT     21H
+07E1 89F2         835           MOV     DX,SI
+07E3 72E1         836           JC      P2F
+07E5 0106AD24     837           ADD     [PC],AX
+07E9 89C1         838           MOV     CX,AX
+07EB E31B         839           JCXZ    P3E
+07ED F606A72410   840           TEST    BYTE [FUNC],10H
+07F2 7410         841           JZ      P3S
+07F4 50           842           PUSH    AX
+07F5 53           843           PUSH    BX
+07F6 B440         844           MOV     AH,40H
+07F8 8B162F24     845           MOV     DX,[TEMP]
+07FC 8B1E2724     846           MOV     BX,[OUTHDL]
+0800 CD21         847           INT     21H
+0802 5B           848           POP     BX
+0803 58           849           POP     AX
+0804 85C0         850   P3S:    TEST    AX,AX
+0806 75CE         851           JNZ     P3L
+0808 B43E         852   P3E:    MOV     AH,3EH
+080A CD21         853           INT     21H
+080C C3           854           RET
+080D E863FF       855   P4:     CALL    PRUNT
+0810 F8           856           CLC
+0811 C3           857           RET
+0812 FC           858   P5:     CLD
+0813 BF2726       859           MOV     DI,BUF7
+0816 89D9         860           MOV     CX,BX
+0818 F3A4         861           REP MOVSB
+081A 30C0         862           XOR     AL,AL
+081C AA           863           STOSB
+081D F8           864           CLC
+081E C3           865           RET
+081F 85D2         866   P6:     TEST    DX,DX
+0821 7508         867           JNZ     P6S
+0823 A1CF1D       868           MOV     AX,[PAGLEN]
+0826 A33724       869           MOV     [LSTLIN],AX
+0829 F8           870           CLC
+082A C3           871           RET
+082B 8916CF1D     872   P6S:    MOV     [PAGLEN],DX
+082F F8           873           CLC
+0830 C3           874           RET
+0831 F606A72440   875   SYMLST: TEST    BYTE [FUNC],40H
+0836 7501         876           JNZ     SYMLS0
+0838 C3           877           RET
+0839 FC           878   SYMLS0: CLD
+083A 56           879           PUSH    SI
+083B E88700       880           CALL    SYMSRT
+083E 5E           881           POP     SI
+083F AD           882           LODSW
+0840 89C1         883           MOV     CX,AX
+0842 31D2         884           XOR     DX,DX
+0844 A1CF1D       885           MOV     AX,[PAGLEN]
+0847 A33724       886           MOV     [LSTLIN],AX
+084A E378         887           JCXZ    SYMLS8
+084C 51           888           PUSH    CX
+084D 56           889           PUSH    SI
+084E 31DB         890   SYMLS1: XOR     BX,BX
+0850 AC           891   SYMLS2: LODSB
+0851 43           892           INC     BX
+0852 84C0         893           TEST    AL,AL
+0854 75FA         894           JNZ     SYMLS2
+0856 AD           895           LODSW
+0857 39DA         896           CMP     DX,BX
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         15
+
+0859 7302         897           JNC     SYMLS3
+085B 89DA         898           MOV     DX,BX
+085D E2EF         899   SYMLS3: LOOP    SYMLS1
+085F 5E           900           POP     SI
+0860 59           901           POP     CX
+0861 8B3E2F24     902           MOV     DI,[TEMP]
+0865 FC           903   SYMLS4: CLD
+0866 51           904           PUSH    CX
+0867 89F9         905           MOV     CX,DI
+0869 AC           906   SYMLS5: LODSB
+086A AA           907           STOSB
+086B 84C0         908           TEST    AL,AL
+086D 75FA         909           JNZ     SYMLS5
+086F 4F           910           DEC     DI
+0870 29F9         911           SUB     CX,DI
+0872 01D1         912           ADD     CX,DX
+0874 B020         913           MOV     AL,20H
+0876 F3AA         914           REP STOSB
+0878 AD           915           LODSW
+0879 50           916           PUSH    AX
+087A 88E0         917           MOV     AL,AH
+087C E85101       918           CALL    HALX
+087F 58           919           POP     AX
+0880 E84D01       920           CALL    HALX
+0883 B82020       921           MOV     AX,2020H
+0886 AB           922           STOSW
+0887 89F9         923           MOV     CX,DI
+0889 2B0E2F24     924           SUB     CX,[TEMP]
+088D 01D1         925           ADD     CX,DX
+088F 83F94E       926           CMP     CX,4EH
+0892 59           927           POP     CX
+0893 7207         928           JB      SYMLS6
+0895 E80700       929           CALL    SYMLS7
+0898 8B3E2F24     930           MOV     DI,[TEMP]
+089C 49           931   SYMLS6: DEC     CX
+089D 75C6         932           JNZ     SYMLS4
+089F 3B3E2F24     933   SYMLS7: CMP     DI,[TEMP]
+08A3 761F         934           JBE     SYMLS8
+08A5 4F           935           DEC     DI
+08A6 4F           936           DEC     DI
+08A7 B80D0A       937           MOV     AX,0A0DH
+08AA AB           938           STOSW
+08AB 51           939           PUSH    CX
+08AC 52           940           PUSH    DX
+08AD 56           941           PUSH    SI
+08AE E864FC       942           CALL    WTITLE
+08B1 B440         943           MOV     AH,40H
+08B3 8B162F24     944           MOV     DX,[TEMP]
+08B7 89F9         945           MOV     CX,DI
+08B9 29D1         946           SUB     CX,DX
+08BB 8B1E2924     947           MOV     BX,[LSTHDL]
+08BF CD21         948           INT     21H
+08C1 5E           949           POP     SI
+08C2 5A           950           POP     DX
+08C3 59           951           POP     CX
+08C4 C3           952   SYMLS8: RET
+08C5 FC           953   SYMSRT: CLD
+08C6 AD           954           LODSW
+08C7 89C1         955           MOV     CX,AX
+08C9 3D0200       956           CMP     AX,2
+08CC 7301         957           JNC     SYMSR1
+08CE C3           958           RET
+08CF 89CA         959   SYMSR1: MOV     DX,CX
+08D1 51           960           PUSH    CX
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         16
+
+08D2 56           961           PUSH    SI
+08D3 89F7         962           MOV     DI,SI
+08D5 AC           963   SYMSR2: LODSB
+08D6 247F         964           AND     AL,7FH
+08D8 AA           965           STOSB
+08D9 75FA         966           JNZ     SYMSR2
+08DB A5           967           MOVSW
+08DC E2F7         968           LOOP    SYMSR2
+08DE 5E           969           POP     SI
+08DF 59           970           POP     CX
+08E0 51           971           PUSH    CX
+08E1 56           972           PUSH    SI
+08E2 31DB         973   SYMSR3: XOR     BX,BX
+08E4 8A00         974   SYMSR4: MOV     AL,[BX+SI]
+08E6 43           975           INC     BX
+08E7 84C0         976           TEST    AL,AL
+08E9 75F9         977           JNZ     SYMSR4
+08EB 43           978           INC     BX
+08EC 43           979           INC     BX
+08ED 8D38         980           LEA     DI,[BX+SI]
+08EF 31ED         981           XOR     BP,BP
+08F1 8A03         982   SYMSR5: MOV     AL,[BP+DI]
+08F3 45           983           INC     BP
+08F4 84C0         984           TEST    AL,AL
+08F6 75F9         985           JNZ     SYMSR5
+08F8 45           986           INC     BP
+08F9 45           987           INC     BP
+08FA 89D9         988           MOV     CX,BX
+08FC 39E9         989           CMP     CX,BP
+08FE 7302         990           JNB     SYMSR6
+0900 89E9         991           MOV     CX,BP
+0902 56           992   SYMSR6: PUSH    SI
+0903 57           993           PUSH    DI
+0904 F3A6         994           REPE CMPSB
+0906 5F           995           POP     DI
+0907 5E           996           POP     SI
+0908 721E         997           JB      SYMSR7
+090A 56           998           PUSH    SI
+090B 57           999           PUSH    DI
+090C 8B3E2F24     1000          MOV     DI,[TEMP]
+0910 89D9         1001          MOV     CX,BX
+0912 F3A4         1002          REP MOVSB
+0914 5F           1003          POP     DI
+0915 5E           1004          POP     SI
+0916 56           1005          PUSH    SI
+0917 87FE         1006          XCHG    SI,DI
+0919 89E9         1007          MOV     CX,BP
+091B F3A4         1008          REP MOVSB
+091D 8B362F24     1009          MOV     SI,[TEMP]
+0921 89D9         1010          MOV     CX,BX
+0923 F3A4         1011          REP MOVSB
+0925 5E           1012          POP     SI
+0926 89EB         1013          MOV     BX,BP
+0928 01DE         1014  SYMSR7: ADD     SI,BX
+092A 4A           1015          DEC     DX
+092B 83FA02       1016          CMP     DX,2
+092E 73B2         1017          JNC     SYMSR3
+0930 5E           1018          POP     SI
+0931 59           1019          POP     CX
+0932 49           1020          DEC     CX
+0933 83F902       1021          CMP     CX,2
+0936 7397         1022          JNC     SYMSR1
+0938 C3           1023          RET
+0939              1024          INCLUDE GENERIC.ASM
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     17
+
+0939 31DB         1     CC:     XOR     BX,BX
+093B 8A00         2     CCM:    MOV     AL,[BX+SI]
+093D 3C00         3             CMP     AL,0
+093F 7442         4             JZ      CCT
+0941 3C0D         5             CMP     AL,0DH
+0943 743E         6             JZ      CCT
+0945 3C21         7             CMP     AL,21H
+0947 722F         8             JC      CCK
+0949 3C22         9             CMP     AL,22H
+094B 743B         10            JZ      CCQ
+094D 3C27         11            CMP     AL,27H
+094F 7437         12            JZ      CCQ
+0951 3C30         13            CMP     AL,30H
+0953 722A         14            JC      CCS
+0955 3C3A         15            CMP     AL,3AH
+0957 721C         16            JC      CCL
+0959 3C3B         17            CMP     AL,3BH
+095B 7426         18            JZ      CCT
+095D 3C41         19            CMP     AL,41H
+095F 721E         20            JC      CCS
+0961 3C5B         21            CMP     AL,5BH
+0963 7210         22            JC      CCL
+0965 3C5F         23            CMP     AL,5FH
+0967 740C         24            JZ      CCL
+0969 3C61         25            CMP     AL,61H
+096B 7212         26            JC      CCS
+096D 3C7B         27            CMP     AL,7BH
+096F 730E         28            JNC     CCS
+0971 24DF         29            AND     AL,0DFH
+0973 8800         30            MOV     [BX+SI],AL
+0975 43           31    CCL:    INC     BX
+0976 EBC3         32            JMP     SHORT CCM
+0978 85DB         33    CCK:    TEST    BX,BX
+097A 7507         34            JNZ     CCT
+097C 46           35            INC     SI
+097D EBBC         36            JMP     SHORT CCM
+097F 85DB         37    CCS:    TEST    BX,BX
+0981 740E         38            JZ      CCE
+0983 8A04         39    CCT:    MOV     AL,[SI]
+0985 85DB         40            TEST    BX,BX
+0987 C3           41            RET
+0988 85DB         42    CCQ:    TEST    BX,BX
+098A 75F7         43            JNZ     CCT
+098C 43           44    CCW:    INC     BX
+098D 3A00         45            CMP     AL,[BX+SI]
+098F 75FB         46            JNZ     CCW
+0991 43           47    CCE:    INC     BX
+0992 C3           48            RET
+0993 3D8000       49    AA:     CMP     AX,80H
+0996 7204         50            JC      AA1
+0998 3D80FF       51            CMP     AX,0FF80H
+099B C3           52            RET
+099C F5           53    AA1:    CMC
+099D C3           54            RET
+099E FC           55    SL:     CLD
+099F 8B15         56            MOV     DX,[DI]
+09A1 47           57    SL1:    INC     DI
+09A2 47           58            INC     DI
+09A3 4A           59            DEC     DX
+09A4 7829         60            JS      SL5
+09A6 8A01         61            MOV     AL,[BX+DI]
+09A8 84C0         62            TEST    AL,AL
+09AA 750F         63            JNZ     SL3
+09AC 89D9         64            MOV     CX,BX
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     18
+
+09AE 4B           65    SL2:    DEC     BX
+09AF 7815         66            JS      SL4
+09B1 8A01         67            MOV     AL,[BX+DI]
+09B3 247F         68            AND     AL,7FH
+09B5 3200         69            XOR     AL,[BX+SI]
+09B7 74F5         70            JZ      SL2
+09B9 89CB         71            MOV     BX,CX
+09BB F9           72    SL3:    STC
+09BC 19C9         73            SBB     CX,CX
+09BE 30C0         74            XOR     AL,AL
+09C0 F2AE         75            REPNE SCASB
+09C2 74DD         76            JZ      SL1
+09C4 7509         77            JNZ     SL5
+09C6 89CB         78    SL4:    MOV     BX,CX
+09C8 8B4101       79            MOV     AX,[BX+DI+1]
+09CB 01DE         80            ADD     SI,BX
+09CD 31DB         81            XOR     BX,BX
+09CF C3           82    SL5:    RET
+09D0 50           83    HALX:   PUSH    AX
+09D1 D0E8         84            SHR     AL,1
+09D3 D0E8         85            SHR     AL,1
+09D5 D0E8         86            SHR     AL,1
+09D7 D0E8         87            SHR     AL,1
+09D9 E80100       88            CALL    HALL
+09DC 58           89            POP     AX
+09DD 240F         90    HALL:   AND     AL,0FH
+09DF 0C30         91            OR      AL,30H
+09E1 3C3A         92            CMP     AL,3AH
+09E3 7202         93            JC      HALN
+09E5 0407         94            ADD     AL,7
+09E7 AA           95    HALN:   STOSB
+09E8 C3           96            RET
+09E9 FC           97    RN:     CLD
+09EA 31D2         98            XOR     DX,DX
+09EC 80F905       99            CMP     CL,5
+09EF 7202         100           JC      RN1
+09F1 30C9         101           XOR     CL,CL
+09F3 84C9         102   RN1:    TEST    CL,CL
+09F5 750A         103           JNZ     RN2
+09F7 D1E2         104           SHL     DX,1
+09F9 89D0         105           MOV     AX,DX
+09FB D1E2         106           SHL     DX,1
+09FD D1E2         107           SHL     DX,1
+09FF 01C2         108           ADD     DX,AX
+0A01 D3E2         109   RN2:    SHL     DX,CL
+0A03 30E4         110           XOR     AH,AH
+0A05 AC           111           LODSB
+0A06 2C30         112           SUB     AL,30H
+0A08 3C0A         113           CMP     AL,0AH
+0A0A 7206         114           JC      RN3
+0A0C 2C07         115           SUB     AL,7
+0A0E              116   ;       CMP     AL,10H
+0A0E              117   ;       JB      RN3
+0A0E              118   ;       SUB     AL,20H
+0A0E 3C0F         119           CMP     AL,0FH
+0A10 7705         120           JNBE    RN0
+0A12 01C2         121   RN3:    ADD     DX,AX
+0A14 4B           122           DEC     BX
+0A15 75DC         123           JNZ     RN1
+0A17 C3           124   RN0:    RET
+0A18 FC           125   WN:     CLD
+0A19 39C8         126           CMP     AX,CX
+0A1B 7309         127           JNC     WN1
+0A1D 3D0A00       128           CMP     AX,10
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     19
+
+0A20 7304         129           JNC     WN1
+0A22 0C30         130           OR      AL,30H
+0A24 AA           131           STOSB
+0A25 C3           132           RET
+0A26 89FE         133   WN1:    MOV     SI,DI
+0A28 31D2         134   WN2:    XOR     DX,DX
+0A2A F7F1         135           DIV     CX
+0A2C 92           136           XCHG    AX,DX
+0A2D 3C0A         137           CMP     AL,10
+0A2F 1C69         138           SBB     AL,105
+0A31 2F           139           DAS
+0A32 AA           140           STOSB
+0A33 92           141           XCHG    AX,DX
+0A34 85C0         142           TEST    AX,AX
+0A36 75F0         143           JNZ     WN2
+0A38 80FA3A       144           CMP     DL,58
+0A3B 7203         145           JC      WN5
+0A3D B030         146           MOV     AL,48
+0A3F AA           147           STOSB
+0A40 89F9         148   WN5:    MOV     CX,DI
+0A42 29F1         149           SUB     CX,SI
+0A44 D1E9         150           SHR     CX,1
+0A46 740C         151           JZ      WN0
+0A48 29CF         152           SUB     DI,CX
+0A4A 01CE         153           ADD     SI,CX
+0A4C 4E           154   WN4:    DEC     SI
+0A4D 8A05         155           MOV     AL,[DI]
+0A4F 8604         156           XCHG    [SI],AL
+0A51 AA           157           STOSB
+0A52 E2F8         158           LOOP    WN4
+0A54 C3           159   WN0:    RET
+0A55 E8E1FE       160   LBL:    CALL    CC
+0A58 A0A724       161           MOV     AL,[FUNC]
+0A5B 2403         162           AND     AL,3
+0A5D 7423         163           JZ      LBL2
+0A5F 8B3EB324     164           MOV     DI,[SYM]
+0A63 E838FF       165           CALL    SL
+0A66 7427         166           JZ      LBL3
+0A68 89D9         167           MOV     CX,BX
+0A6A FC           168           CLD
+0A6B F3A4         169           REP MOVSB
+0A6D 30C0         170           XOR     AL,AL
+0A6F AA           171           STOSB
+0A70 8B1EB324     172           MOV     BX,[SYM]
+0A74 FF07         173           INC     WORD [BX]
+0A76 89FD         174   LBL1:   MOV     BP,DI
+0A78 A1AD24       175           MOV     AX,[PC]
+0A7B 0306B124     176           ADD     AX,[VORG]
+0A7F AB           177           STOSW
+0A80 31DB         178           XOR     BX,BX
+0A82 01DE         179   LBL2:   ADD     SI,BX
+0A84 E8B2FE       180           CALL    CC
+0A87 7416         181           JZ      ERR3
+0A89 3C3A         182           CMP     AL,3AH
+0A8B 7501         183           JNZ     $+3
+0A8D 46           184           INC     SI
+0A8E C3           185           RET
+0A8F 01CF         186   LBL3:   ADD     DI,CX
+0A91 47           187           INC     DI
+0A92 B002         188           MOV     AL,2
+0A94 2206A724     189           AND     AL,[FUNC]
+0A98 75DC         190           JNZ     LBL1
+0A9A B00A         191           MOV     AL,0AH
+0A9C E9B200       192           JMP     FAIL
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     20
+
+0A9F B003         193   ERR3:   MOV     AL,3
+0AA1 E9AD00       194           JMP     FAIL
+0AA4 8B3EAB24     195   SETDFB: MOV     DI,[BINBUF]
+0AA8 31C9         196           XOR     CX,CX
+0AAA E88CFE       197   SETD1:  CALL    CC
+0AAD 7476         198           JZ      ERR8
+0AAF 3C3F         199           CMP     AL,3FH
+0AB1 7433         200           JZ      SETD5
+0AB3              201   ;       TEST    CL,CL
+0AB3              202   ;       JZ      SETD2
+0AB3 50           203           PUSH    AX
+0AB4 31C0         204           XOR     AX,AX
+0AB6 F3AA         205           REP STOSB
+0AB8 58           206           POP     AX
+0AB9 3C22         207   SETD2:  CMP     AL,22H
+0ABB 7430         208           JZ      SETD6
+0ABD 3C27         209           CMP     AL,27H
+0ABF 742C         210           JZ      SETD6
+0AC1 51           211   SETD3:  PUSH    CX
+0AC2 57           212           PUSH    DI
+0AC3 E88A09       213           CALL    RI
+0AC6 5F           214           POP     DI
+0AC7 59           215           POP     CX
+0AC8 AB           216           STOSW
+0AC9 803EBF2402   217           CMP     BYTE [OPCODE],2
+0ACE 7431         218           JZ      SETD7
+0AD0 7303         219           JNC     SETD4
+0AD2 4F           220           DEC     DI
+0AD3 EB2C         221           JMP     SHORT SETD7
+0AD5 D1E0         222   SETD4:  SHL     AX,1
+0AD7 18C0         223           SBB     AL,AL
+0AD9 51           224           PUSH    CX
+0ADA 8A0EBF24     225           MOV     CL,[OPCODE]
+0ADE 80E902       226           SUB     CL,2
+0AE1 F3AA         227           REP STOSB
+0AE3 59           228           POP     CX
+0AE4 EB1B         229           JMP     SHORT SETD7
+0AE6 020EBF24     230   SETD5:  ADD     CL,[OPCODE]
+0AEA 46           231           INC     SI
+0AEB EB14         232           JMP     SHORT SETD7
+0AED A0BF24       233   SETD6:  MOV     AL,[OPCODE]
+0AF0 0403         234           ADD     AL,3
+0AF2 38C3         235           CMP     BL,AL
+0AF4 72CB         236           JB      SETD3
+0AF6 51           237           PUSH    CX
+0AF7 89D9         238           MOV     CX,BX
+0AF9 83E902       239           SUB     CX,2
+0AFC 46           240           INC     SI
+0AFD F3A4         241           REP MOVSB
+0AFF 46           242           INC     SI
+0B00 59           243           POP     CX
+0B01 E835FE       244   SETD7:  CALL    CC
+0B04 7407         245           JZ      SETD8
+0B06 3C2C         246           CMP     AL,2CH
+0B08 751F         247           JNZ     ERR1
+0B0A 46           248           INC     SI
+0B0B EB9D         249           JMP     SHORT SETD1
+0B0D 010EAF24     250   SETD8:  ADD     [USIZE],CX
+0B11 010EAD24     251           ADD     [PC],CX
+0B15 89F9         252           MOV     CX,DI
+0B17 2B0EAB24     253           SUB     CX,[BINBUF]
+0B1B 010EC524     254           ADD     [BINLEN],CX
+0B1F 010EAD24     255           ADD     [PC],CX
+0B23 F8           256           CLC
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     21
+
+0B24 C3           257           RET
+0B25 B008         258   ERR8:   MOV     AL,8
+0B27 EB28         259           JMP     SHORT FAIL
+0B29 B001         260   ERR1:   MOV     AL,1
+0B2B EB24         261           JMP     SHORT FAIL
+0B2D E809FE       262   SETINC: CALL    CC
+0B30 74F3         263           JZ      ERR8
+0B32 3C22         264           CMP     AL,22H
+0B34 7404         265           JZ      SETIN1
+0B36 3C27         266           CMP     AL,27H
+0B38 7507         267           JNZ     SETIN2
+0B3A 46           268   SETIN1: INC     SI
+0B3B 83EB02       269           SUB     BX,2
+0B3E 76E5         270           JBE     ERR8
+0B40 C3           271           RET
+0B41 31DB         272   SETIN2: XOR     BX,BX
+0B43 43           273   SETIN3: INC     BX
+0B44 8A00         274           MOV     AL,[BX+SI]
+0B46 3C3B         275           CMP     AL,3BH
+0B48 7404         276           JZ      SETEND
+0B4A 3C21         277           CMP     AL,21H
+0B4C 73F5         278           JNC     SETIN3
+0B4E A0BF24       279   SETEND: MOV     AL,[OPCODE]
+0B51 8B26B524     280   FAIL:   MOV     SP,[STK]
+0B55 3C05         281           CMP     AL,5
+0B57 750D         282           JNZ     FAIL0
+0B59 8B16C324     283           MOV     DX,[IMM]
+0B5D 85D2         284           TEST    DX,DX
+0B5F 7902         285           JNS     FAIL1
+0B61 F7D2         286           NOT     DX
+0B63 83EA7F       287   FAIL1:  SUB     DX,7FH
+0B66 F9           288   FAIL0:  STC
+0B67 C3           289           RET
+0B68 30C9         290   RE:     XOR     CL,CL
+0B6A 31C0         291           XOR     AX,AX
+0B6C A3C324       292           MOV     [IMM],AX
+0B6F E8C7FD       293   REA:    CALL    CC
+0B72 741E         294           JZ      RED
+0B74 3C2B         295           CMP     AL,2BH
+0B76 7414         296           JZ      REC
+0B78 3C2D         297           CMP     AL,2DH
+0B7A 740D         298           JZ      REB
+0B7C 52           299           PUSH    DX
+0B7D E81B00       300           CALL    GV
+0B80 5A           301           POP     DX
+0B81 720F         302           JC      RED
+0B83 0106C324     303           ADD     [IMM],AX
+0B87 EBE6         304           JMP     SHORT REA
+0B89 80F180       305   REB:    XOR     CL,80H
+0B8C 80E1BF       306   REC:    AND     CL,0BFH
+0B8F 46           307           INC     SI
+0B90 EBDD         308           JMP     SHORT REA
+0B92 F6C140       309   RED:    TEST    CL,40H
+0B95 748E         310           JZ      ERR8
+0B97 A1C324       311           MOV     AX,[IMM]
+0B9A C3           312           RET
+0B9B F6C140       313   GV:     TEST    CL,40H
+0B9E 7530         314           JNZ     GVA
+0BA0 38D0         315           CMP     AL,DL
+0BA2 741D         316           JZ      GVC
+0BA4 3C22         317           CMP     AL,22H
+0BA6 742A         318           JZ      GVQ
+0BA8 3C27         319           CMP     AL,27H
+0BAA 7426         320           JZ      GVQ
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     22
+
+0BAC E85201       321           CALL    RNM
+0BAF 74EA         322           JZ      GV
+0BB1 E84003       323           CALL    RNC
+0BB4 736B         324           JNC     GVV
+0BB6 3C40         325           CMP     AL,40H
+0BB8 7216         326           JC      GVA
+0BBA A0A724       327           MOV     AL,[FUNC]
+0BBD 2403         328           AND     AL,3
+0BBF 7533         329           JNZ     GVL
+0BC1 01DE         330   GVC:    ADD     SI,BX
+0BC3 80C901       331           OR      CL,1
+0BC6 8B16AD24     332           MOV     DX,[PC]
+0BCA 0316B124     333           ADD     DX,[VORG]
+0BCE EB51         334           JMP     SHORT GVV
+0BD0 F9           335   GVA:    STC
+0BD1 C3           336           RET
+0BD2 8B5401       337   GVQ:    MOV     DX,[SI+1]
+0BD5 01DE         338           ADD     SI,BX
+0BD7 83FB05       339           CMP     BX,5
+0BDA 730E         340           JNC     GV7
+0BDC 83FB04       341           CMP     BX,4
+0BDF 7340         342           JNC     GVV
+0BE1 83FB03       343           CMP     BX,3
+0BE4 7209         344           JC      GV8
+0BE6 30F6         345           XOR     DH,DH
+0BE8 EB37         346           JMP     SHORT GVV
+0BEA B007         347   GV7:    MOV     AL,7
+0BEC E962FF       348           JMP     FAIL
+0BEF B008         349   GV8:    MOV     AL,8
+0BF1 E95DFF       350           JMP     FAIL
+0BF4 51           351   GVL:    PUSH    CX
+0BF5 8B3EB324     352           MOV     DI,[SYM]
+0BF9 E8A2FD       353           CALL    SL
+0BFC 59           354           POP     CX
+0BFD BA0280       355           MOV     DX,8002H
+0C00 92           356           XCHG    DX,AX
+0C01 740B         357           JZ      GVL1
+0C03 8406A724     358           TEST    AL,[FUNC]
+0C07 74B8         359           JZ      GVC
+0C09 B004         360           MOV     AL,4
+0C0B E943FF       361           JMP     FAIL
+0C0E 84F6         362   GVL1:   TEST    DH,DH
+0C10 750C         363           JNZ     GVL3
+0C12 8406A724     364           TEST    AL,[FUNC]
+0C16 7502         365           JNZ     GVL2
+0C18 0825         366           OR      [DI],AH
+0C1A 8425         367   GVL2:   TEST    [DI],AH
+0C1C 7503         368           JNZ     GVV
+0C1E 80C902       369   GVL3:   OR      CL,2
+0C21 80C940       370   GVV:    OR      CL,40H
+0C24 84C9         371           TEST    CL,CL
+0C26 7905         372           JNS     GVNS
+0C28 80F180       373           XOR     CL,80H
+0C2B F7DA         374           NEG     DX
+0C2D F6C110       375   GVNS:   TEST    CL,10H
+0C30 7518         376           JNZ     GVWO
+0C32 F6C108       377           TEST    CL,8
+0C35 7507         378           JNZ     GVHB
+0C37 F6C104       379           TEST    CL,4
+0C3A 7509         380           JNZ     GVLB
+0C3C EB0C         381           JMP     SHORT GVWO
+0C3E F6C104       382   GVHB:   TEST    CL,4
+0C41 7507         383           JNZ     GVWO
+0C43 86F2         384           XCHG    DL,DH
+PC-72 ASSEMBLER VERSION 1.05        GENERIC.ASM     23
+
+0C45 30F6         385   GVLB:   XOR     DH,DH
+0C47 80E1FC       386           AND     CL,0FCH
+0C4A 89D0         387   GVWO:   MOV     AX,DX
+0C4C F8           388           CLC
+0C4D C3           389           RET
+0C4E E8FF07       390   SETORG: CALL    RI
+0C51 A3B124       391           MOV     [VORG],AX
+0C54 F8           392           CLC
+0C55 C3           393           RET
+0C56 E8F707       394   SETDFS: CALL    RI
+0C59 0106AF24     395           ADD     [USIZE],AX
+0C5D 0106AD24     396           ADD     [PC],AX
+0C61 F8           397           CLC
+0C62 C3           398           RET
+0C63 A0A724       399   SETEQU: MOV     AL,[FUNC]
+0C66 A803         400           TEST    AL,3
+0C68 7406         401           JZ      SETEQ0
+0C6A E8E307       402           CALL    RI
+0C6D 89EF         403           MOV     DI,BP
+0C6F AB           404           STOSW
+0C70 F8           405   SETEQ0: CLC
+0C71 C3           406           RET
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         24
+
+0C72              1025          INCLUDE 8086.ASM
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        25
+
+0C72 8926B524     1     ASM:    MOV     [STK],SP
+0C76 31C0         2             XOR     AX,AX
+0C78 A3C524       3             MOV     [BINLEN],AX
+0C7B 8B36A924     4             MOV     SI,[TXTBUF]
+0C7F A0A724       5             MOV     AL,[FUNC]
+0C82 84C0         6             TEST    AL,AL
+0C84 7913         7             JNS     ASMLIN
+0C86 31C0         8             XOR     AX,AX
+0C88 A3C724       9             MOV     [TXTLEN],AX
+0C8B 8B36AB24     10            MOV     SI,[BINBUF]
+0C8F 8B3EA924     11            MOV     DI,[TXTBUF]
+0C93 E9CE07       12            JMP     DISASM
+0C96 E8BCFD       13    ASMLBL: CALL    LBL
+0C99 8B26B524     14    ASMLIN: MOV     SP,[STK]
+0C9D 31C0         15            XOR     AX,AX
+0C9F BFB724       16            MOV     DI,WADJ
+0CA2 B90700       17            MOV     CX,7
+0CA5 FC           18            CLD
+0CA6 F3AB         19            REP STOSW
+0CA8 E88EFC       20            CALL    CC
+0CAB 7452         21            JZ      ASMEND
+0CAD BF3E1A       22            MOV     DI,I8086
+0CB0 BA6A17       23            MOV     DX,IHDL
+0CB3 E8B302       24            CALL    ASMCMD
+0CB6 7419         25            JZ      WROUT
+0CB8 BF2E1D       26            MOV     DI,D8086
+0CBB BA8A17       27            MOV     DX,AHDL
+0CBE E8A802       28            CALL    ASMCMD
+0CC1 740E         29            JZ      WROUT
+0CC3 E86E02       30            CALL    SCREG
+0CC6 75CE         31            JNZ     ASMLBL
+0CC8 E8FB01       32            CALL    GSPR
+0CCB 724A         33            JC      D5
+0CCD B8990C       34    G0AH:   MOV     AX,ASMLIN
+0CD0 50           35            PUSH    AX
+0CD1 30D2         36    WROUT:  XOR     DL,DL
+0CD3 8616BD24     37            XCHG    DL,[FLAGS]
+0CD7 D0E2         38            SHL     DL,1
+0CD9 7424         39            JZ      ASMEND
+0CDB 8B3EAB24     40            MOV     DI,[BINBUF]
+0CDF 033EC524     41            ADD     DI,[BINLEN]
+0CE3 56           42            PUSH    SI
+0CE4 57           43            PUSH    DI
+0CE5 BEBE24       44            MOV     SI,SEGPRE
+0CE8 FC           45            CLD
+0CE9 AC           46    WROUT1: LODSB
+0CEA D0E2         47            SHL     DL,1
+0CEC 7301         48            JNC     WROUT2
+0CEE AA           49            STOSB
+0CEF 75F8         50    WROUT2: JNZ     WROUT1
+0CF1 59           51            POP     CX
+0CF2 5E           52            POP     SI
+0CF3 87F9         53            XCHG    CX,DI
+0CF5 29F9         54            SUB     CX,DI
+0CF7 010EC524     55            ADD     [BINLEN],CX
+0CFB 010EAD24     56            ADD     [PC],CX
+0CFF F8           57    ASMEND: CLC
+0D00 C3           58            RET
+0D01 50           59    RNM:    PUSH    AX
+0D02 E84C02       60            CALL    SW
+0D05 7522         61            JNZ     RNMEND
+0D07 01DE         62            ADD     SI,BX
+0D09 B404         63            MOV     AH,4
+0D0B 3C11         64            CMP     AL,11H
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        26
+
+0D0D 740D         65            JZ      RNMOFF
+0D0F 3C12         66            CMP     AL,12H
+0D11 740D         67            JZ      RNMLO
+0D13 3C13         68            CMP     AL,13H
+0D15 7407         69            JZ      RNMHI
+0D17 B00C         70    D5:     MOV     AL,0CH
+0D19 E935FE       71            JMP     FAIL
+0D1C D0E4         72    RNMOFF: SHL     AH,1
+0D1E D0E4         73    RNMHI:  SHL     AH,1
+0D20 08E1         74    RNMLO:  OR      CL,AH
+0D22 E814FC       75            CALL    CC
+0D25 7404         76            JZ      RNMER8
+0D27 38C0         77            CMP     AL,AL
+0D29 58           78    RNMEND: POP     AX
+0D2A C3           79            RET
+0D2B B008         80    RNMER8: MOV     AL,8
+0D2D E921FE       81            JMP     FAIL
+0D30 E806FC       82    BORW:   CALL    CC
+0D33 74F6         83            JZ      RNMER8
+0D35 E81902       84            CALL    SW
+0D38 7529         85            JNZ     BORW2
+0D3A 3C10         86            CMP     AL,10H
+0D3C 7462         87            JZ      RA1
+0D3E 7323         88            JNC     BORW2
+0D40 01DE         89            ADD     SI,BX
+0D42 BFB724       90            MOV     DI,WADJ
+0D45 3C08         91            CMP     AL,8
+0D47 7201         92            JC      BORW1
+0D49 47           93            INC     DI
+0D4A 8605         94    BORW1:  XCHG    AL,[DI]
+0D4C 84C0         95            TEST    AL,AL
+0D4E 7550         96            JNZ     RA1
+0D50 E8E6FB       97            CALL    CC
+0D53 740E         98            JZ      BORW2
+0D55 E8F901       99            CALL    SW
+0D58 7509         100           JNZ     BORW2
+0D5A 3C10         101           CMP     AL,10H
+0D5C 7542         102           JNZ     RA1
+0D5E 01DE         103           ADD     SI,BX
+0D60 E8D6FB       104           CALL    CC
+0D63 C3           105   BORW2:  RET
+0D64 31D2         106   RA:     XOR     DX,DX
+0D66 31C9         107           XOR     CX,CX
+0D68 8916B724     108           MOV     [WADJ],DX
+0D6C E8C1FF       109   RAS:    CALL    BORW
+0D6F 722C         110           JC      RAIX
+0D71 3C5B         111           CMP     AL,5BH
+0D73 7450         112           JZ      RAM
+0D75 E8BC01       113           CALL    SCREG
+0D78 742B         114           JZ      RAR
+0D7A E8D306       115   RAL:    CALL    RI
+0D7D BA0403       116           MOV     DX,304H
+0D80 86CE         117           XCHG    DH,CL
+0D82 20CE         118           AND     DH,CL
+0D84 750A         119           JNZ     RAIW
+0D86 84E4         120           TEST    AH,AH
+0D88 7405         121           JZ      RAIB
+0D8A E806FC       122           CALL    AA
+0D8D 7201         123           JC      RAIW
+0D8F 49           124   RAIB:   DEC     CX
+0D90 A0B724       125   RAIW:   MOV     AL,[WADJ]
+0D93 84C0         126           TEST    AL,AL
+0D95 7406         127           JZ      RAIX
+0D97 B102         128           MOV     CL,2
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        27
+
+0D99 48           129           DEC     AX
+0D9A 7401         130           JZ      RAIX
+0D9C 41           131           INC     CX
+0D9D E9C800       132   RAIX:   JMP     WARG
+0DA0 B001         133   RA1:    MOV     AL,1
+0DA2 E9ACFD       134           JMP     FAIL
+0DA5 E81E01       135   RAR:    CALL    GSPR
+0DA8 73C2         136           JNC     RAS
+0DAA 88C6         137           MOV     DH,AL
+0DAC 3C10         138           CMP     AL,10H
+0DAE 9F           139           LAHF
+0DAF 3C08         140           CMP     AL,8
+0DB1 18C0         141           SBB     AL,AL
+0DB3 0402         142           ADD     AL,2
+0DB5 A2B724       143           MOV     [WADJ],AL
+0DB8 9E           144           SAHF
+0DB9 18C0         145           SBB     AL,AL
+0DBB 0402         146           ADD     AL,2
+0DBD 80E607       147           AND     DH,7
+0DC0 88C2         148           MOV     DL,AL
+0DC2 E9A300       149           JMP     WARG
+0DC5 46           150   RAM:    INC     SI
+0DC6 E867FF       151           CALL    BORW
+0DC9 31D2         152           XOR     DX,DX
+0DCB 30C9         153           XOR     CL,CL
+0DCD E869FB       154   RAD:    CALL    CC
+0DD0 7460         155           JZ      RA8
+0DD2 3C5D         156           CMP     AL,5DH
+0DD4 7461         157           JZ      RADX
+0DD6 3C2B         158           CMP     AL,2BH
+0DD8 741B         159           JZ      RADP
+0DDA 3C2D         160           CMP     AL,2DH
+0DDC 7414         161           JZ      RADM
+0DDE E85301       162           CALL    SCREG
+0DE1 7418         163           JZ      RADR
+0DE3 52           164           PUSH    DX
+0DE4 B224         165           MOV     DL,24H
+0DE6 E8B2FD       166           CALL    GV
+0DE9 5A           167           POP     DX
+0DEA 72B4         168           JC      RA1
+0DEC 0106C124     169           ADD     [DISP],AX
+0DF0 EBDB         170           JMP     SHORT RAD
+0DF2 80F180       171   RADM:   XOR     CL,80H
+0DF5 80E1BF       172   RADP:   AND     CL,0BFH
+0DF8 46           173           INC     SI
+0DF9 EBD2         174           JMP     SHORT RAD
+0DFB B201         175   RADR:   MOV     DL,1
+0DFD 3C0B         176           CMP     AL,11
+0DFF 7421         177           JZ      BXD
+0E01 3C0D         178           CMP     AL,13
+0E03 741B         179           JZ      BPD
+0E05 3C0E         180           CMP     AL,14
+0E07 7413         181           JZ      SID
+0E09 3C0F         182           CMP     AL,15
+0E0B 7411         183           JZ      DID
+0E0D E8B600       184           CALL    GSPR
+0E10 73BB         185           JNC     RAD
+0E12 B00D         186   RA0D:   MOV     AL,0DH
+0E14 E93AFD       187           JMP     FAIL
+0E17 B002         188   RA2:    MOV     AL,2
+0E19 E935FD       189           JMP     FAIL
+0E1C D0E2         190   SID:    SHL     DL,1
+0E1E D0E2         191   DID:    SHL     DL,1
+0E20 D0E2         192   BPD:    SHL     DL,1
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        28
+
+0E22 84D6         193   BXD:    TEST    DH,DL
+0E24 75F1         194           JNZ     RA2
+0E26 F6C180       195           TEST    CL,80H
+0E29 75EC         196           JNZ     RA2
+0E2B 08D6         197           OR      DH,DL
+0E2D 80C940       198           OR      CL,40H
+0E30 EB9B         199           JMP     SHORT RAD
+0E32 B008         200   RA8:    MOV     AL,8
+0E34 E91AFD       201           JMP     FAIL
+0E37 F6C140       202   RADX:   TEST    CL,40H
+0E3A 74F6         203           JZ      RA8
+0E3C 46           204           INC     SI
+0E3D 88F0         205           MOV     AL,DH
+0E3F BB061A       206           MOV     BX,RM
+0E42 D7           207           XLATB
+0E43 3CFF         208           CMP     AL,0FFH
+0E45 74CB         209           JZ      RA0D
+0E47 B203         210           MOV     DL,3
+0E49 88C6         211           MOV     DH,AL
+0E4B 3C0E         212           CMP     AL,0EH
+0E4D 7417         213           JZ      RADW
+0E4F 20D1         214           AND     CL,DL
+0E51 7513         215           JNZ     RADW
+0E53 A1C124       216           MOV     AX,[DISP]
+0E56 85C0         217           TEST    AX,AX
+0E58 7505         218           JNZ     RADB
+0E5A 80FE06       219           CMP     DH,6
+0E5D 7509         220           JNZ     WARG
+0E5F B108         221   RADB:   MOV     CL,8
+0E61 E82FFB       222           CALL    AA
+0E64 7302         223           JNC     WARG
+0E66 B10C         224   RADW:   MOV     CL,0CH
+0E68 080EBD24     225   WARG:   OR      [FLAGS],CL
+0E6C A1B724       226           MOV     AX,[WADJ]
+0E6F B104         227           MOV     CL,4
+0E71 F606B9240F   228           TEST    BYTE [ARGS],0FH
+0E76 7404         229           JZ      NARGS
+0E78 D3C0         230           ROL     AX,CL
+0E7A D3C2         231           ROL     DX,CL
+0E7C 0906BB24     232   NARGS:  OR      [ARGS+2],AX
+0E80 0916B924     233           OR      [ARGS],DX
+0E84 E8B2FA       234           CALL    CC
+0E87 7508         235           JNZ     COMMA
+0E89 A1B924       236           MOV     AX,[ARGS]
+0E8C 8A2EBB24     237           MOV     CH,[ARGS+2]
+0E90 C3           238           RET
+0E91 46           239   COMMA:  INC     SI
+0E92 3C3A         240           CMP     AL,3AH
+0E94 740C         241           JZ      COL
+0E96 3C2C         242           CMP     AL,2CH
+0E98 7527         243           JNZ     GSPR1
+0E9A E89CFA       244           CALL    CC
+0E9D 7493         245           JZ      RA8
+0E9F E9C2FE       246           JMP     RA
+0EA2 A0B924       247   COL:    MOV     AL,[ARGS]
+0EA5 3C04         248           CMP     AL,4
+0EA7 7518         249           JNZ     GSPR1
+0EA9 A1C324       250           MOV     AX,[IMM]
+0EAC 8706C124     251           XCHG    AX,[DISP]
+0EB0 A3C324       252           MOV     [IMM],AX
+0EB3 E89A05       253           CALL    RI
+0EB6 BA0403       254           MOV     DX,304H
+0EB9 20CE         255           AND     DH,CL
+0EBB B002         256           MOV     AL,2
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        29
+
+0EBD B10F         257           MOV     CL,0FH
+0EBF EBA7         258           JMP     SHORT WARG
+0EC1 B001         259   GSPR1:  MOV     AL,1
+0EC3 E98BFC       260           JMP     FAIL
+0EC6 3C10         261   GSPR:   CMP     AL,10H
+0EC8 7258         262           JC      GSPR0
+0ECA 86E0         263           XCHG    AL,AH
+0ECC E86AFA       264           CALL    CC
+0ECF 86E0         265           XCHG    AL,AH
+0ED1 744F         266           JZ      GSPR0
+0ED3 80FC3A       267           CMP     AH,3AH
+0ED6 754A         268           JNZ     GSPR0
+0ED8 2403         269           AND     AL,3
+0EDA D0E0         270           SHL     AL,1
+0EDC D0E0         271           SHL     AL,1
+0EDE D0E0         272           SHL     AL,1
+0EE0 0C26         273           OR      AL,26H
+0EE2 46           274   GSPR2:  INC     SI
+0EE3 A2BE24       275           MOV     [SEGPRE],AL
+0EE6 A0BD24       276           MOV     AL,[FLAGS]
+0EE9 A840         277           TEST    AL,40H
+0EEB 75D4         278           JNZ     GSPR1
+0EED 0C40         279           OR      AL,40H
+0EEF A2BD24       280           MOV     [FLAGS],AL
+0EF2 F8           281           CLC
+0EF3 C3           282           RET
+0EF4 50           283   RNC:    PUSH    AX
+0EF5 51           284           PUSH    CX
+0EF6 56           285           PUSH    SI
+0EF7 B105         286           MOV     CL,5
+0EF9 3C30         287           CMP     AL,30H
+0EFB 7222         288           JB      RNC1
+0EFD 3C3A         289           CMP     AL,3AH
+0EFF 731E         290           JNB     RNC1
+0F01 8D38         291           LEA     DI,[BX+SI]
+0F03 4B           292           DEC     BX
+0F04 8A00         293           MOV     AL,[BX+SI]
+0F06 3C42         294           CMP     AL,42H
+0F08 741A         295           JE      RNC2
+0F0A 3C48         296           CMP     AL,48H
+0F0C 7419         297           JE      RNC16
+0F0E 3C4F         298           CMP     AL,4FH
+0F10 7414         299           JE      RNC8
+0F12 3C51         300           CMP     AL,51H
+0F14 7410         301           JE      RNC8;RNC4
+0F16 43           302           INC     BX
+0F17 3C30         303           CMP     AL,30H
+0F19 7204         304           JB      RNC1
+0F1B 3C3A         305           CMP     AL,3AH
+0F1D 7209         306           JB      RNC10
+0F1F 5E           307   RNC1:   POP     SI
+0F20 59           308           POP     CX
+0F21 58           309           POP     AX
+0F22 F9           310   GSPR0:  STC
+0F23 C3           311           RET
+0F24 49           312   RNC2:   DEC     CX
+0F25 49           313   RNC4:   DEC     CX
+0F26 49           314   RNC8:   DEC     CX
+0F27 49           315   RNC16:  DEC     CX
+0F28 E8BEFA       316   RNC10:  CALL    RN
+0F2B 75F2         317           JNZ     RNC1
+0F2D 5E           318           POP     SI
+0F2E 89FE         319           MOV     SI,DI
+0F30 59           320   RNC0:   POP     CX
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        30
+
+0F31 58           321           POP     AX
+0F32 F8           322           CLC
+0F33 C3           323           RET
+0F34 51           324   SCREG:  PUSH    CX
+0F35 83FB02       325           CMP     BX,2
+0F38 7515         326           JNZ     SCREG0
+0F3A 8B04         327           MOV     AX,[SI]
+0F3C BF161A       328           MOV     DI,REGS
+0F3F B91400       329           MOV     CX,14H
+0F42 FC           330           CLD
+0F43 F2AF         331           REPNE SCASW
+0F45 7508         332           JNZ     SCREG0
+0F47 01DE         333           ADD     SI,BX
+0F49 B013         334           MOV     AL,13H
+0F4B 28C8         335           SUB     AL,CL
+0F4D 31DB         336           XOR     BX,BX
+0F4F 59           337   SCREG0: POP     CX
+0F50 C3           338           RET
+0F51 51           339   SW:     PUSH    CX
+0F52 52           340           PUSH    DX
+0F53 53           341           PUSH    BX
+0F54 56           342           PUSH    SI
+0F55 BF2E1D       343           MOV     DI,D8086
+0F58 E843FA       344           CALL    SL
+0F5B 5E           345           POP     SI
+0F5C 5B           346           POP     BX
+0F5D 5A           347           POP     DX
+0F5E 59           348           POP     CX
+0F5F 7505         349           JNZ     SW1
+0F61 80FC05       350           CMP     AH,5
+0F64 7402         351           JZ      SW2
+0F66 8B04         352   SW1:    MOV     AX,[SI]
+0F68 C3           353   SW2:    RET
+0F69 8036BD2420   354   ASMCMD: XOR     BYTE [FLAGS],20H
+0F6E 52           355           PUSH    DX
+0F6F E82CFA       356           CALL    SL
+0F72 5F           357           POP     DI
+0F73 75F3         358           JNZ     SW2
+0F75 8606BF24     359           XCHG    AL,[OPCODE]
+0F79 86E0         360           XCHG    AL,AH
+0F7B D1E0         361           SHL     AX,1
+0F7D 01C7         362           ADD     DI,AX
+0F7F FF15         363           CALL    [DI]
+0F81 E8B5F9       364           CALL    CC
+0F84 74E2         365           JZ      SW2
+0F86 B009         366           MOV     AL,9
+0F88 E9C6FB       367           JMP     FAIL
+0F8B 50           368   WA:     PUSH    AX
+0F8C 51           369           PUSH    CX
+0F8D 24F0         370           AND     AL,0F0H
+0F8F 88EC         371           MOV     AH,CH
+0F91 86E8         372           XCHG    AL,CH
+0F93 D2EC         373           SHR     AH,CL
+0F95 250F0F       374           AND     AX,0F0FH
+0F98 7422         375           JZ      WAZ
+0F9A 84C0         376           TEST    AL,AL
+0F9C 7417         377           JZ      WALZ
+0F9E 84E4         378           TEST    AH,AH
+0FA0 7415         379           JZ      WAHZ
+0FA2 38E0         380           CMP     AL,AH
+0FA4 7411         381           JZ      WAHZ
+0FA6 80FD40       382           CMP     CH,40H
+0FA9 740C         383           JZ      WAHZ
+0FAB B006         384   WA6:    MOV     AL,6
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        31
+
+0FAD E9A1FB       385           JMP     FAIL
+0FB0 30C0         386   WA0:    XOR     AL,AL
+0FB2 E99CFB       387           JMP     FAIL
+0FB5 88E0         388   WALZ:   MOV     AL,AH
+0FB7 3C03         389   WAHZ:   CMP     AL,3
+0FB9 73F5         390           JNC     WA0
+0FBB 48           391           DEC     AX
+0FBC A2B724       392   WAZ:    MOV     [WADJ],AL
+0FBF F606BD2402   393           TEST    BYTE [FLAGS],2
+0FC4 740E         394           JZ      WAE
+0FC6 84C0         395           TEST    AL,AL
+0FC8 740D         396           JZ      WAB
+0FCA 80FC01       397           CMP     AH,1
+0FCD 7408         398           JZ      WAB
+0FCF 800EBD2401   399           OR      BYTE [FLAGS],1
+0FD4 59           400   WAE:    POP     CX
+0FD5 58           401           POP     AX
+0FD6 C3           402           RET
+0FD7 8026BD24FE   403   WAB:    AND     BYTE [FLAGS],0FEH
+0FDC F606A72401   404           TEST    BYTE [FUNC],1
+0FE1 75F1         405           JNZ     WAE
+0FE3 A1C324       406           MOV     AX,[IMM]
+0FE6 84E4         407           TEST    AH,AH
+0FE8 74EA         408           JZ      WAE
+0FEA E8A6F9       409           CALL    AA
+0FED 73E5         410           JNC     WAE
+0FEF B007         411   WA7:    MOV     AL,7
+0FF1 E95DFB       412           JMP     FAIL
+0FF4 800EBD2410   413   MMODRM: OR      BYTE [FLAGS],10H
+0FF9 A1B924       414           MOV     AX,[ARGS]
+0FFC B104         415           MOV     CL,4
+0FFE 3C11         416           CMP     AL,11H
+1000 745C         417           JZ      MREGR
+1002 3C12         418           CMP     AL,12H
+1004 7456         419           JZ      MREGL
+1006 3C13         420           CMP     AL,13H
+1008 742E         421           JZ      MMEMR
+100A 3C21         422           CMP     AL,21H
+100C 7450         423           JZ      MREGR
+100E 3C23         424           CMP     AL,23H
+1010 7426         425           JZ      MMEMR
+1012 3C31         426           CMP     AL,31H
+1014 7420         427           JZ      MMEML
+1016 3C32         428           CMP     AL,32H
+1018 741C         429           JZ      MMEML
+101A 250F0F       430           AND     AX,0F0FH
+101D 3C01         431           CMP     AL,1
+101F 743D         432           JZ      MREGR
+1021 3C03         433           CMP     AL,3
+1023 7413         434           JZ      MMEMR
+1025 A1B924       435           MOV     AX,[ARGS]
+1028 D3C8         436           ROR     AX,CL
+102A 250F0F       437           AND     AX,0F0FH
+102D 3C01         438           CMP     AL,1
+102F 742D         439           JZ      MREGR
+1031 3C03         440           CMP     AL,3
+1033 7403         441           JZ      MMEMR
+1035 C3           442           RET
+1036 D2CC         443   MMEML:  ROR     AH,CL
+1038 88E0         444   MMEMR:  MOV     AL,AH
+103A 50           445           PUSH    AX
+103B 250770       446           AND     AX,7007H
+103E D0CC         447           ROR     AH,1
+1040 08E0         448           OR      AL,AH
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        32
+
+1042 0806C024     449           OR      [MODRM],AL
+1046 58           450           POP     AX
+1047 2408         451           AND     AL,8
+1049 7522         452           JNZ     MM0
+104B A0BD24       453           MOV     AL,[FLAGS]
+104E 240C         454           AND     AL,0CH
+1050 741B         455           JZ      MM0
+1052 B440         456           MOV     AH,40H
+1054 2404         457           AND     AL,4
+1056 7411         458           JZ      MM8
+1058 D0E4         459           SHL     AH,1
+105A EB0D         460           JMP     SHORT MM8
+105C D2CC         461   MREGL:  ROR     AH,CL
+105E 88E0         462   MREGR:  MOV     AL,AH
+1060 D0CC         463           ROR     AH,1
+1062 250738       464           AND     AX,3807H
+1065 0CC0         465           OR      AL,0C0H
+1067 08C4         466           OR      AH,AL
+1069 0826C024     467   MM8:    OR      [MODRM],AH
+106D C3           468   MM0:    RET
+106E E8F3FC       469   G2:     CALL    RA
+1071 50           470           PUSH    AX
+1072 250F0F       471           AND     AX,0F0FH
+1075 A3B924       472           MOV     [ARGS],AX
+1078 B0D0         473           MOV     AL,0D0H
+107A 8606BF24     474           XCHG    AL,[OPCODE]
+107E A2C024       475           MOV     [MODRM],AL
+1081 88E8         476           MOV     AL,CH
+1083 240F         477           AND     AL,0FH
+1085 7407         478           JZ      G2B
+1087 48           479           DEC     AX
+1088 7404         480           JZ      G2B
+108A 0806BF24     481           OR      [OPCODE],AL
+108E 58           482   G2B:    POP     AX
+108F 25F0F0       483           AND     AX,0F0F0H
+1092 741B         484           JZ      G2N
+1094 3D1010       485           CMP     AX,1010H
+1097 7411         486           JZ      G2CL
+1099 3C40         487           CMP     AL,40H
+109B 7508         488           JNZ     G2F
+109D A1C324       489           MOV     AX,[IMM]
+10A0 3D0100       490           CMP     AX,1
+10A3 740A         491           JZ      G2N
+10A5 B001         492   G2F:    MOV     AL,1
+10A7 E9A7FA       493           JMP     FAIL
+10AA 800EBF2402   494   G2CL:   OR      BYTE [OPCODE],2
+10AF 8026BD24FC   495   G2N:    AND     BYTE [FLAGS],0FCH
+10B4 E93DFF       496           JMP     MMODRM
+10B7 E8AAFC       497   G1:     CALL    RA
+10BA E8CEFE       498           CALL    WA
+10BD B504         499           MOV     CH,4
+10BF 80E40F       500           AND     AH,0FH
+10C2 3D4100       501           CMP     AX,41H
+10C5 7448         502           JZ      G1AI
+10C7 3C11         503           CMP     AL,11H
+10C9 743A         504           JZ      G1MR
+10CB 3C13         505           CMP     AL,13H
+10CD 7436         506           JZ      G1MR
+10CF 3C31         507           CMP     AL,31H
+10D1 742D         508           JZ      G1RM
+10D3 3C41         509           CMP     AL,41H
+10D5 7404         510           JZ      G1MI
+10D7 3C43         511           CMP     AL,43H
+10D9 753E         512           JNZ     ERR0
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        33
+
+10DB B080         513   G1MI:   MOV     AL,80H
+10DD 8606BF24     514           XCHG    AL,[OPCODE]
+10E1 0806C024     515           OR      [MODRM],AL
+10E5 A1C324       516           MOV     AX,[IMM]
+10E8 E8A8F8       517           CALL    AA
+10EB 7218         518           JC      G1MR
+10ED A0BB24       519           MOV     AL,[ARGS+2]
+10F0 3C22         520           CMP     AL,22H
+10F2 7411         521           JZ      G1MR
+10F4 8026BD24FE   522           AND     BYTE [FLAGS],0FEH
+10F9 F606B724FF   523           TEST    BYTE [WADJ],0FFH
+10FE 7405         524           JZ      G1MR
+1100 800EBF2402   525   G1RM:   OR      BYTE [OPCODE],2
+1105 A0B724       526   G1MR:   MOV     AL,[WADJ]
+1108 0806BF24     527           OR      [OPCODE],AL
+110C E9E5FE       528           JMP     MMODRM
+110F A0B724       529   G1AI:   MOV     AL,[WADJ]
+1112 08E8         530           OR      AL,CH
+1114 0806BF24     531           OR      [OPCODE],AL
+1118 C3           532           RET
+1119 B000         533   ERR0:   MOV     AL,0
+111B E933FA       534           JMP     FAIL
+111E E843FC       535   G3:     CALL    RA
+1121 E867FE       536           CALL    WA
+1124 B5A8         537           MOV     CH,0A8H
+1126 80E40F       538           AND     AH,0FH
+1129 3D4100       539           CMP     AX,41H
+112C 74E1         540           JZ      G1AI
+112E B5F6         541           MOV     CH,0F6H
+1130 3C01         542           CMP     AL,1
+1132 741A         543           JZ      G3R
+1134 3C03         544           CMP     AL,3
+1136 7416         545           JZ      G3R
+1138 3C41         546           CMP     AL,41H
+113A 7412         547           JZ      G3R
+113C 3C43         548           CMP     AL,43H
+113E 740E         549           JZ      G3R
+1140 B584         550           MOV     CH,84H
+1142 3C11         551           CMP     AL,11H
+1144 7408         552           JZ      G3R
+1146 3C13         553           CMP     AL,13H
+1148 7404         554           JZ      G3R
+114A 3C31         555           CMP     AL,31H
+114C 75CB         556           JNZ     ERR0
+114E A0B724       557   G3R:    MOV     AL,[WADJ]
+1151 08E8         558           OR      AL,CH
+1153 8606BF24     559           XCHG    AL,[OPCODE]
+1157 0806C024     560           OR      [MODRM],AL
+115B E996FE       561           JMP     MMODRM
+115E E803FC       562   G4:     CALL    RA
+1161 E827FE       563           CALL    WA
+1164 3C02         564           CMP     AL,2
+1166 7438         565           JZ      G4S
+1168 3C03         566           CMP     AL,3
+116A 7416         567           JZ      G4M
+116C 3C01         568           CMP     AL,1
+116E 75A9         569           JNZ     ERR0
+1170 80FD02       570           CMP     CH,2
+1173 720D         571           JC      G4M
+1175 A0BF24       572           MOV     AL,[OPCODE]
+1178 2418         573           AND     AL,18H
+117A 0C40         574           OR      AL,40H
+117C 08E0         575           OR      AL,AH
+117E A2BF24       576           MOV     [OPCODE],AL
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        34
+
+1181 C3           577           RET
+1182 A0BF24       578   G4M:    MOV     AL,[OPCODE]
+1185 3C38         579           CMP     AL,38H
+1187 B88F00       580           MOV     AX,8FH
+118A 740E         581           JZ      G4P
+118C A0B724       582           MOV     AL,[WADJ]
+118F 84ED         583           TEST    CH,CH
+1191 7501         584           JNZ     G4W
+1193 40           585           INC     AX
+1194 0CFE         586   G4W:    OR      AL,0FEH
+1196 8A26BF24     587           MOV     AH,[OPCODE]
+119A A3BF24       588   G4P:    MOV     [OPCODE],AX
+119D E954FE       589           JMP     MMODRM
+11A0 49           590   G4S:    DEC     CX
+11A1 D2E4         591           SHL     AH,CL
+11A3 A0BF24       592           MOV     AL,[OPCODE]
+11A6 D2E8         593           SHR     AL,CL
+11A8 2401         594           AND     AL,1
+11AA 08E0         595           OR      AL,AH
+11AC 0C06         596           OR      AL,6
+11AE A2BF24       597           MOV     [OPCODE],AL
+11B1 C3           598           RET
+11B2 E8AFFB       599   G6:     CALL    RA
+11B5 3C01         600           CMP     AL,1
+11B7 740C         601           JZ      G6R
+11B9 3C04         602           CMP     AL,4
+11BB 743B         603           JZ      G6I
+11BD 3C44         604           CMP     AL,44H
+11BF 744A         605           JZ      G6IF
+11C1 3C03         606           CMP     AL,3
+11C3 756E         607           JNZ     G6F0
+11C5 A0BC24       608   G6R:    MOV     AL,[ARGS+3]
+11C8 3C08         609           CMP     AL,8
+11CA 7467         610           JZ      G6F0
+11CC 3C09         611           CMP     AL,9
+11CE 7417         612           JZ      G6RN
+11D0 3C0A         613           CMP     AL,0AH
+11D2 740E         614           JZ      G6RF
+11D4 88E8         615           MOV     AL,CH
+11D6 3C00         616           CMP     AL,0
+11D8 740D         617           JZ      G6RN
+11DA 3C02         618           CMP     AL,2
+11DC 7409         619           JZ      G6RN
+11DE 3C03         620           CMP     AL,3
+11E0 7551         621           JNZ     G6F0
+11E2 800EC02408   622   G6RF:   OR      BYTE [MODRM],8
+11E7 B1FF         623   G6RN:   MOV     CL,0FFH
+11E9 860EBF24     624           XCHG    CL,[OPCODE]
+11ED B010         625           MOV     AL,10H
+11EF D2E0         626           SHL     AL,CL
+11F1 0806C024     627           OR      [MODRM],AL
+11F5 E9FCFD       628           JMP     MMODRM
+11F8 A0BC24       629   G6I:    MOV     AL,[ARGS+3]
+11FB 3C00         630           CMP     AL,0
+11FD 7439         631           JZ      G6IN
+11FF 3C08         632           CMP     AL,8
+1201 7426         633           JZ      G6IS
+1203 3C09         634           CMP     AL,9
+1205 7431         635           JZ      G6IN
+1207 3C0A         636           CMP     AL,0AH
+1209 7528         637           JNZ     G6F0
+120B A1C324       638   G6IF:   MOV     AX,[IMM]
+120E 8706C124     639           XCHG    AX,[DISP]
+1212 A3C324       640           MOV     [IMM],AX
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        35
+
+1215 800EBD240F   641           OR      BYTE [FLAGS],0FH
+121A B8EA9A       642           MOV     AX,9AEAH
+121D 8626BF24     643           XCHG    AH,[OPCODE]
+1221 84E4         644           TEST    AH,AH
+1223 7403         645           JZ      G5X
+1225 A2BF24       646           MOV     [OPCODE],AL
+1228 C3           647   G5X:    RET
+1229 B0EB         648   G6IS:   MOV     AL,0EBH
+122B 8606BF24     649           XCHG    AL,[OPCODE]
+122F 84C0         650           TEST    AL,AL
+1231 7524         651           JNZ     G5S
+1233 B000         652   G6F0:   MOV     AL,0
+1235 E919F9       653           JMP     FAIL
+1238 A1C324       654   G6IN:   MOV     AX,[IMM]
+123B 2B06AD24     655           SUB     AX,[PC]
+123F 2B06B124     656           SUB     AX,[VORG]
+1243 2D0300       657           SUB     AX,3
+1246 A3C324       658           MOV     [IMM],AX
+1249 800EBD2403   659           OR      BYTE [FLAGS],3
+124E 800EBF24E8   660           OR      BYTE [OPCODE],0E8H
+1253 C3           661           RET
+1254 E80DFB       662   G5:     CALL    RA
+1257 8026BD24FE   663   G5S:    AND     BYTE [FLAGS],0FEH
+125C A1C324       664           MOV     AX,[IMM]
+125F 2B06AD24     665           SUB     AX,[PC]
+1263 2B06B124     666           SUB     AX,[VORG]
+1267 2D0200       667           SUB     AX,2
+126A A3C324       668           MOV     [IMM],AX
+126D F606A72402   669           TEST    BYTE [FUNC],2
+1272 74B4         670           JZ      G5X
+1274 E81CF7       671           CALL    AA
+1277 73AF         672           JNC     G5X
+1279 B005         673           MOV     AL,5
+127B E9D3F8       674           JMP     FAIL
+127E E8E3FA       675   G8:     CALL    RA
+1281 3C31         676           CMP     AL,31H
+1283 75AE         677           JNZ     G6F0
+1285 E96CFD       678           JMP     MMODRM
+1288 E8D9FA       679   G9:     CALL    RA
+128B E8FDFC       680           CALL    WA
+128E 30ED         681           XOR     CH,CH
+1290 3D31E0       682           CMP     AX,0E031H
+1293 7437         683           JZ      G9A
+1295 3D130E       684           CMP     AX,0E13H
+1298 7430         685           JZ      G9A2
+129A 3C11         686           CMP     AL,11H
+129C 7458         687           JZ      G9MR
+129E 3C13         688           CMP     AL,13H
+12A0 7454         689           JZ      G9MR
+12A2 3C21         690           CMP     AL,21H
+12A4 7444         691           JZ      G9SR
+12A6 3C23         692           CMP     AL,23H
+12A8 7440         693           JZ      G9SR
+12AA 3C43         694           CMP     AL,43H
+12AC 7443         695           JZ      G9MI
+12AE B502         696           MOV     CH,2
+12B0 3C12         697           CMP     AL,12H
+12B2 7436         698           JZ      G9SR
+12B4 3C31         699           CMP     AL,31H
+12B6 743E         700           JZ      G9MR
+12B8 3C32         701           CMP     AL,32H
+12BA 742E         702           JZ      G9SR
+12BC B5B0         703           MOV     CH,0B0H
+12BE 3C41         704           CMP     AL,41H
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        36
+
+12C0 7569         705           JNZ     G9F0
+12C2 A0B724       706           MOV     AL,[WADJ]
+12C5 49           707           DEC     CX
+12C6 D2E0         708           SHL     AL,CL
+12C8 EB18         709           JMP     SHORT G9S
+12CA B502         710   G9A2:   MOV     CH,2
+12CC A1C124       711   G9A:    MOV     AX,[DISP]
+12CF A3C324       712           MOV     [IMM],AX
+12D2 A0BD24       713           MOV     AL,[FLAGS]
+12D5 25E300       714           AND     AX,0E3H
+12D8 0C03         715           OR      AL,3
+12DA A2BD24       716           MOV     [FLAGS],AL
+12DD A0B724       717           MOV     AL,[WADJ]
+12E0 0CA0         718           OR      AL,0A0H
+12E2 08E0         719   G9S:    OR      AL,AH
+12E4 08E8         720           OR      AL,CH
+12E6 A2BF24       721           MOV     [OPCODE],AL
+12E9 C3           722           RET
+12EA B08C         723   G9SR:   MOV     AL,8CH
+12EC A2BF24       724           MOV     [OPCODE],AL
+12EF EB08         725           JMP     SHORT G9M
+12F1 B0C6         726   G9MI:   MOV     AL,0C6H
+12F3 A2BF24       727           MOV     [OPCODE],AL
+12F6 A0B724       728   G9MR:   MOV     AL,[WADJ]
+12F9 08E8         729   G9M:    OR      AL,CH
+12FB 0806BF24     730           OR      [OPCODE],AL
+12FF E9F2FC       731           JMP     MMODRM
+1302 E85FFA       732   G0EH:   CALL    RA
+1305 3C14         733           CMP     AL,14H
+1307 7404         734           JZ      G0EHRM
+1309 3C34         735           CMP     AL,34H
+130B 751E         736           JNZ     G9F0
+130D A1C324       737   G0EHRM: MOV     AX,[IMM]
+1310 3D3F00       738           CMP     AX,3FH
+1313 7733         739           JA      G0CHF
+1315 88C4         740           MOV     AH,AL
+1317 49           741           DEC     CX
+1318 D2C8         742           ROR     AL,CL
+131A 250707       743           AND     AX,707H
+131D D2C4         744           ROL     AH,CL
+131F 0906BF24     745           OR      [OPCODE],AX
+1323 8026BD24FC   746           AND     BYTE [FLAGS],0FCH
+1328 E9C9FC       747           JMP     MMODRM
+132B B000         748   G9F0:   MOV     AL,0
+132D E921F8       749           JMP     FAIL
+1330 E806F6       750   G7:     CALL    CC
+1333 750C         751           JNZ     G7A
+1335 B80A00       752           MOV     AX,0AH
+1338 A3C324       753           MOV     [IMM],AX
+133B 800EBD2402   754   G7B:    OR      BYTE [FLAGS],2
+1340 C3           755           RET
+1341 E80C01       756   G7A:    CALL    RI
+1344 84E4         757           TEST    AH,AH
+1346 74F3         758           JZ      G7B
+1348 B007         759   G0CHF:  MOV     AL,7
+134A E904F8       760           JMP     FAIL
+134D E818F8       761   G0CH:   CALL    RE
+1350 3D0300       762           CMP     AX,3
+1353 740A         763           JZ      G0CH3
+1355 84E4         764           TEST    AH,AH
+1357 75EF         765           JNZ     G0CHF
+1359 800EBD2402   766           OR      BYTE [FLAGS],2
+135E C3           767           RET
+135F FE0EBF24     768   G0CH3:  DEC     BYTE [OPCODE]
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        37
+
+1363 C3           769           RET
+1364 E8FDF9       770   G0DH:   CALL    RA
+1367 8026BD24FE   771           AND     BYTE [FLAGS],0FEH
+136C 3C41         772           CMP     AL,41H
+136E 7415         773           JZ      G0DHI
+1370 3C14         774           CMP     AL,14H
+1372 740F         775           JZ      G0DHO
+1374 800EBF2408   776           OR      BYTE [OPCODE],8
+1379 3D1120       777           CMP     AX,2011H
+137C 7407         778           JZ      G0DHI
+137E 3D1102       779           CMP     AX,211H
+1381 75A8         780           JNZ     G9F0
+1383 D2ED         781   G0DHO:  SHR     CH,CL
+1385 88E8         782   G0DHI:  MOV     AL,CH
+1387 240F         783           AND     AL,0FH
+1389 3C02         784           CMP     AL,2
+138B 7204         785           JC      G0DH0
+138D FE06BF24     786           INC     BYTE [OPCODE]
+1391 C3           787   G0DH0:  RET
+1392 E8CFF9       788   G0FH:   CALL    RA
+1395 E8F3FB       789           CALL    WA
+1398 3C13         790           CMP     AL,13H
+139A 7419         791           JZ      G0FHM
+139C 3C31         792           CMP     AL,31H
+139E 7415         793           JZ      G0FHM
+13A0 3C11         794           CMP     AL,11H
+13A2 7587         795           JNZ     G9F0
+13A4 A0B724       796           MOV     AL,[WADJ]
+13A7 A8FF         797           TEST    AL,0FFH
+13A9 740A         798           JZ      G0FHM
+13AB 88E0         799           MOV     AL,AH
+13AD A80F         800           TEST    AL,0FH
+13AF 740F         801           JZ      G0FHAR
+13B1 A8F0         802           TEST    AL,0F0H
+13B3 740D         803           JZ      G0FHRA
+13B5 A0B724       804   G0FHM:  MOV     AL,[WADJ]
+13B8 0C86         805           OR      AL,86H
+13BA A2BF24       806           MOV     [OPCODE],AL
+13BD E934FC       807           JMP     MMODRM
+13C0 D2E8         808   G0FHAR: SHR     AL,CL
+13C2 0C90         809   G0FHRA: OR      AL,90H
+13C4 A2BF24       810           MOV     [OPCODE],AL
+13C7 E86FF5       811   G0BH:   CALL    CC
+13CA 7420         812           JZ      G0
+13CC E895F9       813           CALL    RA
+13CF 3C04         814           CMP     AL,4
+13D1 7509         815           JNZ     G0BH1
+13D3 800EBD2403   816           OR      BYTE [FLAGS],3
+13D8 FE0EBF24     817           DEC     BYTE [OPCODE]
+13DC A0BC24       818   G0BH1:  MOV     AL,[ARGS+3]
+13DF 3C09         819           CMP     AL,9
+13E1 7409         820           JZ      G0
+13E3 3C0A         821           CMP     AL,10
+13E5 7505         822           JNZ     G0
+13E7 800EBF2408   823   G0BH2:  OR      BYTE [OPCODE],8
+13EC C3           824   G0:     RET
+13ED A1AD24       825   D0:     MOV     AX,[PC]
+13F0 D0E8         826           SHR     AL,1
+13F2 18C0         827           SBB     AL,AL
+13F4 2420         828           AND     AL,20H
+13F6 A2BD24       829           MOV     [FLAGS],AL
+13F9 31C9         830           XOR     CX,CX
+13FB C3           831           RET
+13FC E83AF5       832   D6:     CALL    CC
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        38
+
+13FF 3C3A         833           CMP     AL,3AH
+1401 7403         834           JZ      D6SEG
+1403 E950F8       835           JMP     SETDFS
+1406 B03E         836   D6SEG:  MOV     AL,3EH
+1408 E8D7FA       837           CALL    GSPR2
+140B 31C9         838           XOR     CX,CX
+140D E9BDF8       839           JMP     G0AH
+1410 8B3E2F24     840   D8:     MOV     DI,[TEMP]
+1414 E822F5       841   D8L:    CALL    CC
+1417 7448         842           JZ      D9X     ;D8P
+1419 3C27         843           CMP     AL,27H
+141B 7421         844           JZ      D8Q
+141D 3C22         845           CMP     AL,22H
+141F 741D         846           JZ      D8Q
+1421 3C2C         847           CMP     AL,2CH
+1423 7424         848           JZ      D8C
+1425 FF36B524     849           PUSH    WORD [STK]
+1429 57           850           PUSH    DI
+142A E81F00       851           CALL    D8F
+142D 5F           852           POP     DI
+142E 8F06B524     853           POP     WORD [STK]
+1432 722D         854           JC      D9X     ;D8P
+1434 56           855           PUSH    SI
+1435 B90A00       856           MOV     CX,10
+1438 E8DDF5       857           CALL    WN
+143B 5E           858           POP     SI
+143C EBD6         859           JMP     SHORT D8L
+143E 46           860   D8Q:    INC     SI
+143F 83EB02       861           SUB     BX,2
+1442 761D         862           JBE     D9X     ;D8P
+1444 FC           863           CLD
+1445 89D9         864           MOV     CX,BX
+1447 F3A4         865           REP MOVSB
+1449 46           866   D8C:    INC     SI
+144A EBC8         867           JMP     SHORT D8L
+144C              868   ;D8P:   MOV     AL,[OPCODE]
+144C              869   ;       MOV     SI,[TEMP]
+144C              870   ;       MOV     BX,DI
+144C              871   ;       SUB     BX,SI
+144C              872   ;       JMP     FAIL
+144C 8926B524     873   D8F:    MOV     [STK],SP
+1450 B224         874   RI:     MOV     DL,24H
+1452 E913F7       875           JMP     RE
+1455 31D2         876   D9:     XOR     DX,DX
+1457 E8DFF4       877           CALL    CC
+145A 7405         878           JZ      D9X
+145C E8F1FF       879           CALL    RI
+145F 89C2         880           MOV     DX,AX
+1461 E9EAF6       881   D9X:    JMP     SETEND
+1464 FC           882   DISASM: CLD
+1465 56           883           PUSH    SI
+1466 AC           884           LODSB
+1467 30E4         885           XOR     AH,AH
+1469 A2BF24       886           MOV     [OPCODE],AL
+146C 89C3         887           MOV     BX,AX
+146E 2401         888           AND     AL,1
+1470 D0E0         889           SHL     AL,1
+1472 D0E0         890           SHL     AL,1
+1474 D0E0         891           SHL     AL,1
+1476 D0E0         892           SHL     AL,1
+1478 A3B724       893           MOV     [WADJ],AX
+147B 8A87DE18     894           MOV     AL,[BIN86+BX]
+147F 89C1         895           MOV     CX,AX
+1481 8A87DE17     896           MOV     AL,[HDL86+BX]
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        39
+
+1485 89C3         897           MOV     BX,AX
+1487 80F97F       898           CMP     CL,7FH
+148A 7309         899           JNC     DISAS1
+148C BA401A       900           MOV     DX,I8086+2
+148F E82500       901           CALL    WMN
+1492 B009         902           MOV     AL,9
+1494 AA           903           STOSB
+1495 D1E3         904   DISAS1: SHL     BX,1
+1497 FF979E17     905           CALL    [DHDL+BX]
+149B B80D0A       906           MOV     AX,0A0DH
+149E AB           907           STOSW
+149F 89F1         908           MOV     CX,SI
+14A1 5E           909           POP     SI
+14A2 29F1         910           SUB     CX,SI
+14A4 890EC524     911           MOV     [BINLEN],CX
+14A8 010EAD24     912           ADD     [PC],CX
+14AC 89F8         913           MOV     AX,DI
+14AE 2B06A924     914           SUB     AX,[TXTBUF]
+14B2 A3C724       915           MOV     [TXTLEN],AX
+14B5 F8           916           CLC
+14B6 C3           917           RET
+14B7 FC           918   WMN:    CLD
+14B8 56           919           PUSH    SI
+14B9 89D6         920           MOV     SI,DX
+14BB 30ED         921           XOR     CH,CH
+14BD E308         922           JCXZ    WMN2
+14BF AC           923   WMN1:   LODSB
+14C0 84C0         924           TEST    AL,AL
+14C2 75FB         925           JNZ     WMN1
+14C4 AD           926           LODSW
+14C5 E2F8         927           LOOP    WMN1
+14C7 AC           928   WMN2:   LODSB
+14C8 AA           929           STOSB
+14C9 84C0         930           TEST    AL,AL
+14CB 75FA         931           JNZ     WMN2
+14CD 4F           932           DEC     DI
+14CE 5E           933           POP     SI
+14CF C3           934           RET
+14D0 803EBF24EB   935   RELBD:  CMP     BYTE [OPCODE],0EBH
+14D5 750B         936           JNZ     NOTJMP
+14D7 B114         937           MOV     CL,20
+14D9 BA301D       938           MOV     DX,D8086+2
+14DC E8D8FF       939           CALL    WMN
+14DF B020         940           MOV     AL,20H
+14E1 AA           941           STOSB
+14E2 AC           942   NOTJMP: LODSB
+14E3 98           943           CBW
+14E4 050200       944           ADD     AX,2
+14E7 0306AD24     945           ADD     AX,[PC]
+14EB 0306B124     946           ADD     AX,[VORG]
+14EF EB0A         947           JMP     SHORT WHA
+14F1              948   ;NOTJMP:        MOV     AX,2B24H
+14F1              949   ;       STOSW
+14F1              950   ;       LODSB
+14F1              951   ;       ADD     AL,2
+14F1              952   ;       JNS     RELBNM
+14F1              953   ;       DEC     DI
+14F1              954   ;RELBNM:        CBW
+14F1 85C0         955   WHAS:   TEST    AX,AX
+14F3 7906         956           JNS     WHA
+14F5 F7D8         957           NEG     AX
+14F7 C6052D       958           MOV     BYTE [DI],2DH
+14FA 47           959           INC     DI
+14FB 56           960   WHA:    PUSH    SI
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        40
+
+14FC 50           961           PUSH    AX
+14FD B91000       962           MOV     CX,16
+1500 E815F5       963           CALL    WN
+1503 58           964           POP     AX
+1504 5E           965           POP     SI
+1505 3D0900       966           CMP     AX,9
+1508 7603         967           JNA     WHA0
+150A B048         968           MOV     AL,48H
+150C AA           969           STOSB
+150D C3           970   WHA0:   RET
+150E B006         971   MACCD:  MOV     AL,6
+1510 EB01         972           JMP     SHORT MRD1
+1512 AC           973   MRD:    LODSB
+1513 50           974   MRD1:   PUSH    AX
+1514 E83400       975           CALL    WDISP
+1517 B02C         976           MOV     AL,2CH
+1519 AA           977           STOSB
+151A 58           978           POP     AX
+151B FC           979   WREG:   CLD
+151C 56           980           PUSH    SI
+151D 89C6         981           MOV     SI,AX
+151F D1EE         982           SHR     SI,1
+1521 D1EE         983           SHR     SI,1
+1523 83E60E       984           AND     SI,0EH
+1526 EB2F         985           JMP     SHORT WDISP1
+1528 AC           986   WPTR:   LODSB
+1529 3CC0         987           CMP     AL,0C0H
+152B 731E         988           JNC     WDISP
+152D BA301D       989           MOV     DX,D8086+2
+1530 50           990           PUSH    AX
+1531 B116         991           MOV     CL,22
+1533 F606B724FF   992           TEST    BYTE [WADJ],0FFH
+1538 7502         993           JNZ     WSELF
+153A 30C9         994           XOR     CL,CL
+153C E878FF       995   WSELF:  CALL    WMN
+153F B020         996           MOV     AL,20H
+1541 AA           997           STOSB
+1542 B113         998           MOV     CL,19
+1544 E870FF       999           CALL    WMN
+1547 B020         1000          MOV     AL,20H
+1549 AA           1001          STOSB
+154A 58           1002          POP     AX
+154B 56           1003  WDISP:  PUSH    SI
+154C 89C6         1004          MOV     SI,AX
+154E 83E607       1005          AND     SI,7
+1551 3CC0         1006          CMP     AL,0C0H
+1553 720D         1007          JC      WDD
+1555 D1E6         1008          SHL     SI,1
+1557 81C6161A     1009  WDISP1: ADD     SI,REGS
+155B 0336B724     1010          ADD     SI,[WADJ]
+155F A5           1011          MOVSW
+1560 5E           1012          POP     SI
+1561 C3           1013          RET
+1562 50           1014  WDD:    PUSH    AX
+1563 B05B         1015          MOV     AL,5BH
+1565 AA           1016          STOSB
+1566 58           1017          POP     AX
+1567 24C7         1018          AND     AL,0C7H
+1569 3C06         1019          CMP     AL,6
+156B 7509         1020          JNZ     WDC
+156D 5E           1021          POP     SI
+156E AD           1022          LODSW
+156F E889FF       1023          CALL    WHA
+1572 B05D         1024          MOV     AL,5DH
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        41
+
+1574 AA           1025          STOSB
+1575 C3           1026          RET
+1576 50           1027  WDC:    PUSH    AX
+1577 81C6FE19     1028          ADD     SI,_DISP
+157B 8A14         1029          MOV     DL,[SI]
+157D B02B         1030          MOV     AL,2BH
+157F B104         1031          MOV     CL,4
+1581 89D6         1032  WDL:    MOV     SI,DX
+1583 83E60F       1033          AND     SI,0FH
+1586 81C6261A     1034          ADD     SI,REGS+16
+158A A5           1035          MOVSW
+158B AA           1036          STOSB
+158C D2EA         1037          SHR     DL,CL
+158E 75F1         1038          JNZ     WDL
+1590 58           1039          POP     AX
+1591 5E           1040          POP     SI
+1592 3C80         1041          CMP     AL,80H
+1594 7203         1042          JC      WDB
+1596 AD           1043          LODSW
+1597 EB06         1044          JMP     SHORT WDW
+1599 3C40         1045  WDB:    CMP     AL,40H
+159B 7210         1046          JC      WDX
+159D AC           1047          LODSB
+159E 98           1048          CBW
+159F 85C0         1049  WDW:    TEST    AX,AX
+15A1 740A         1050          JZ      WDX
+15A3 7901         1051          JNS     WDM
+15A5 4F           1052          DEC     DI
+15A6 E848FF       1053  WDM:    CALL    WHAS
+15A9 B05D         1054          MOV     AL,5DH
+15AB AA           1055          STOSB
+15AC C3           1056          RET
+15AD 4F           1057  WDX:    DEC     DI
+15AE B05D         1058          MOV     AL,5DH
+15B0 AA           1059          STOSB
+15B1 C3           1060          RET
+15B2 4F           1061  SINGD:  DEC     DI
+15B3 C3           1062          RET
+15B4 E80C00       1063  SPREFD: CALL    PSRD
+15B7 B03A         1064          MOV     AL,3AH
+15B9 AA           1065          STOSB
+15BA C3           1066          RET
+15BB 30C0         1067  ACCID:  XOR     AL,AL
+15BD E85BFF       1068          CALL    WREG
+15C0 E95801       1069          JMP     G03DT
+15C3 A0BF24       1070  PSRD:   MOV     AL,[OPCODE]
+15C6 D0E8         1071  WSR:    SHR     AL,1
+15C8 D0E8         1072          SHR     AL,1
+15CA 250600       1073          AND     AX,6
+15CD 05361A       1074          ADD     AX,REGS+20H
+15D0 96           1075          XCHG    AX,SI
+15D1 FC           1076          CLD
+15D2 A5           1077          MOVSW
+15D3 96           1078          XCHG    AX,SI
+15D4 C3           1079          RET
+15D5 B010         1080  MSD:    MOV     AL,10H
+15D7 A2B724       1081          MOV     [WADJ],AL
+15DA AC           1082          LODSB
+15DB 50           1083          PUSH    AX
+15DC E86CFF       1084          CALL    WDISP
+15DF B02C         1085          MOV     AL,2CH
+15E1 AA           1086          STOSB
+15E2 58           1087          POP     AX
+15E3 E9E0FF       1088          JMP     WSR
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        42
+
+15E6 B010         1089  SMD:    MOV     AL,10H
+15E8 A2B724       1090          MOV     [WADJ],AL
+15EB AC           1091          LODSB
+15EC 50           1092          PUSH    AX
+15ED E8D6FF       1093          CALL    WSR
+15F0 B02C         1094          MOV     AL,2CH
+15F2 AA           1095          STOSB
+15F3 58           1096          POP     AX
+15F4 E954FF       1097          JMP     WDISP
+15F7 A1261A       1098  ACCRD:  MOV     AX,[REGS+10H]
+15FA AB           1099          STOSW
+15FB B02C         1100          MOV     AL,2CH
+15FD AA           1101          STOSB
+15FE B010         1102  REGWD:  MOV     AL,10H
+1600 A2B724       1103          MOV     [WADJ],AL
+1603 A0BF24       1104          MOV     AL,[OPCODE]
+1606 0CC0         1105          OR      AL,0C0H
+1608 E940FF       1106          JMP     WDISP
+160B A0BF24       1107  RIMMD:  MOV     AL,[OPCODE]
+160E 56           1108          PUSH    SI
+160F 250F00       1109          AND     AX,0FH
+1612 D0E0         1110          SHL     AL,1
+1614 50           1111          PUSH    AX
+1615 05161A       1112          ADD     AX,REGS
+1618 89C6         1113          MOV     SI,AX
+161A A5           1114          MOVSW
+161B 58           1115          POP     AX
+161C 2410         1116          AND     AL,10H
+161E 5E           1117          POP     SI
+161F A2B724       1118          MOV     [WADJ],AL
+1622 E9F600       1119          JMP     G03DT
+1625 AD           1120  RELWD:  LODSW
+1626 050300       1121          ADD     AX,3
+1629 0306AD24     1122          ADD     AX,[PC]
+162D 0306B124     1123          ADD     AX,[VORG]
+1631 E9C7FE       1124          JMP     WHA
+1634              1125  ;RELWD: MOV     AX,2B24H
+1634              1126  ;       STOSW
+1634              1127  ;       LODSW
+1634              1128  ;       ADD     AX,3
+1634              1129  ;       JNS     RELWNM
+1634              1130  ;       DEC     DI
+1634              1131  ;RELWNM:        JMP     WHAS
+1634 AC           1132  AAMD:   LODSB
+1635 3C0A         1133          CMP     AL,0AH
+1637 7405         1134          JZ      AAMD0
+1639 30E4         1135          XOR     AH,AH
+163B E8BDFE       1136          CALL    WHA
+163E C3           1137  AAMD0:  RET
+163F A0BF24       1138  ESCD:   MOV     AL,[OPCODE]
+1642 8A24         1139          MOV     AH,[SI]
+1644 B103         1140          MOV     CL,3
+1646 D2CC         1141          ROR     AH,CL
+1648 250707       1142          AND     AX,707H
+164B D2C0         1143          ROL     AL,CL
+164D 08E0         1144          OR      AL,AH
+164F 30E4         1145          XOR     AH,AH
+1651 E8A7FE       1146          CALL    WHA
+1654 B02C         1147          MOV     AL,2CH
+1656 AA           1148          STOSB
+1657 AC           1149          LODSB
+1658 E9F0FE       1150          JMP     WDISP
+165B AC           1151  INTD:   LODSB
+165C 30E4         1152          XOR     AH,AH
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        43
+
+165E E99AFE       1153          JMP     WHA
+1661 B033         1154  INT3D:  MOV     AL,33H
+1663 AA           1155          STOSB
+1664 C3           1156          RET
+1665 B10A         1157  RETFD:  MOV     CL,0AH
+1667 BA301D       1158          MOV     DX,D8086+2
+166A E84AFE       1159          CALL    WMN
+166D F606BF2401   1160          TEST    BYTE [OPCODE],1
+1672 7402         1161          JZ      RETD
+1674 4F           1162          DEC     DI
+1675 C3           1163          RET
+1676 AD           1164  RETD:   LODSW
+1677 E981FE       1165          JMP     WHA
+167A A1B724       1166  ADIOD:  MOV     AX,[WADJ]
+167D 05161A       1167          ADD     AX,REGS
+1680 56           1168          PUSH    SI
+1681 89C6         1169          MOV     SI,AX
+1683 AD           1170          LODSW
+1684 5E           1171          POP     SI
+1685 BA4458       1172          MOV     DX,5844H
+1688 F606BF2402   1173          TEST    BYTE [OPCODE],2
+168D 7401         1174          JZ      ADIOD0
+168F 92           1175          XCHG    AX,DX
+1690 AB           1176  ADIOD0: STOSW
+1691 B02C         1177          MOV     AL,2CH
+1693 AA           1178          STOSB
+1694 92           1179          XCHG    AX,DX
+1695 AB           1180          STOSW
+1696 C3           1181          RET
+1697 AC           1182  IBAPD:  LODSB
+1698 30E4         1183          XOR     AH,AH
+169A E85EFE       1184          CALL    WHA
+169D B02C         1185          MOV     AL,2CH
+169F AA           1186          STOSB
+16A0 B0C0         1187          MOV     AL,0C0H
+16A2 E9A6FE       1188          JMP     WDISP
+16A5 AD           1189  SEGOFD: LODSW
+16A6 50           1190          PUSH    AX
+16A7 AD           1191          LODSW
+16A8 E850FE       1192          CALL    WHA
+16AB B03A         1193          MOV     AL,3AH
+16AD AA           1194          STOSB
+16AE 58           1195          POP     AX
+16AF E949FE       1196          JMP     WHA
+16B2 56           1197  GRPD:   PUSH    SI
+16B3 AC           1198          LODSB
+16B4 D0E8         1199          SHR     AL,1
+16B6 D0E8         1200          SHR     AL,1
+16B8 D0E8         1201          SHR     AL,1
+16BA 250700       1202          AND     AX,7
+16BD 50           1203          PUSH    AX
+16BE 89C6         1204          MOV     SI,AX
+16C0 01CE         1205          ADD     SI,CX
+16C2 8A0C         1206          MOV     CL,[SI]
+16C4 BA401A       1207          MOV     DX,I8086+2
+16C7 E8EDFD       1208          CALL    WMN
+16CA B009         1209          MOV     AL,9
+16CC AA           1210          STOSB
+16CD 58           1211          POP     AX
+16CE 5E           1212          POP     SI
+16CF C3           1213          RET
+16D0 B006         1214  ACCMD:  MOV     AL,6
+16D2 EB06         1215          JMP     SHORT RMD1
+16D4 C606B72410   1216  RWMD:   MOV     BYTE [WADJ],10H
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        44
+
+16D9 AC           1217  RMD:    LODSB
+16DA 50           1218  RMD1:   PUSH    AX
+16DB E83DFE       1219          CALL    WREG
+16DE B02C         1220          MOV     AL,2CH
+16E0 AA           1221          STOSB
+16E1 58           1222          POP     AX
+16E2 E966FE       1223          JMP     WDISP
+16E5 B9E619       1224  G02D:   MOV     CX,_G02D
+16E8 E8C7FF       1225          CALL    GRPD
+16EB E83AFE       1226          CALL    WPTR
+16EE B02C         1227          MOV     AL,2CH
+16F0 AA           1228          STOSB
+16F1 F606BF2402   1229          TEST    BYTE [OPCODE],2
+16F6 7405         1230          JZ      G02D1
+16F8 A1181A       1231          MOV     AX,[REGS+2]
+16FB AB           1232          STOSW
+16FC C3           1233          RET
+16FD B031         1234  G02D1:  MOV     AL,31H
+16FF AA           1235          STOSB
+1700 C3           1236          RET
+1701 B9EE19       1237  G03D:   MOV     CX,_G03D
+1704 E8ABFF       1238          CALL    GRPD
+1707 FF34         1239          PUSH    WORD [SI]
+1709 E81CFE       1240          CALL    WPTR
+170C 58           1241          POP     AX
+170D A830         1242          TEST    AL,30H
+170F 740A         1243          JZ      G03DT
+1711 C3           1244          RET
+1712 B9DE19       1245  G01D:   MOV     CX,_G01D
+1715 E89AFF       1246          CALL    GRPD
+1718 E80DFE       1247  RMID:   CALL    WPTR
+171B B02C         1248  G03DT:  MOV     AL,2CH
+171D AA           1249          STOSB
+171E AD           1250          LODSW
+171F F606B724FF   1251          TEST    BYTE [WADJ],0FFH
+1724 7407         1252          JZ      G03DB
+1726 803EBF2483   1253          CMP     BYTE [OPCODE],83H
+172B 7502         1254          JNZ     G03DW
+172D 98           1255  G03DB:  CBW
+172E 4E           1256          DEC     SI
+172F E9C9FD       1257  G03DW:  JMP     WHA
+1732 B9F619       1258  G04D:   MOV     CX,_G04D
+1735 E87AFF       1259          CALL    GRPD
+1738 3C07         1260          CMP     AL,7
+173A 741F         1261          JZ      INVD
+173C 3C05         1262          CMP     AL,5
+173E 740F         1263          JZ      G04DF
+1740 3C04         1264          CMP     AL,4
+1742 7413         1265          JZ      DISPD
+1744 3C03         1266          CMP     AL,3
+1746 7407         1267          JZ      G04DF
+1748 3C02         1268          CMP     AL,2
+174A 740B         1269          JZ      DISPD
+174C E9D9FD       1270          JMP     WPTR
+174F B10A         1271  G04DF:  MOV     CL,0AH
+1751 BA301D       1272          MOV     DX,D8086+2
+1754 E860FD       1273          CALL    WMN
+1757 AC           1274  DISPD:  LODSB
+1758 E9F0FD       1275          JMP     WDISP
+175B B84442       1276  INVD:   MOV     AX,4244H
+175E AB           1277          STOSW
+175F B80900       1278          MOV     AX,9
+1762 AA           1279          STOSB
+1763 A0BF24       1280          MOV     AL,[OPCODE]
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        45
+
+1766 E992FD       1281          JMP     WHA
+1769 90           1282          EVEN
+176A EC13B7106E10 1283  IHDL:   DW      G0,G1,G2,G3
+1770 1E11
+1772 5E115412B211 1284          DW      G4,G5,G6,G7
+1778 3013
+177A 7E128812CD0C 1285          DW      G8,G9,G0AH,G0BH
+1780 C713
+1782 4D1364130213 1286          DW      G0CH,G0DH,G0EH,G0FH
+1788 9213
+178A ED13630C4E0B 1287  AHDL:   DW      D0,SETEQU,SETEND
+1790 4E0CA40A     1288          DW      SETORG,SETDFB
+1794 170DFC132D0B 1289          DW      D5,D6,SETINC
+179A 10145514     1290          DW      D8,D9
+179E 1215D916BB15 1291  DHDL:   DW      MRD,RMD,ACCID
+17A4 C315B415B215 1292          DW      PSRD,SPREFD,SINGD
+17AA FE155B17D014 1293          DW      REGWD,INVD,RELBD
+17B0 121701173217 1294          DW      G01D,G03D,G04D
+17B6 D515E6155717 1295          DW      MSD,SMD,DISPD
+17BC F715A516D016 1296          DW      ACCRD,SEGOFD,ACCMD
+17C2 0E150B167616 1297          DW      MACCD,RIMMD,RETD
+17C8 D41618176516 1298          DW      RWMD,RMID,RETFD
+17CE 61165B16E516 1299          DW      INT3D,INTD,G02D
+17D4 34163F169716 1300          DW      AAMD,ESCD,IBAPD
+17DA 25167A16     1301          DW      RELWD,ADIOD
+17DE 000001010202 1302  HDL86:  DB      0,0,1,1,2,2,3,3
+17E4 0303
+17E6 000001010202 1303          DB      0,0,1,1,2,2,3,3
+17EC 0303
+17EE 000001010202 1304          DB      0,0,1,1,2,2,3,3
+17F4 0303
+17F6 000001010202 1305          DB      0,0,1,1,2,2,3,3
+17FC 0303
+17FE 000001010202 1306          DB      0,0,1,1,2,2,4,5
+1804 0405
+1806 000001010202 1307          DB      0,0,1,1,2,2,4,5
+180C 0405
+180E 000001010202 1308          DB      0,0,1,1,2,2,4,5
+1814 0405
+1816 000001010202 1309          DB      0,0,1,1,2,2,4,5
+181C 0405
+181E 060606060606 1310          DB      6,6,6,6,6,6,6,6
+1824 0606
+1826 060606060606 1311          DB      6,6,6,6,6,6,6,6
+182C 0606
+182E 060606060606 1312          DB      6,6,6,6,6,6,6,6
+1834 0606
+1836 060606060606 1313          DB      6,6,6,6,6,6,6,6
+183C 0606
+183E 070707070707 1314          DB      7,7,7,7,7,7,7,7
+1844 0707
+1846 070707070707 1315          DB      7,7,7,7,7,7,7,7
+184C 0707
+184E 080808080808 1316          DB      8,8,8,8,8,8,8,8
+1854 0808
+1856 080808080808 1317          DB      8,8,8,8,8,8,8,8
+185C 0808
+185E 090909090101 1318          DB      9,9,9,9,1,1,1,1
+1864 0101
+1866 00000101     1319          DB      0,0,1,1
+186A 0C010D0E     1320          DB      0CH,01H,0DH,0EH
+186E 050F0F0F     1321          DB      05H,0FH,0FH,0FH
+1872 0F0F0F0F     1322          DB      0FH,0FH,0FH,0FH
+1876 05051005     1323          DB      05H,05H,10H,05H
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        46
+
+187A 05050505     1324          DB      05H,05H,05H,05H
+187E 11111212     1325          DB      11H,11H,12H,12H
+1882 05050505     1326          DB      05H,05H,05H,05H
+1886 02020505     1327          DB      02H,02H,05H,05H
+188A 05050505     1328          DB      05H,05H,05H,05H
+188E 13131313     1329          DB      13H,13H,13H,13H
+1892 13131313     1330          DB      13H,13H,13H,13H
+1896 13131313     1331          DB      13H,13H,13H,13H
+189A 13131313     1332          DB      13H,13H,13H,13H
+189E 07071405     1333          DB      07H,07H,14H,05H
+18A2 15011616     1334          DB      15H,01H,16H,16H
+18A6 07071717     1335          DB      07H,07H,17H,17H
+18AA 18190505     1336          DB      18H,19H,05H,05H
+18AE 1A1A1A1A     1337          DB      1AH,1AH,1AH,1AH
+18B2 1B1B0505     1338          DB      1BH,1BH,05H,05H
+18B6 1C1C1C1C     1339          DB      1CH,1CH,1CH,1CH
+18BA 1C1C1C1C     1340          DB      1CH,1CH,1CH,1CH
+18BE 08080808     1341          DB      08H,08H,08H,08H
+18C2 02021D1D     1342          DB      02H,02H,1DH,1DH
+18C6 1E1E1008     1343          DB      1EH,1EH,10H,08H
+18CA 1F1F1F1F     1344          DB      1FH,1FH,1FH,1FH
+18CE 05070505     1345          DB      05H,07H,05H,05H
+18D2 05050A0A     1346          DB      05H,05H,0AH,0AH
+18D6 05050505     1347          DB      05H,05H,05H,05H
+18DA 05050B0B     1348          DB      05H,05H,0BH,0BH
+18DE 05050505     1349  BIN86:  DB      05H,05H,05H,05H
+18E2 05055553     1350          DB      05H,05H,55H,53H
+18E6 51515151     1351          DB      51H,51H,51H,51H
+18EA 51515553     1352          DB      51H,51H,55H,53H
+18EE 04040404     1353          DB      04H,04H,04H,04H
+18F2 04045553     1354          DB      04H,04H,55H,53H
+18F6 65656565     1355          DB      65H,65H,65H,65H
+18FA 65655553     1356          DB      65H,65H,55H,53H
+18FE 06060606     1357          DB      06H,06H,06H,06H
+1902 06067F11     1358          DB      06H,06H,7FH,11H
+1906 6F6F6F6F     1359          DB      6FH,6FH,6FH,6FH
+190A 6F6F7F12     1360          DB      6FH,6FH,7FH,12H
+190E 74747474     1361          DB      74H,74H,74H,74H
+1912 74747F00     1362          DB      74H,74H,7FH,00H
+1916 0D0D0D0D     1363          DB      0DH,0DH,0DH,0DH
+191A 0D0D7F03     1364          DB      0DH,0DH,7FH,03H
+191E 1A1A1A1A     1365          DB      1AH,1AH,1AH,1AH
+1922 1A1A1A1A     1366          DB      1AH,1AH,1AH,1AH
+1926 13131313     1367          DB      13H,13H,13H,13H
+192A 13131313     1368          DB      13H,13H,13H,13H
+192E 55555555     1369          DB      55H,55H,55H,55H
+1932 55555555     1370          DB      55H,55H,55H,55H
+1936 53535353     1371          DB      53H,53H,53H,53H
+193A 53535353     1372          DB      53H,53H,53H,53H
+193E 7F7F7F7F     1373          DB      7FH,7FH,7FH,7FH
+1942 7F7F7F7F     1374          DB      7FH,7FH,7FH,7FH
+1946 7F7F7F7F     1375          DB      7FH,7FH,7FH,7FH
+194A 7F7F7F7F     1376          DB      7FH,7FH,7FH,7FH
+194E 3834222E     1377          DB      38H,34H,22H,2EH
+1952 3D372C1E     1378          DB      3DH,37H,2CH,1EH
+1956 3C363935     1379          DB      3CH,36H,39H,35H
+195A 27323025     1380          DB      27H,32H,30H,25H
+195E 7F7F7F7F     1381          DB      7FH,7FH,7FH,7FH
+1962 70707272     1382          DB      70H,70H,72H,72H
+1966 4A4A4A4A     1383          DB      4AH,4AH,4AH,4AH
+196A 4A404A53     1384          DB      4AH,40H,4AH,53H
+196E 4F727272     1385          DB      4FH,72H,72H,72H
+1972 72727272     1386          DB      72H,72H,72H,72H
+1976 08100771     1387          DB      08H,10H,07H,71H
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        47
+
+197A 5654613E     1388          DB      56H,54H,61H,3EH
+197E 4A4A4A4A     1389          DB      4AH,4AH,4AH,4AH
+1982 4B4C0E0F     1390          DB      4BH,4CH,0EH,0FH
+1986 70706D6E     1391          DB      70H,70H,6DH,6EH
+198A 43446667     1392          DB      43H,44H,66H,67H
+198E 4A4A4A4A     1393          DB      4AH,4AH,4AH,4AH
+1992 4A4A4A4A     1394          DB      4AH,4AH,4AH,4AH
+1996 4A4A4A4A     1395          DB      4AH,4AH,4AH,4AH
+199A 4A4A4A4A     1396          DB      4AH,4AH,4AH,4AH
+199E 7F7F5E5E     1397          DB      7FH,7FH,5EH,5EH
+19A2 413F4A4A     1398          DB      41H,3FH,4AH,4AH
+19A6 7F7F5E5E     1399          DB      7FH,7FH,5EH,5EH
+19AA 1B1B1C1D     1400          DB      1BH,1BH,1CH,1DH
+19AE 7F7F7F7F     1401          DB      7FH,7FH,7FH,7FH
+19B2 02016373     1402          DB      02H,01H,63H,73H
+19B6 15151515     1403          DB      15H,15H,15H,15H
+19BA 15151515     1404          DB      15H,15H,15H,15H
+19BE 48494523     1405          DB      48H,49H,45H,23H
+19C2 19195252     1406          DB      19H,19H,52H,52H
+19C6 07292929     1407          DB      07H,29H,29H,29H
+19CA 19195252     1408          DB      19H,19H,52H,52H
+19CE 427F5C5D     1409          DB      42H,7FH,5CH,5DH
+19D2 160C7F7F     1410          DB      16H,0CH,7FH,7FH
+19D6 096A0B6B     1411          DB      09H,6AH,0BH,6BH
+19DA 0A6C7F7F     1412          DB      0AH,6CH,7FH,7FH
+19DE 05510465     1413  _G01D:  DB      05H,51H,04H,65H
+19E2 066F740D     1414          DB      06H,6FH,74H,0DH
+19E6 5F605758     1415  _G02D:  DB      5FH,60H,57H,58H
+19EA 68696264     1416          DB      68H,69H,62H,64H
+19EE 6060504E     1417  _G03D:  DB      60H,60H,50H,4EH
+19F2 4F181417     1418          DB      4FH,18H,14H,17H
+19F6 1A130707     1419  _G04D:  DB      1AH,13H,07H,07H
+19FA 2929557F     1420          DB      29H,29H,55H,7FH
+19FE C6E6CAEA     1421  _DISP:  DB      0C6H,0E6H,0CAH,0EAH
+1A02 0C0E0A06     1422          DB      0CH,0EH,0AH,6
+1A06 0E0706FF     1423  RM:     DB      0EH,7,6,0FFH
+1A0A 050103FF     1424          DB      5,1,3,0FFH
+1A0E 040002FF     1425          DB      4,0,2,0FFH
+1A12 FFFFFFFF     1426          DB      0FFH,0FFH,0FFH,0FFH
+1A16 414C434C444C 1427  REGS:   DB      "ALCLDLBLAHCHDHBH"
+1A1C 424C41484348
+1A22 44484248
+1A26 415843584458 1428          DB      "AXCXDXBXSPBPSIDI"
+1A2C 425853504250
+1A32 53494449
+1A36 455343535353 1429          DB      "ESCSSSDS"
+1A3C 4453
+1A3E 7500         1430  I8086:  DW      117
+1A40 414141003700 1431          DB      "AAA",0,37H,0
+1A46 41414400D507 1432          DB      "AAD",0,0D5H,7
+1A4C 41414D00D407 1433          DB      "AAM",0,0D4H,7
+1A52 414153003F00 1434          DB      "AAS",0,3FH,0
+1A58 414443001001 1435          DB      "ADC",0,10H,1
+1A5E 414444000001 1436          DB      "ADD",0,0,1
+1A64 414E44002001 1437          DB      "AND",0,20H,1
+1A6A 43414C4C0000 1438          DB      "CALL",0,0,6
+1A70 06
+1A71 434257009800 1439          DB      "CBW",0,98H,0
+1A77 434C4300F800 1440          DB      "CLC",0,0F8H,0
+1A7D 434C4400FC00 1441          DB      "CLD",0,0FCH,0
+1A83 434C4900FA00 1442          DB      "CLI",0,0FAH,0
+1A89 434D4300F500 1443          DB      "CMC",0,0F5H,0
+1A8F 434D50003801 1444          DB      "CMP",0,38H,1
+1A95 434D50534200 1445          DB      "CMPSB",0,0A6H,0
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        48
+
+1A9B A600
+1A9D 434D50535700 1446          DB      "CMPSW",0,0A7H,0
+1AA3 A700
+1AA5 435744009900 1447          DB      "CWD",0,99H,0
+1AAB 444141002700 1448          DB      "DAA",0,27H,0
+1AB1 444153002F00 1449          DB      "DAS",0,2FH,0
+1AB7 444543000804 1450          DB      "DEC",0,8,4
+1ABD 444956003003 1451          DB      "DIV",0,30H,3
+1AC3 45534300D80E 1452          DB      "ESC",0,0D8H,0EH
+1AC9 484C5400F400 1453          DB      "HLT",0,0F4H,0
+1ACF 494449560038 1454          DB      "IDIV",0,38H,3
+1AD5 03
+1AD6 494D554C0028 1455          DB      "IMUL",0,28H,3
+1ADC 03
+1ADD 494E00E40D   1456          DB      "IN",0,0E4H,0DH
+1AE2 494E43000004 1457          DB      "INC",0,0,4
+1AE8 494E5400CD0C 1458          DB      "INT",0,0CDH,0CH
+1AEE 494E544F00CE 1459          DB      "INTO",0,0CEH,0
+1AF4 00
+1AF5 4952455400CF 1460          DB      "IRET",0,0CFH,0
+1AFB 00
+1AFC 4A41007705   1461          DB      "JA",0,77H,5
+1B01 4A4145007305 1462          DB      "JAE",0,73H,5
+1B07 4A42007205   1463          DB      "JB",0,72H,5
+1B0C 4A4245007605 1464          DB      "JBE",0,76H,5
+1B12 4A43007205   1465          DB      "JC",0,72H,5
+1B17 4A43585A00E3 1466          DB      "JCXZ",0,0E3H,5
+1B1D 05
+1B1E 4A45007405   1467          DB      "JE",0,74H,5
+1B23 4A47007F05   1468          DB      "JG",0,7FH,5
+1B28 4A4745007D05 1469          DB      "JGE",0,7DH,5
+1B2E 4A4C007C05   1470          DB      "JL",0,7CH,5
+1B33 4A4C45007E05 1471          DB      "JLE",0,7EH,5
+1B39 4A4D50000106 1472          DB      "JMP",0,1,6
+1B3F 4A4E41007605 1473          DB      "JNA",0,76H,5
+1B45 4A4E41450072 1474          DB      "JNAE",0,72H,5
+1B4B 05
+1B4C 4A4E42007305 1475          DB      "JNB",0,73H,5
+1B52 4A4E42450077 1476          DB      "JNBE",0,77H,5
+1B58 05
+1B59 4A4E43007305 1477          DB      "JNC",0,73H,5
+1B5F 4A4E45007505 1478          DB      "JNE",0,75H,5
+1B65 4A4E47007E05 1479          DB      "JNG",0,7EH,5
+1B6B 4A4E4745007C 1480          DB      "JNGE",0,7CH,5
+1B71 05
+1B72 4A4E4C007D05 1481          DB      "JNL",0,7DH,5
+1B78 4A4E4C45007F 1482          DB      "JNLE",0,7FH,5
+1B7E 05
+1B7F 4A4E4F007105 1483          DB      "JNO",0,71H,5
+1B85 4A4E50007B05 1484          DB      "JNP",0,7BH,5
+1B8B 4A4E53007905 1485          DB      "JNS",0,79H,5
+1B91 4A4E5A007505 1486          DB      "JNZ",0,75H,5
+1B97 4A4F007005   1487          DB      "JO",0,70H,5
+1B9C 4A50007A05   1488          DB      "JP",0,7AH,5
+1BA1 4A5045007A05 1489          DB      "JPE",0,7AH,5
+1BA7 4A504F007B05 1490          DB      "JPO",0,7BH,5
+1BAD 4A53007805   1491          DB      "JS",0,78H,5
+1BB2 4A5A007405   1492          DB      "JZ",0,74H,5
+1BB7 4C414846009F 1493          DB      "LAHF",0,9FH,0
+1BBD 00
+1BBE 4C445300C508 1494          DB      "LDS",0,0C5H,8
+1BC4 4C4541008D08 1495          DB      "LEA",0,8DH,8
+1BCA 4C455300C408 1496          DB      "LES",0,0C4H,8
+1BD0 4C4F434B00F0 1497          DB      "LOCK",0,0F0H,0AH
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        49
+
+1BD6 0A
+1BD7 4C4F44534200 1498          DB      "LODSB",0,0ACH,0
+1BDD AC00
+1BDF 4C4F44535700 1499          DB      "LODSW",0,0ADH,0
+1BE5 AD00
+1BE7 4C4F4F5000E2 1500          DB      "LOOP",0,0E2H,5
+1BED 05
+1BEE 4C4F4F504500 1501          DB      "LOOPE",0,0E1H,5
+1BF4 E105
+1BF6 4C4F4F504E45 1502          DB      "LOOPNE",0,0E0H,5
+1BFC 00E005
+1BFF 4C4F4F504E5A 1503          DB      "LOOPNZ",0,0E0H,5
+1C05 00E005
+1C08 4C4F4F505A00 1504          DB      "LOOPZ",0,0E1H,5
+1C0E E105
+1C10 4D4F56008809 1505          DB      "MOV",0,88H,9
+1C16 4D4F56534200 1506          DB      "MOVSB",0,0A4H,0
+1C1C A400
+1C1E 4D4F56535700 1507          DB      "MOVSW",0,0A5H,0
+1C24 A500
+1C26 4D554C002003 1508          DB      "MUL",0,20H,3
+1C2C 4E4547001803 1509          DB      "NEG",0,18H,3
+1C32 4E4F50009000 1510          DB      "NOP",0,90H,0
+1C38 4E4F54001003 1511          DB      "NOT",0,10H,3
+1C3E 4F52000801   1512          DB      "OR",0,8,1
+1C43 4F555400E60D 1513          DB      "OUT",0,0E6H,0DH
+1C49 504F50003804 1514          DB      "POP",0,38H,4
+1C4F 504F5046009D 1515          DB      "POPF",0,9DH,0
+1C55 00
+1C56 505553480030 1516          DB      "PUSH",0,30H,4
+1C5C 04
+1C5D 505553484600 1517          DB      "PUSHF",0,9CH,0
+1C63 9C00
+1C65 52434C001002 1518          DB      "RCL",0,10H,2
+1C6B 524352001802 1519          DB      "RCR",0,18H,2
+1C71 52455000F30A 1520          DB      "REP",0,0F3H,0AH
+1C77 5245504500F3 1521          DB      "REPE",0,0F3H,0AH
+1C7D 0A
+1C7E 5245504E4500 1522          DB      "REPNE",0,0F2H,0AH
+1C84 F20A
+1C86 5245504E5A00 1523          DB      "REPNZ",0,0F2H,0AH
+1C8C F20A
+1C8E 5245505A00F3 1524          DB      "REPZ",0,0F3H,0AH
+1C94 0A
+1C95 52455400C30B 1525          DB      "RET",0,0C3H,0BH
+1C9B 524F4C000002 1526          DB      "ROL",0,0,2
+1CA1 524F52000802 1527          DB      "ROR",0,8,2
+1CA7 53414846009E 1528          DB      "SAHF",0,9EH,0
+1CAD 00
+1CAE 53414C003002 1529          DB      "SAL",0,30H,2
+1CB4 53414C4300D6 1530          DB      "SALC",0,0D6H,0
+1CBA 00
+1CBB 534152003802 1531          DB      "SAR",0,38H,2
+1CC1 534242001801 1532          DB      "SBB",0,18H,1
+1CC7 534341534200 1533          DB      "SCASB",0,0AEH,0
+1CCD AE00
+1CCF 534341535700 1534          DB      "SCASW",0,0AFH,0
+1CD5 AF00
+1CD7 53484C002002 1535          DB      "SHL",0,20H,2
+1CDD 534852002802 1536          DB      "SHR",0,28H,2
+1CE3 53544300F900 1537          DB      "STC",0,0F9H,0
+1CE9 53544400FD00 1538          DB      "STD",0,0FDH,0
+1CEF 53544900FB00 1539          DB      "STI",0,0FBH,0
+1CF5 53544F534200 1540          DB      "STOSB",0,0AAH,0
+PC-72 ASSEMBLER VERSION 1.05        8086.ASM        50
+
+1CFB AA00
+1CFD 53544F535700 1541          DB      "STOSW",0,0ABH,0
+1D03 AB00
+1D05 535542002801 1542          DB      "SUB",0,28H,1
+1D0B 544553540000 1543          DB      "TEST",0,0,3
+1D11 03
+1D12 57414954009B 1544          DB      "WAIT",0,9BH,0
+1D18 00
+1D19 584348470086 1545          DB      "XCHG",0,86H,0FH
+1D1F 0F
+1D20 584C41544200 1546          DB      "XLATB",0,0D7H,0
+1D26 D700
+1D28 584F52003001 1547          DB      "XOR",0,30H,1
+1D2E 1700         1548  D8086:  DW      23
+1D30 425954450001 1549          DB      "BYTE",0,1,5
+1D36 05
+1D37 4442000104   1550          DB      "DB",0,1,4
+1D3C 4444000404   1551          DB      "DD",0,4,4
+1D41 4453000006   1552          DB      "DS",0,0,6
+1D46 4457000204   1553          DB      "DW",0,2,4
+1D4B 44574F524400 1554          DB      "DWORD",0,3,5
+1D51 0305
+1D53 4543484F00FC 1555          DB      "ECHO",0,0FCH,8
+1D59 08
+1D5A 454E4400FF02 1556          DB      "END",0,0FFH,2
+1D60 455155000001 1557          DB      "EQU",0,0,1
+1D66 4556454E0090 1558          DB      "EVEN",0,90H,0
+1D6C 00
+1D6D 464152000A05 1559          DB      "FAR",0,0AH,5
+1D73 494E4342494E 1560          DB      "INCBIN",0,0FDH,7
+1D79 00FD07
+1D7C 494E434C5544 1561          DB      "INCLUDE",0,0FEH,7
+1D82 4500FE07
+1D86 484947480013 1562          DB      "HIGH",0,13H,5
+1D8C 05
+1D8D 4C4F57001205 1563          DB      "LOW",0,12H,5
+1D93 4E4541520009 1564          DB      "NEAR",0,9,5
+1D99 05
+1D9A 4F4646534554 1565          DB      "OFFSET",0,11H,5
+1DA0 001105
+1DA3 4F5247000003 1566          DB      "ORG",0,0,3
+1DA9 5041474500FA 1567          DB      "PAGE",0,0FAH,9
+1DAF 09
+1DB0 505452001005 1568          DB      "PTR",0,10H,5
+1DB6 53484F525400 1569          DB      "SHORT",0,8,5
+1DBC 0805
+1DBE 5449544C4500 1570          DB      "TITLE",0,0FBH,7
+1DC4 FB07
+1DC6 574F52440002 1571          DB      "WORD",0,2,5
+1DCC 05
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         51
+
+1DCD 0001         1026  ORIGIN: DW      DEFORG
+1DCF 3200         1027  PAGLEN: DW      DEFPAG
+1DD1 BF07C9070D08 1028  ADIR:   DW      P2,P3,P4,P5
+1DD7 1208
+1DD9 1F08         1029          DW      P6
+1DDB 494E56414C49 1030  EM0:    DB      "INVALID OPERAND",0
+1DE1 44204F504552
+1DE7 414E4400
+1DEB 53594E544158 1031  EM1:    DB      "SYNTAX ERROR",0
+1DF1 204552524F52
+1DF7 00
+1DF8 494E56414C49 1032  EM2:    DB      "INVALID ADDRESSING",0
+1DFE 442041444452
+1E04 455353494E47
+1E0A 00
+1E0B 494E56414C49 1033  EM3:    DB      "INVALID INSTRUCTION",0
+1E11 4420494E5354
+1E17 52554354494F
+1E1D 4E00
+1E1F 554E44454649 1034  EM4:    DB      "UNDEFINED SYMBOL",0
+1E25 4E4544205359
+1E2B 4D424F4C00
+1E30 204259544528 1035  EM5:    DB      " BYTE(S) OUT OF RANGE",0
+1E36 5329204F5554
+1E3C 204F46205241
+1E42 4E474500
+1E46 4F504552414E 1036  EM6:    DB      "OPERAND SIZE MISMATCH",0
+1E4C 442053495A45
+1E52 204D49534D41
+1E58 54434800
+1E5C 434F4E535441 1037  EM7:    DB      "CONSTANT TOO LARGE",0
+1E62 4E5420544F4F
+1E68 204C41524745
+1E6E 00
+1E6F 4D495353494E 1038  EM8:    DB      "MISSING OPERAND",0
+1E75 47204F504552
+1E7B 414E4400
+1E7F 474152424147 1039  EM9:    DB      "GARBAGE PAST END",0
+1E85 452050415354
+1E8B 20454E4400
+1E90 4455504C4943 1040  EMA:    DB      "DUPLICATE SYMBOL",0
+1E96 415445205359
+1E9C 4D424F4C00
+1EA1 204E4F542041 1041  EMB:    DB      " NOT ACCESSIBLE",0
+1EA7 434345535349
+1EAD 424C4500
+1EB1 524553455256 1042  EMC:    DB      "RESERVED WORD MISUSE",0
+1EB7 454420574F52
+1EBD 44204D495355
+1EC3 534500
+1EC6 494E56414C49 1043  EMD:    DB      "INVALID REGISTER",0
+1ECC 442052454749
+1ED2 5354455200
+1ED7 4C494E452054 1044  EME:    DB      "LINE TOO LONG",0
+1EDD 4F4F204C4F4E
+1EE3 4700
+1EE5 2046494C4520 1045  EMF:    DB      " FILE I/O ERROR",0
+1EEB 492F4F204552
+1EF1 524F5200
+1EF5 41534D00     1046  DOTASM: DB      "ASM",0
+1EF9 434F4D00     1047  DOTCOM: DB      "COM",0
+1EFD 4C535400     1048  DOTLST: DB      "LST",0
+1F01 504153532000 1049  PASSM:  DB      "PASS ",0
+1F07 494E3A2000   1050  INM:    DB      "IN: ",0
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         52
+
+1F0C 4F55543A2000 1051  OUTM:   DB      "OUT: ",0
+1F12 50432D373220 1052  AMSG:   DB      "PC-72 ASSEMBLER"
+1F18 415353454D42
+1F1E 4C4552
+1F21 205645525349 1053          DB      " VERSION 1.05"
+1F27 4F4E20312E30
+1F2D 35
+1F2E 0D0A24       1054          DB      13,10,36
+1F31 42414420444F 1055  DOSERR: DB      "BAD DOS VERSION"
+1F37 532056455253
+1F3D 494F4E
+1F40 0D0A24       1056          DB      13,10,36
+1F43 4D495353494E 1057  NOPAR:  DB      "MISSING PARAMETER"
+1F49 472050415241
+1F4F 4D45544552
+1F54 0D0A24       1058          DB      13,10,36
+1F57 41373220494E 1059  USAGE:  DB      "A72 IN [/SWITCH [OUT]"
+1F5D 205B2F535749
+1F63 544348205B4F
+1F69 55545D
+1F6C 205B2F535749 1060          DB      " [/SWITCH [OUT]] ...]"
+1F72 544348205B4F
+1F78 55545D5D202E
+1F7E 2E2E5D
+1F81 0D0A         1061          DB      13,10
+1F83 2F41205B4F55 1062          DB      "/A [OUT[.COM]]",9
+1F89 545B2E434F4D
+1F8F 5D5D09
+1F92 415353454D42 1063          DB      "ASSEMBLE TO BINARY"
+1F98 4C4520544F20
+1F9E 42494E415259
+1FA4 0D0A         1064          DB      13,10
+1FA6 2F44205B4F55 1065          DB      "/D [OUT[.ASM]]",9
+1FAC 545B2E41534D
+1FB2 5D5D09
+1FB5 444953415353 1066          DB      "DISASSEMBLE WITH HEX"
+1FBB 454D424C4520
+1FC1 574954482048
+1FC7 4558
+1FC9 0D0A         1067          DB      13,10
+1FCB 2F4C205B4F55 1068          DB      "/L [OUT[.LST]]",9
+1FD1 545B2E4C5354
+1FD7 5D5D09
+1FDA 415353454D42 1069          DB      "ASSEMBLE TO LISTING"
+1FE0 4C4520544F20
+1FE6 4C495354494E
+1FEC 47
+1FED 0D0A         1070          DB      13,10
+1FEF 2F4F20313030 1071          DB      "/O 100H",9,9
+1FF5 480909
+1FF8 534554204F52 1072          DB      "SET ORIGIN"
+1FFE 4947494E
+2002 0D0A         1073          DB      13,10
+2004 2F55205B4F55 1074          DB      "/U [OUT[.ASM]]",9
+200A 545B2E41534D
+2010 5D5D09
+2013 444953415353 1075          DB      "DISASSEMBLE PLAIN"
+2019 454D424C4520
+201F 504C41494E
+2024 0D0A24       1076          DB      13,10,36
+2027              1077  BUF1:   DS      MAXLEN
+2127              1078  BUF2:   DS      100H
+2227              1079  BUF3:   DS      100H
+2327              1080  BUF4:   DS      100H
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         53
+
+2427              1081  BUF5:   DS      100H
+2527              1082  BUF6:   DS      100H
+2627              1083  BUF7:   DS      100H
+2727              1084  INCBUF: DS      100H
+2827              1085  SYMBS:
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         54
+
+AA     0993  AA1    099C  AAMD   1634  AAMD0  163E  ACCID  15BB  ACCMD  16D0
+ACCRD  15F7  ADDEX  0385  ADDEX0 03AB  ADDEX1 0397  ADDEX2 039F  ADDEX3 03A7
+ADIOD  167A  ADIOD0 1690  ADIR   1DD1  AHDL   178A  AMSG   1F12  ARGS   24B9
+ASM    0C72  ASMCMD 0F69  ASMEND 0CFF  ASMLBL 0C96  ASMLIN 0C99  BAH    0121
+BIN86  18DE  BINBUF 24AB  BINLEN 24C5  BORW   0D30  BORW1  0D4A  BORW2  0D63
+BPD    0E20  BUF1   2027  BUF2   2127  BUF3   2227  BUF4   2327  BUF5   2427
+BUF6   2527  BUF7   2627  BXD    0E22  CALF   03B1  CALF0  03F5  CC     0939
+CCE    0991  CCK    0978  CCL    0975  CCM    093B  CCQ    0988  CCS    097F
+CCT    0983  CCW    098C  CLOSE  069F  COL    0EA2  COMMA  0E91  D0     13ED
+D5     0D17  D6     13FC  D6SEG  1406  D8     1410  D8086  1D2E  D8C    1449
+D8F    144C  D8L    1414  D8Q    143E  D9     1455  D9X    1461  DECF   03F7
+DEFFN  23E7  DEFORG 0100  DEFPAG 0032  DHDL   179E  DID    0E1E  DISAS1 1495
+DISASM 1464  DISP   24C1  DISPD  1757  DOSERR 1F31  DOTASM 1EF5  DOTCOM 1EF9
+DOTLST 1EFD  EM0    1DDB  EM1    1DEB  EM2    1DF8  EM3    1E0B  EM4    1E1F
+EM5    1E30  EM6    1E46  EM7    1E5C  EM8    1E6F  EM9    1E7F  EMA    1E90
+EMB    1EA1  EMC    1EB1  EMD    1EC6  EME    1ED7  EMF    1EE5  ERR0   1119
+ERR1   0B29  ERR3   0A9F  ERR8   0B25  ERROR  0118  ERRORS 242D  ESCD   163F
+FAIL   0B51  FAIL0  0B66  FAIL1  0B63  FLAGS  24BD  FUNC   24A7  G0     13EC
+G01D   1712  G02D   16E5  G02D1  16FD  G03D   1701  G03DB  172D  G03DT  171B
+G03DW  172F  G04D   1732  G04DF  174F  G0AH   0CCD  G0BH   13C7  G0BH1  13DC
+G0BH2  13E7  G0CH   134D  G0CH3  135F  G0CHF  1348  G0DH   1364  G0DH0  1391
+G0DHI  1385  G0DHO  1383  G0EH   1302  G0EHRM 130D  G0FH   1392  G0FHAR 13C0
+G0FHM  13B5  G0FHRA 13C2  G1     10B7  G1AI   110F  G1MI   10DB  G1MR   1105
+G1RM   1100  G2     106E  G2B    108E  G2CL   10AA  G2F    10A5  G2N    10AF
+G3     111E  G3R    114E  G4     115E  G4M    1182  G4P    119A  G4S    11A0
+G4W    1194  G5     1254  G5S    1257  G5X    1228  G6     11B2  G6F0   1233
+G6I    11F8  G6IF   120B  G6IN   1238  G6IS   1229  G6R    11C5  G6RF   11E2
+G6RN   11E7  G7     1330  G7A    1341  G7B    133B  G8     127E  G9     1288
+G9A    12CC  G9A2   12CA  G9F0   132B  G9M    12F9  G9MI   12F1  G9MR   12F6
+G9S    12E2  G9SR   12EA  GRPD   16B2  GSPR   0EC6  GSPR0  0F22  GSPR1  0EC1
+GSPR2  0EE2  GV     0B9B  GV7    0BEA  GV8    0BEF  GVA    0BD0  GVC    0BC1
+GVHB   0C3E  GVL    0BF4  GVL1   0C0E  GVL2   0C1A  GVL3   0C1E  GVLB   0C45
+GVNS   0C2D  GVQ    0BD2  GVV    0C21  GVWO   0C4A  HALL   09DD  HALN   09E7
+HALX   09D0  HDL86  17DE  HUMBUG 01BD  I8086  1A3E  IBAPD  1697  IHDL   176A
+IMM    24C3  INCBUF 2727  INCF   03C9  INCF0  03F1  INCLEV 242B  INFN   2327
+INIT   078C  INM    1F07  INT3D  1661  INTD   165B  INVD   175B  LBL    0A55
+LBL1   0A76  LBL2   0A82  LBL3   0A8F  LSTFN  23A7  LSTHDL 2429  LSTLIN 2437
+LSTWID 0006  MACCD  150E  MAIN   0129  MAXLEN 0100  MM0    106D  MM8    1069
+MMEML  1036  MMEMR  1038  MMODRM 0FF4  MODRM  24C0  MRD    1512  MRD1   1513
+MREGL  105C  MREGR  105E  MSD    15D5  NARGS  0E7C  NOIN   06AA  NOLST  06C2
+NOOUT  06D2  NOPAR  1F43  NOTH0  01D1  NOTHER 01C5  NOTJMP 14E2  NOWLST 01B2
+OLDPC  2433  OPCODE 24BF  OPEN   06D3  OPEN1  0714  OPEN2  06F6  OPEN3  0716
+OPEN4  071E  OPEN5  071B  ORIGIN 1DCD  OUTFN  2367  OUTHDL 2427  OUTM   1F0C
+OVER   0124  P2     07BF  P2F    07C6  P3     07C9  P3E    0808  P3L    07D6
+P3S    0804  P4     080D  P5     0812  P6     081F  P6S    082B  PAGLEN 1DCF
+PAGNUM 2435  PARAEN 0254  PARAFN 0232  PARAFS 0268  PARAIN 01DC  PARAM  01D2
+PARANO 024F  PARANS 0278  PARANX 029B  PARARG 022D  PARARN 0240  PARASC 0204
+PARAWF 01E5  PARAWN 028F  PASS   2431  PASSM  1F01  PC     24AD  PGMVAR 2427
+PROCF  02A7  PROCF1 02D2  PROCF2 02EC  PROCF3 02F2  PROCF4 02F9  PROCF5 0309
+PROCF6 031D  PRUNT  0773  PSRD   15C3  RA     0D64  RA0D   0E12  RA1    0DA0
+RA2    0E17  RA8    0E32  RAD    0DCD  RADB   0E5F  RADM   0DF2  RADP   0DF5
+RADR   0DFB  RADW   0E66  RADX   0E37  RAIB   0D8F  RAIW   0D90  RAIX   0D9D
+RAL    0D7A  RAM    0DC5  RAR    0DA5  RAS    0D6C  RE     0B68  REA    0B6F
+READ   0596  READ1  05C8  READ2  05CB  READ3  05E6  READ4  0600  READ5  0608
+READ6  060D  READ7  0614  READ8  062C  REB    0B89  REC    0B8C  RED    0B92
+REGS   1A16  REGWD  15FE  RELBD  14D0  RELWD  1625  RETD   1676  RETFD  1665
+RFN    0357  RFN0   037F  RFN1   0358  RFN2   036A  RFN3   036D  RFN4   0376
+RFN5   0380  RI     1450  RIMMD  160B  RM     1A06  RMD    16D9  RMD1   16DA
+RMID   1718  RN     09E9  RN0    0A17  RN1    09F3  RN2    0A01  RN3    0A12
+RNC    0EF4  RNC0   0F30  RNC1   0F1F  RNC10  0F28  RNC16  0F27  RNC2   0F24
+RNC4   0F25  RNC8   0F26  RNM    0D01  RNMEND 0D29  RNMER8 0D2B  RNMHI  0D1E
+RNMLO  0D20  RNMOFF 0D1C  RUN    0150  RWMD   16D4  SCRAM  0770  SCREAM 0720
+SCREG  0F34  SCREG0 0F4F  SCREM  0769  SCROME 0764  SCROOM 0749  SCROYM 075A
+SCRUM  0753  SEGOFD 16A5  SEGPRE 24BE  SETD1  0AAA  SETD2  0AB9  SETD3  0AC1
+PC-72 ASSEMBLER VERSION 1.05        A72.ASM         55
+
+SETD4  0AD5  SETD5  0AE6  SETD6  0AED  SETD7  0B01  SETD8  0B0D  SETDFB 0AA4
+SETDFS 0C56  SETEND 0B4E  SETEQ0 0C70  SETEQU 0C63  SETIN1 0B3A  SETIN2 0B41
+SETIN3 0B43  SETINC 0B2D  SETORG 0C4E  SID    0E1C  SINGD  15B2  SL     099E
+SL1    09A1  SL2    09AE  SL3    09BB  SL4    09C6  SL5    09CF  SMD    15E6
+SPREFD 15B4  START  0100  STK    24B5  SW     0F51  SW1    0F66  SW2    0F68
+SYM    24B3  SYMBS  2827  SYMLS0 0839  SYMLS1 084E  SYMLS2 0850  SYMLS3 085D
+SYMLS4 0865  SYMLS5 0869  SYMLS6 089C  SYMLS7 089F  SYMLS8 08C4  SYMLST 0831
+SYMSR1 08CF  SYMSR2 08D5  SYMSR3 08E2  SYMSR4 08E4  SYMSR5 08F1  SYMSR6 0902
+SYMSR7 0928  SYMSRT 08C5  TEMP   242F  TXTBUF 24A9  TXTLEN 24C7  USAGE  1F57
+USER   24A7  USIZE  24AF  VORG   24B1  WA     0F8B  WA0    0FB0  WA6    0FAB
+WA7    0FEF  WAB    0FD7  WADJ   24B7  WAE    0FD4  WAHZ   0FB7  WALZ   0FB5
+WARG   0E68  WAZ    0FBC  WDB    1599  WDC    1576  WDD    1562  WDISP  154B
+WDISP1 1557  WDL    1581  WDM    15A6  WDW    159F  WDX    15AD  WFN    0341
+WFN1   0343  WFN2   034E  WHA    14FB  WHA0   150D  WHAS   14F1  WLST   040E
+WLSTB  0474  WLSTE  04A3  WLSTF  04D7  WLSTG  04C2  WLSTI  04DF  WLSTL  044E
+WLSTM  0472  WLSTN  046E  WLSTO  0511  WLSTP  04CE  WLSTR  04C8  WLSTS  04AA
+WLSTT  0440  WLSTX  04D6  WMN    14B7  WMN1   14BF  WMN2   14C7  WN     0A18
+WN0    0A54  WN1    0A26  WN2    0A28  WN4    0A4C  WN5    0A40  WPTR   1528
+WREG   151B  WRITE  0636  WRITE0 0698  WRITE1 065F  WRITE2 0669  WRITE3 067E
+WRITE4 0690  WRITE5 069D  WRM    0338  WRML   0339  WROUT  0CD1  WROUT1 0CE9
+WROUT2 0CEF  WSELF  153C  WSR    15C6  WTITL1 053B  WTITL2 055F  WTITL3 0563
+WTITL4 057F  WTITL5 058F  WTITLE 0515  _DISP  19FE  _G01D  19DE  _G02D  19E6
+_G03D  19EE  _G04D  19F6
