@@ -19,4 +19,12 @@ diff a72_8087.lst a728p0.lst
 kvikdos a72.com /d a72_8087.com a728p0.dis
 diff a72_8087.dis a728p0.dis
 
+nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72n.com a72.nasm
+#cmp a72.com a72n.com  # It's OK if a72n.com is different form the golden a72.com.
+kvikdos a72n.com /l a72.asm a72np1.com a72np1.lst
+cmp a72.com a72np1.com
+diff a72.lst a72np1.lst
+kvikdos a72n.com /d a72.com a72np1.dis
+diff a72.dis a72np1.dis
+
 : "$0" OK.

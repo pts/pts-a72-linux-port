@@ -1,3 +1,31 @@
+;
+; a72.nasm: A72 assembler 1.04 ported to NASM
+; by pt@fazekas.hu at Fri Mar 29 23:27:03 CET 2024
+;
+; Compile with:   nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72n.com a72.nasm
+; Bootstrap with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72n.com a72.nasm && kvikdos a72n.com /l a72.asm a72np1.com a72np1.lst && cmp a72.com a72np1.com && echo OK
+;
+; It is not a goal of this port to be a72n.com bitwise identical to a72.com.
+; The goal is to make them equivalent.
+;
+
+bits 16
+cpu 8086
+org 100h
+
+; Make A72 sources compatible with NASM syntax.
+%macro DS 1
+  resb %1
+%endm
+%define OFFSET
+%define PTR
+%define MM0  $MM0   ; NASM reserved word.
+%define INVD $INVD  ; NASM reserved word.
+%macro EVEN 0
+  align 2
+%endm
+
+; --- A copy of A72 1.04 a72.asm follows. Only lines containing ;; were changed.
 	MOV	AH,9
 	MOV	DX,OFFSET AMSG
 	INT	21H
@@ -2605,23 +2633,24 @@ AMSG	DB	"PC-72 8086 ASSEMBLER"
 USAGE	DB	"A72 {[/A] | /D} [/L] <IN> "
 	DB	"[<OUT>] [<LIST>]",13,10,36
 DOSERR	DB	"BAD DOS VERSION",13,10,36
-PC	DW	?,?
-USIZE	DW	?
-ERRS	DW	?
-VORG	DW	?
-FUNC	DB	?,?
-STK	DW	?,?
-FLAGS	DB	?
-WADJ	DB	?,?
-ARGS	DB	?,?,?
-PREFIX	DB	?
-SEGPREF	DB	?
-OPCODE	DB	?
-MODRM	DB	?
-DISP	DW	?
-IMM	DW	?
-OUTHDL	DW	?
-LSTHDL	DW	?
+	absolute $  ;; ; Only for NASM, to mark the start of uninitialized data.
+PC	resw	2  ;; DW	?,?
+USIZE	resw	1  ;; DW	?
+ERRS	resw	1  ;; DW	?
+VORG	resw	1  ;; DW	?
+FUNC	resb	2  ;; DB	?,?
+STK	resw	2  ;; DW	?,?
+FLAGS	DS	1  ;; DB	?
+WADJ	resb	2  ;; DB	?,?
+ARGS	resb	3  ;; DB	?,?,?
+PREFIX	DS	1  ;; DB	?
+SEGPREF	DS	1  ;; DB	?
+OPCODE	DS	1  ;; DB	?
+MODRM	DS	1  ;; DB	?
+DISP	resw	1  ;; DW	?
+IMM	resw	1  ;; DW	?
+OUTHDL	resw	1  ;; DW	?
+LSTHDL	resw	1  ;; DW	?
 INFILE	DS	20H
 INCFILE	DS	20H
 OUTFILE	DS	20H
