@@ -5,6 +5,7 @@ test "${0%/*}" = "$0" || cd "${0%/*}"
 test -f ../tools/nasm-0.98.39
 test -f ../tools/kvikdos
 export PATH="../tools:$PATH"
+rm -f a72*p[0-9].com a72*p[0-9].lst a72*p[0-9].dis
 
 kvikdos a72.com a72.asm /a a72p0.com
 cmp a72.com a72p0.com
