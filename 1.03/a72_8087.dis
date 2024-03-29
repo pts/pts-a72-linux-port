@@ -1,0 +1,5165 @@
+	mov	ah,9			;0100 B4 09
+	mov	dx,28D4h		;0102 BA D4 28
+	int	21h			;0105 CD 21
+	mov	ah,30h			;0107 B4 30
+	int	21h			;0109 CD 21
+	or	al,al			;010B 0A C0
+	jnz	118h			;010D 75 09
+	mov	ah,9			;010F B4 09
+	mov	dx,290Bh		;0111 BA 0B 29
+	int	21h			;0114 CD 21
+	int	20h			;0116 CD 20
+	call	129h			;0118 E8 0E 00
+	jnc	124h			;011B 73 07
+	mov	ah,9			;011D B4 09
+	mov	dx,28ECh		;011F BA EC 28
+	int	21h			;0122 CD 21
+	mov	ax,4C00h		;0124 B8 00 4C
+	int	21h			;0127 CD 21
+	xor	ax,ax			;0129 33 C0
+	mov	[2930h],ax		;012B A3 30 29
+	mov	si,81h			;012E BE 81 00
+	mov	di,2945h		;0131 BF 45 29
+	call	1AAh			;0134 E8 73 00
+	jz	169h			;0137 74 30
+	mov	ax,[2946h]		;0139 A1 46 29
+	cmp	ax,412Fh		;013C 3D 2F 41
+	jz	155h			;013F 74 14
+	cmp	ax,442Fh		;0141 3D 2F 44
+	jz	15Ah			;0144 74 14
+	mov	ax,[2930h]		;0146 A1 30 29
+	or	ax,ax			;0149 0B C0
+	jnz	16Bh			;014B 75 1E
+	mov	ax,0E05h		;014D B8 05 0E
+	mov	[2930h],ax		;0150 A3 30 29
+	jmp	short 16Bh		;0153 EB 16
+	mov	ax,0E05h		;0155 B8 05 0E
+	jmp	short 15Dh		;0158 EB 03
+	mov	ax,8Ch			;015A B8 8C 00
+	test	[2930h],ax		;015D 85 06 30 29
+	jnz	169h			;0161 75 06
+	or	[2930h],ax		;0163 09 06 30 29
+	jmp	short 131h		;0167 EB C8
+	stc				;0169 F9
+	ret				;016A C3
+	mov	di,2975h		;016B BF 75 29
+	call	1AAh			;016E E8 39 00
+	jnz	185h			;0171 75 12
+	mov	si,2945h		;0173 BE 45 29
+	mov	di,2975h		;0176 BF 75 29
+	movsb				;0179 A4
+	dec	si			;017A 4E
+	call	0B1Eh			;017B E8 A0 09
+	mov	di,2975h		;017E BF 75 29
+	stc				;0181 F9
+	call	1D1h			;0182 E8 4C 00
+	mov	ax,279Fh		;0185 B8 9F 27
+	mov	bx,27A3h		;0188 BB A3 27
+	test	byte ptr [2930h],0FF80h	;018B F6 06 30 29 80
+	jz	193h			;0190 74 01
+	xchg	ax,bx			;0192 93
+	mov	si,ax			;0193 8B F0
+	mov	di,2945h		;0195 BF 45 29
+	clc				;0198 F8
+	call	1D1h			;0199 E8 35 00
+	mov	si,bx			;019C 8B F3
+	mov	di,2975h		;019E BF 75 29
+	clc				;01A1 F8
+	call	1D1h			;01A2 E8 2C 00
+	call	1F4h			;01A5 E8 4C 00
+	clc				;01A8 F8
+	ret				;01A9 C3
+	xor	dx,dx			;01AA 33 D2
+	push	di			;01AC 57
+	inc	di			;01AD 47
+	cld				;01AE FC
+	lodsb				;01AF AC
+	cmp	al,0Dh			;01B0 3C 0D
+	jz	1CAh			;01B2 74 16
+	cmp	al,20h			;01B4 3C 20
+	jna	1C6h			;01B6 76 0E
+	cmp	al,61h			;01B8 3C 61
+	jc	1C2h			;01BA 72 06
+	cmp	al,7Ah			;01BC 3C 7A
+	ja	1C2h			;01BE 77 02
+	and	al,0FFDFh		;01C0 24 DF
+	inc	dx			;01C2 42
+	stosb				;01C3 AA
+	jmp	short 1AFh		;01C4 EB E9
+	or	dx,dx			;01C6 0B D2
+	jz	1AFh			;01C8 74 E5
+	dec	si			;01CA 4E
+	pop	di			;01CB 5F
+	mov	[di],dl			;01CC 88 15
+	or	dx,dx			;01CE 0B D2
+	ret				;01D0 C3
+	lahf				;01D1 9F
+	cld				;01D2 FC
+	mov	bp,di			;01D3 8B EF
+	xor	ch,ch			;01D5 32 ED
+	mov	cl,[di]			;01D7 8A 0D
+	inc	di			;01D9 47
+	mov	al,2Eh			;01DA B0 2E
+	repnz				;01DC F2
+	scasb				;01DD AE
+	jnz	1E4h			;01DE 75 04
+	sahf				;01E0 9E
+	jnc	1F3h			;01E1 73 10
+	dec	di			;01E3 4F
+	sahf				;01E4 9E
+	jc	1EBh			;01E5 72 04
+	stosb				;01E7 AA
+	call	0B1Eh			;01E8 E8 33 09
+	mov	ax,di			;01EB 8B C7
+	sub	ax,bp			;01ED 2B C5
+	dec	ax			;01EF 48
+	mov	di,bp			;01F0 8B FD
+	stosb				;01F2 AA
+	ret				;01F3 C3
+	mov	di,80h			;01F4 BF 80 00
+	mov	si,27A7h		;01F7 BE A7 27
+	call	0B1Eh			;01FA E8 21 09
+	mov	si,2945h		;01FD BE 45 29
+	call	0B1Eh			;0200 E8 1B 09
+	call	0B27h			;0203 E8 21 09
+	call	244h			;0206 E8 3B 00
+	jc	22Fh			;0209 72 24
+	mov	ax,[292Ch]		;020B A1 2C 29
+	or	ax,ax			;020E 0B C0
+	jnz	232h			;0210 75 20
+	mov	ax,[2930h]		;0212 A1 30 29
+	xor	al,al			;0215 32 C0
+	xchg	ah,al			;0217 86 C4
+	mov	[2930h],ax		;0219 A3 30 29
+	or	ax,ax			;021C 0B C0
+	jnz	206h			;021E 75 E6
+	mov	di,80h			;0220 BF 80 00
+	mov	si,27ACh		;0223 BE AC 27
+	call	0B1Eh			;0226 E8 F5 08
+	mov	si,2975h		;0229 BE 75 29
+	call	0B1Eh			;022C E8 EF 08
+	jmp	0B27h			;022F E9 F5 08
+	mov	di,80h			;0232 BF 80 00
+	mov	si,28CBh		;0235 BE CB 28
+	call	0B1Eh			;0238 E8 E3 08
+	call	65Ah			;023B E8 1C 04
+	call	2B9h			;023E E8 78 00
+	jmp	0B27h			;0241 E9 E3 08
+	xor	ax,ax			;0244 33 C0
+	mov	[2928h],ax		;0246 A3 28 29
+	mov	[292Ah],ax		;0249 A3 2A 29
+	mov	[292Ch],ax		;024C A3 2C 29
+	mov	[2A25h],ax		;024F A3 25 2A
+	test	byte ptr [2930h],2	;0252 F6 06 30 29 02
+	jnz	25Ch			;0257 75 03
+	mov	[2E25h],ax		;0259 A3 25 2E
+	inc	ah			;025C FE C4
+	mov	[292Eh],ax		;025E A3 2E 29
+	mov	[2934h],sp		;0261 89 26 34 29
+	test	byte ptr [2930h],4	;0265 F6 06 30 29 04
+	jz	2A8h			;026A 74 3C
+	call	2C1h			;026C E8 52 00
+	jc	2A8h			;026F 72 37
+	mov	si,2945h		;0271 BE 45 29
+	call	31Eh			;0274 E8 A7 00
+	jnc	27Fh			;0277 73 06
+	mov	si,2945h		;0279 BE 45 29
+	jmp	2A9h			;027C E9 2A 00
+	call	368h			;027F E8 E6 00
+	jc	29Fh			;0282 72 1B
+	mov	si,2D25h		;0284 BE 25 2D
+	call	42Eh			;0287 E8 A4 01
+	jnc	28Fh			;028A 73 03
+	call	0B27h			;028C E8 98 08
+	call	3D0h			;028F E8 3E 01
+	jnc	27Fh			;0292 73 EB
+	call	354h			;0294 E8 BD 00
+	jnc	294h			;0297 73 FB
+	mov	si,2975h		;0299 BE 75 29
+	jmp	2A9h			;029C E9 0A 00
+	call	354h			;029F E8 B2 00
+	jnc	27Fh			;02A2 73 DB
+	call	2E0h			;02A4 E8 39 00
+	clc				;02A7 F8
+	ret				;02A8 C3
+	mov	di,80h			;02A9 BF 80 00
+	push	si			;02AC 56
+	mov	si,287Ch		;02AD BE 7C 28
+	call	0B1Eh			;02B0 E8 6B 08
+	pop	si			;02B3 5E
+	call	0B1Eh			;02B4 E8 67 08
+	stc				;02B7 F9
+	ret				;02B8 C3
+	mov	ah,41h			;02B9 B4 41
+	mov	dx,29AEh		;02BB BA AE 29
+	int	21h			;02BE CD 21
+	ret				;02C0 C3
+	test	byte ptr [2930h],8	;02C1 F6 06 30 29 08
+	jz	2DFh			;02C6 74 17
+	mov	si,2975h		;02C8 BE 75 29
+	mov	di,29A5h		;02CB BF A5 29
+	call	33Eh			;02CE E8 6D 00
+	mov	ah,3Ch			;02D1 B4 3C
+	xor	cx,cx			;02D3 33 C9
+	int	21h			;02D5 CD 21
+	jnc	2DCh			;02D7 73 03
+	jmp	2A9h			;02D9 E9 CD FF
+	inc	di			;02DC 47
+	inc	di			;02DD 47
+	stosw				;02DE AB
+	ret				;02DF C3
+	test	byte ptr [2930h],8	;02E0 F6 06 30 29 08
+	jz	2EFh			;02E5 74 08
+	mov	ah,3Eh			;02E7 B4 3E
+	mov	bx,[29A7h]		;02E9 8B 1E A7 29
+	int	21h			;02ED CD 21
+	clc				;02EF F8
+	ret				;02F0 C3
+	test	byte ptr [2930h],4	;02F1 F6 06 30 29 04
+	jz	30Bh			;02F6 74 13
+	mov	ax,[2A25h]		;02F8 A1 25 2A
+	or	ax,ax			;02FB 0B C0
+	jz	30Bh			;02FD 74 0C
+	dec	ax			;02FF 48
+	xchg	ah,al			;0300 86 C4
+	shr	ax,1			;0302 D1 E8
+	shr	ax,1			;0304 D1 E8
+	add	ax,2A27h		;0306 05 27 2A
+	clc				;0309 F8
+	ret				;030A C3
+	stc				;030B F9
+	ret				;030C C3
+	call	2F1h			;030D E8 E1 FF
+	jc	31Dh			;0310 72 0B
+	mov	si,ax			;0312 8B F0
+	cld				;0314 FC
+	lodsw				;0315 AD
+	add	si,6			;0316 83 C6 06
+	call	0B1Eh			;0319 E8 02 08
+	clc				;031C F8
+	ret				;031D C3
+	inc	word ptr [2A25h]	;031E FF 06 25 2A
+	call	2F1h			;0322 E8 CC FF
+	jc	338h			;0325 72 11
+	mov	di,ax			;0327 8B F8
+	call	33Eh			;0329 E8 12 00
+	mov	ax,3D00h		;032C B8 00 3D
+	int	21h			;032F CD 21
+	jc	338h			;0331 72 05
+	inc	di			;0333 47
+	inc	di			;0334 47
+	stosw				;0335 AB
+	clc				;0336 F8
+	ret				;0337 C3
+	dec	word ptr [2A25h]	;0338 FF 0E 25 2A
+	stc				;033C F9
+	ret				;033D C3
+	push	di			;033E 57
+	xor	ax,ax			;033F 33 C0
+	mov	cx,8			;0341 B9 08 00
+	cld				;0344 FC
+	repz				;0345 F3
+	stosb				;0346 AA
+	mov	al,[si]			;0347 8A 04
+	stosb				;0349 AA
+	push	di			;034A 57
+	call	0B1Eh			;034B E8 D0 07
+	xor	al,al			;034E 32 C0
+	stosb				;0350 AA
+	pop	dx			;0351 5A
+	pop	di			;0352 5F
+	ret				;0353 C3
+	call	2F1h			;0354 E8 9A FF
+	jc	367h			;0357 72 0E
+	mov	di,ax			;0359 8B F8
+	mov	ah,3Eh			;035B B4 3E
+	mov	bx,[di+2]		;035D 8B 5D 02
+	int	21h			;0360 CD 21
+	dec	word ptr [2A25h]	;0362 FF 0E 25 2A
+	clc				;0366 F8
+	ret				;0367 C3
+	call	2F1h			;0368 E8 86 FF
+	jc	3CEh			;036B 72 61
+	mov	bp,ax			;036D 8B E8
+	inc	word ptr [bp]		;036F FF 46 00
+	mov	ax,4200h		;0372 B8 00 42
+	mov	cx,[bp+6]		;0375 8B 4E 06
+	mov	dx,[bp+4]		;0378 8B 56 04
+	mov	bx,[bp+2]		;037B 8B 5E 02
+	test	byte ptr [2930h],0FF80h	;037E F6 06 30 29 80
+	jz	389h			;0383 74 04
+	mov	dx,[2928h]		;0385 8B 16 28 29
+	int	21h			;0389 CD 21
+	jc	3CEh			;038B 72 41
+	mov	ah,3Fh			;038D B4 3F
+	mov	dx,2D26h		;038F BA 26 2D
+	mov	bx,[bp+2]		;0392 8B 5E 02
+	mov	cx,7Fh			;0395 B9 7F 00
+	test	byte ptr [2930h],0FF80h	;0398 F6 06 30 29 80
+	jz	3A1h			;039D 74 02
+	mov	cl,6			;039F B1 06
+	int	21h			;03A1 CD 21
+	jc	3CEh			;03A3 72 29
+	or	ax,ax			;03A5 0B C0
+	jz	3CEh			;03A7 74 25
+	test	byte ptr [2930h],0FF80h	;03A9 F6 06 30 29 80
+	jnz	3C9h			;03AE 75 19
+	mov	cx,ax			;03B0 8B C8
+	mov	di,2D26h		;03B2 BF 26 2D
+	mov	al,0Dh			;03B5 B0 0D
+	cld				;03B7 FC
+	repnz				;03B8 F2
+	scasb				;03B9 AE
+	mov	ax,di			;03BA 8B C7
+	mov	byte ptr [di],0		;03BC C6 05 00
+	sub	ax,2D26h		;03BF 2D 26 2D
+	cwd				;03C2 99
+	add	[bp+4],ax		;03C3 01 46 04
+	adc	[bp+6],dx		;03C6 11 56 06
+	mov	[2D25h],al		;03C9 A2 25 2D
+	clc				;03CC F8
+	ret				;03CD C3
+	stc				;03CE F9
+	ret				;03CF C3
+	or	byte ptr [2DA5h],0	;03D0 80 0E A5 2D 00
+	jz	415h			;03D5 74 3E
+	test	byte ptr [2930h],8	;03D7 F6 06 30 29 08
+	jz	410h			;03DC 74 32
+	or	word ptr [292Ah],0	;03DE 83 0E 2A 29 00
+	jz	40Bh			;03E3 74 26
+	xor	ax,ax			;03E5 33 C0
+	mov	cx,40h			;03E7 B9 40 00
+	mov	di,2CA5h		;03EA BF A5 2C
+	cld				;03ED FC
+	repz				;03EE F3
+	stosb				;03EF AA
+	mov	cx,40h			;03F0 B9 40 00
+	mov	dx,2CA5h		;03F3 BA A5 2C
+	cmp	cx,[292Ah]		;03F6 3B 0E 2A 29
+	jna	400h			;03FA 76 04
+	mov	cx,[292Ah]		;03FC 8B 0E 2A 29
+	call	420h			;0400 E8 1D 00
+	jc	416h			;0403 72 11
+	sub	[292Ah],cx		;0405 29 0E 2A 29
+	ja	3F0h			;0409 77 E5
+	call	417h			;040B E8 09 00
+	jc	416h			;040E 72 06
+	xor	ax,ax			;0410 33 C0
+	mov	[292Ah],ax		;0412 A3 2A 29
+	clc				;0415 F8
+	ret				;0416 C3
+	xor	ch,ch			;0417 32 ED
+	mov	cl,[2DA5h]		;0419 8A 0E A5 2D
+	mov	dx,2DA6h		;041D BA A6 2D
+	push	cx			;0420 51
+	mov	ah,40h			;0421 B4 40
+	mov	bx,[29A7h]		;0423 8B 1E A7 29
+	int	21h			;0427 CD 21
+	pop	cx			;0429 59
+	jc	416h			;042A 72 EA
+	clc				;042C F8
+	ret				;042D C3
+	xor	ax,ax			;042E 33 C0
+	mov	[2DA5h],al		;0430 A2 A5 2D
+	mov	[2932h],sp		;0433 89 26 32 29
+	mov	di,2936h		;0437 BF 36 29
+	mov	cx,0Fh			;043A B9 0F 00
+	cld				;043D FC
+	repz				;043E F3
+	stosb				;043F AA
+	lodsb				;0440 AC
+	or	al,al			;0441 0A C0
+	jz	48Dh			;0443 74 48
+	test	byte ptr [2930h],0FF80h	;0445 F6 06 30 29 80
+	jz	48Fh			;044A 74 43
+	mov	di,2DA6h		;044C BF A6 2D
+	mov	bx,si			;044F 8B DE
+	mov	sp,[2932h]		;0451 8B 26 32 29
+	mov	al,9			;0455 B0 09
+	stosb				;0457 AA
+	lodsb				;0458 AC
+	mov	[293Fh],al		;0459 A2 3F 29
+	and	al,1			;045C 24 01
+	mov	cl,4			;045E B1 04
+	shl	al,cl			;0460 D2 E0
+	mov	[2937h],al		;0462 A2 37 29
+	mov	al,[293Fh]		;0465 A0 3F 29
+	xor	ah,ah			;0468 32 E4
+	shl	ax,1			;046A D1 E0
+	shl	ax,1			;046C D1 E0
+	add	ax,1E30h		;046E 05 30 1E
+	call	12A8h			;0471 E8 34 0E
+	call	14F9h			;0474 E8 82 10
+	call	134Dh			;0477 E8 D3 0E
+	call	1368h			;047A E8 EB 0E
+	mov	ax,si			;047D 8B C6
+	sub	ax,bx			;047F 2B C3
+	add	[2928h],ax		;0481 01 06 28 29
+	mov	ax,di			;0485 8B C7
+	sub	ax,2DA6h		;0487 2D A6 2D
+	mov	[2DA5h],al		;048A A2 A5 2D
+	clc				;048D F8
+	ret				;048E C3
+	call	588h			;048F E8 F6 00
+	mov	bp,si			;0492 8B EE
+	mov	sp,[2932h]		;0494 8B 26 32 29
+	call	588h			;0498 E8 ED 00
+	jz	4BFh			;049B 74 22
+	mov	di,1839h		;049D BF 39 18
+	call	6A7h			;04A0 E8 04 02
+	jc	4C8h			;04A3 72 23
+	mov	[293Fh],al		;04A5 A2 3F 29
+	or	byte ptr [2936h],20h	;04A8 80 0E 36 29 20
+	xor	al,al			;04AD 32 C0
+	xchg	ah,al			;04AF 86 C4
+	shl	ax,1			;04B1 D1 E0
+	add	ax,2674h		;04B3 05 74 26
+	mov	bx,ax			;04B6 8B D8
+	call	[bx]			;04B8 FF 17
+	call	588h			;04BA E8 CB 00
+	jnz	519h			;04BD 75 5A
+	or	byte ptr [2936h],0	;04BF 80 0E 36 29 00
+	jnz	51Eh			;04C4 75 58
+	jmp	short 521h		;04C6 EB 59
+	call	8DCh			;04C8 E8 11 04
+	jc	4D7h			;04CB 72 0A
+	call	8B4h			;04CD E8 E4 03
+	jc	514h			;04D0 72 42
+	call	52Ch			;04D2 E8 57 00
+	jmp	short 494h		;04D5 EB BD
+	cmp	bp,si			;04D7 3B EE
+	jc	50Fh			;04D9 72 34
+	mov	di,2E25h		;04DB BF 25 2E
+	call	6A7h			;04DE E8 C6 01
+	jc	4EFh			;04E1 72 0C
+	test	byte ptr [2930h],1	;04E3 F6 06 30 29 01
+	jz	503h			;04E8 74 19
+	mov	al,0Ah			;04EA B0 0A
+	jmp	0ABDh			;04EC E9 CE 05
+	cld				;04EF FC
+	mov	al,bl			;04F0 8A C3
+	stosb				;04F2 AA
+	mov	cx,bx			;04F3 8B CB
+	repz				;04F5 F3
+	movsb				;04F6 A4
+	mov	ax,[2928h]		;04F7 A1 28 29
+	add	ax,[292Eh]		;04FA 03 06 2E 29
+	stosw				;04FE AB
+	inc	word ptr [2E25h]	;04FF FF 06 25 2E
+	call	588h			;0503 E8 82 00
+	jz	50Fh			;0506 74 07
+	cmp	al,3Ah			;0508 3C 3A
+	jnz	494h			;050A 75 88
+	inc	si			;050C 46
+	jmp	short 494h		;050D EB 85
+	mov	al,3			;050F B0 03
+	jmp	0ABDh			;0511 E9 A9 05
+	mov	al,0Ch			;0514 B0 0C
+	jmp	0ABDh			;0516 E9 A4 05
+	mov	al,9			;0519 B0 09
+	jmp	0ABDh			;051B E9 9F 05
+	call	52Ch			;051E E8 0B 00
+	xor	ah,ah			;0521 32 E4
+	mov	al,[2DA5h]		;0523 A0 A5 2D
+	add	[2928h],ax		;0526 01 06 28 29
+	clc				;052A F8
+	ret				;052B C3
+	cld				;052C FC
+	push	si			;052D 56
+	xor	ah,ah			;052E 32 E4
+	mov	al,[2DA5h]		;0530 A0 A5 2D
+	mov	di,2DA6h		;0533 BF A6 2D
+	add	di,ax			;0536 03 F8
+	mov	si,293Dh		;0538 BE 3D 29
+	mov	dl,[2936h]		;053B 8A 16 36 29
+	lodsb				;053F AC
+	test	dl,0FF80h		;0540 F6 C2 80
+	jz	546h			;0543 74 01
+	stosb				;0545 AA
+	lodsb				;0546 AC
+	test	dl,40h			;0547 F6 C2 40
+	jz	54Dh			;054A 74 01
+	stosb				;054C AA
+	lodsb				;054D AC
+	test	dl,20h			;054E F6 C2 20
+	jz	554h			;0551 74 01
+	stosb				;0553 AA
+	lodsb				;0554 AC
+	test	dl,10h			;0555 F6 C2 10
+	jz	55Bh			;0558 74 01
+	stosb				;055A AA
+	lodsw				;055B AD
+	test	dl,8			;055C F6 C2 08
+	jz	56Ah			;055F 74 09
+	test	dl,4			;0561 F6 C2 04
+	jz	569h			;0564 74 03
+	stosb				;0566 AA
+	mov	al,ah			;0567 8A C4
+	stosb				;0569 AA
+	lodsw				;056A AD
+	test	dl,2			;056B F6 C2 02
+	jz	579h			;056E 74 09
+	test	dl,1			;0570 F6 C2 01
+	jz	578h			;0573 74 03
+	stosb				;0575 AA
+	mov	al,ah			;0576 8A C4
+	stosb				;0578 AA
+	mov	ax,di			;0579 8B C7
+	sub	ax,2DA6h		;057B 2D A6 2D
+	mov	[2DA5h],al		;057E A2 A5 2D
+	xor	al,al			;0581 32 C0
+	mov	[2936h],al		;0583 A2 36 29
+	pop	si			;0586 5E
+	ret				;0587 C3
+	xor	bx,bx			;0588 33 DB
+	mov	al,[bx+si]		;058A 8A 00
+	or	al,al			;058C 0A C0
+	jz	5CDh			;058E 74 3D
+	cmp	al,0Dh			;0590 3C 0D
+	jz	5CDh			;0592 74 39
+	cmp	al,21h			;0594 3C 21
+	jc	5D9h			;0596 72 41
+	cmp	al,22h			;0598 3C 22
+	jz	5C7h			;059A 74 2B
+	cmp	al,27h			;059C 3C 27
+	jz	5C7h			;059E 74 27
+	cmp	al,30h			;05A0 3C 30
+	jc	5D2h			;05A2 72 2E
+	cmp	al,3Ah			;05A4 3C 3A
+	jc	5C4h			;05A6 72 1C
+	cmp	al,3Bh			;05A8 3C 3B
+	jz	5CDh			;05AA 74 21
+	cmp	al,41h			;05AC 3C 41
+	jc	5D2h			;05AE 72 22
+	cmp	al,7Bh			;05B0 3C 7B
+	jnc	5D2h			;05B2 73 1E
+	cmp	al,61h			;05B4 3C 61
+	jnc	5C4h			;05B6 73 0C
+	cmp	al,5Fh			;05B8 3C 5F
+	jz	5C4h			;05BA 74 08
+	cmp	al,5Bh			;05BC 3C 5B
+	jnc	5D2h			;05BE 73 12
+	or	al,20h			;05C0 0C 20
+	mov	[bx+si],al		;05C2 88 00
+	inc	bx			;05C4 43
+	jmp	short 58Ah		;05C5 EB C3
+	inc	bx			;05C7 43
+	cmp	[bx+si],al		;05C8 38 00
+	jnz	5C7h			;05CA 75 FB
+	inc	bx			;05CC 43
+	mov	al,[si]			;05CD 8A 04
+	or	bx,bx			;05CF 0B DB
+	ret				;05D1 C3
+	or	bx,bx			;05D2 0B DB
+	jnz	5CDh			;05D4 75 F7
+	inc	bx			;05D6 43
+	jmp	short 5CDh		;05D7 EB F4
+	or	bx,bx			;05D9 0B DB
+	jnz	5CDh			;05DB 75 F0
+	inc	si			;05DD 46
+	jmp	short 58Ah		;05DE EB AA
+	or	bx,bx			;05E0 0B DB
+	jz	629h			;05E2 74 45
+	cmp	al,30h			;05E4 3C 30
+	jc	629h			;05E6 72 41
+	cmp	al,39h			;05E8 3C 39
+	ja	629h			;05EA 77 3D
+	cmp	bx,1			;05EC 83 FB 01
+	ja	5F8h			;05EF 77 07
+	xor	ah,ah			;05F1 32 E4
+	sub	al,30h			;05F3 2C 30
+	inc	si			;05F5 46
+	clc				;05F6 F8
+	ret				;05F7 C3
+	cld				;05F8 FC
+	push	cx			;05F9 51
+	push	dx			;05FA 52
+	push	bx			;05FB 53
+	push	si			;05FC 56
+	mov	cx,bx			;05FD 8B CB
+	xor	dx,dx			;05FF 33 D2
+	dec	bx			;0601 4B
+	mov	al,[bx+si]		;0602 8A 00
+	mov	bl,0Ah			;0604 B3 0A
+	cmp	al,30h			;0606 3C 30
+	jc	623h			;0608 72 19
+	cmp	al,39h			;060A 3C 39
+	jna	631h			;060C 76 23
+	and	al,0FFDFh		;060E 24 DF
+	mov	bl,10h			;0610 B3 10
+	dec	cx			;0612 49
+	cmp	al,48h			;0613 3C 48
+	jz	631h			;0615 74 1A
+	cmp	al,4Fh			;0617 3C 4F
+	jz	62Fh			;0619 74 14
+	cmp	al,51h			;061B 3C 51
+	jz	62Dh			;061D 74 0E
+	cmp	al,42h			;061F 3C 42
+	jz	62Bh			;0621 74 08
+	xor	ax,ax			;0623 33 C0
+	pop	si			;0625 5E
+	pop	bx			;0626 5B
+	pop	dx			;0627 5A
+	pop	cx			;0628 59
+	stc				;0629 F9
+	ret				;062A C3
+	shr	bx,1			;062B D1 EB
+	shr	bx,1			;062D D1 EB
+	shr	bx,1			;062F D1 EB
+	or	dx,dx			;0631 0B D2
+	jz	63Bh			;0633 74 06
+	mov	ax,dx			;0635 8B C2
+	mul	bx			;0637 F7 E3
+	mov	dx,ax			;0639 8B D0
+	lodsb				;063B AC
+	cmp	al,30h			;063C 3C 30
+	jc	623h			;063E 72 E3
+	cmp	al,39h			;0640 3C 39
+	jna	648h			;0642 76 04
+	and	al,0FFDFh		;0644 24 DF
+	sub	al,7			;0646 2C 07
+	sub	al,30h			;0648 2C 30
+	xor	ah,ah			;064A 32 E4
+	add	dx,ax			;064C 03 D0
+	loop	631h			;064E E2 E1
+	mov	ax,dx			;0650 8B C2
+	pop	si			;0652 5E
+	pop	bx			;0653 5B
+	add	si,bx			;0654 03 F3
+	pop	dx			;0656 5A
+	pop	cx			;0657 59
+	clc				;0658 F8
+	ret				;0659 C3
+	mov	bx,0Ah			;065A BB 0A 00
+	cld				;065D FC
+	cmp	ax,bx			;065E 3B C3
+	jnc	66Bh			;0660 73 09
+	cmp	ax,9			;0662 3D 09 00
+	ja	66Bh			;0665 77 04
+	or	al,30h			;0667 0C 30
+	stosb				;0669 AA
+	ret				;066A C3
+	push	ax			;066B 50
+	xor	cx,cx			;066C 33 C9
+	xor	dx,dx			;066E 33 D2
+	div	bx			;0670 F7 F3
+	inc	cx			;0672 41
+	or	ax,ax			;0673 0B C0
+	jnz	66Eh			;0675 75 F7
+	pop	ax			;0677 58
+	push	si			;0678 56
+	mov	si,di			;0679 8B F7
+	xor	dx,dx			;067B 33 D2
+	div	bx			;067D F7 F3
+	xchg	ax,dx			;067F 92
+	cmp	al,9			;0680 3C 09
+	jna	686h			;0682 76 02
+	add	al,7			;0684 04 07
+	add	al,30h			;0686 04 30
+	stosb				;0688 AA
+	xchg	ax,dx			;0689 92
+	or	ax,ax			;068A 0B C0
+	jnz	67Bh			;068C 75 ED
+	xchg	ax,dx			;068E 92
+	cmp	al,39h			;068F 3C 39
+	jna	697h			;0691 76 04
+	mov	al,30h			;0693 B0 30
+	stosb				;0695 AA
+	inc	cx			;0696 41
+	shr	cl,1			;0697 D0 E9
+	push	di			;0699 57
+	xchg	di,si			;069A 87 F7
+	dec	si			;069C 4E
+	mov	al,[di]			;069D 8A 05
+	xchg	[si],al			;069F 86 04
+	stosb				;06A1 AA
+	loop	69Ch			;06A2 E2 F8
+	pop	di			;06A4 5F
+	pop	si			;06A5 5E
+	ret				;06A6 C3
+	xor	ch,ch			;06A7 32 ED
+	mov	ax,[di]			;06A9 8B 05
+	inc	di			;06AB 47
+	inc	di			;06AC 47
+	or	ax,ax			;06AD 0B C0
+	jnz	6B3h			;06AF 75 02
+	stc				;06B1 F9
+	ret				;06B2 C3
+	mov	cl,[di]			;06B3 8A 0D
+	inc	di			;06B5 47
+	cmp	cl,bl			;06B6 3A CB
+	jnz	6C1h			;06B8 75 07
+	push	si			;06BA 56
+	cld				;06BB FC
+	repz				;06BC F3
+	cmpsb				;06BD A6
+	pop	si			;06BE 5E
+	jz	6C6h			;06BF 74 05
+	add	di,cx			;06C1 03 F9
+	dec	ax			;06C3 48
+	jmp	short 6ABh		;06C4 EB E5
+	add	si,bx			;06C6 03 F3
+	mov	ax,[di]			;06C8 8B 05
+	clc				;06CA F8
+	ret				;06CB C3
+	mov	ax,bx			;06CC 8B C3
+	cld				;06CE FC
+	scasb				;06CF AE
+	jnz	6DFh			;06D0 75 0D
+	push	si			;06D2 56
+	mov	cx,bx			;06D3 8B CB
+	repz				;06D5 F3
+	cmpsb				;06D6 A6
+	pop	si			;06D7 5E
+	jnz	6DFh			;06D8 75 05
+	add	si,bx			;06DA 03 F3
+	or	ax,ax			;06DC 0B C0
+	ret				;06DE C3
+	xor	ax,ax			;06DF 33 C0
+	ret				;06E1 C3
+	or	ax,ax			;06E2 0B C0
+	jns	6EAh			;06E4 79 04
+	cmp	ax,0FF80h		;06E6 3D 80 FF
+	ret				;06E9 C3
+	cmp	ax,80h			;06EA 3D 80 00
+	cmc				;06ED F5
+	ret				;06EE C3
+	push	ax			;06EF 50
+	test	byte ptr [2930h],1	;06F0 F6 06 30 29 01
+	jnz	70Ch			;06F5 75 15
+	or	byte ptr [2937h],0	;06F7 80 0E 37 29 00
+	jnz	70Ch			;06FC 75 0E
+	or	ah,ah			;06FE 0A E4
+	jz	70Ch			;0700 74 0A
+	call	6E2h			;0702 E8 DD FF
+	jnc	70Ch			;0705 73 05
+	mov	al,7			;0707 B0 07
+	jmp	0ABDh			;0709 E9 B1 03
+	pop	ax			;070C 58
+	ret				;070D C3
+	call	588h			;070E E8 77 FE
+	call	8DCh			;0711 E8 C8 01
+	jnc	735h			;0714 73 1F
+	call	854h			;0716 E8 3B 01
+	jnc	75Ch			;0719 73 41
+	call	823h			;071B E8 05 01
+	and	dh,3			;071E 80 E6 03
+	jnz	72Eh			;0721 75 0B
+	mov	cl,2			;0723 B1 02
+	or	ah,ah			;0725 0A E4
+	jz	730h			;0727 74 07
+	call	6E2h			;0729 E8 B6 FF
+	jnc	730h			;072C 73 02
+	mov	cl,3			;072E B1 03
+	xor	al,al			;0730 32 C0
+	jmp	7F7h			;0732 E9 C2 00
+	mov	dx,505h			;0735 BA 05 05
+	cmp	al,20h			;0738 3C 20
+	jnc	750h			;073A 73 14
+	call	8B4h			;073C E8 75 01
+	jnc	75Ch			;073F 73 1B
+	mov	dx,203h			;0741 BA 03 02
+	cmp	al,10h			;0744 3C 10
+	jnc	750h			;0746 73 08
+	mov	dl,1			;0748 B2 01
+	cmp	al,8			;074A 3C 08
+	jnc	750h			;074C 73 02
+	mov	dh,1			;074E B6 01
+	and	al,7			;0750 24 07
+	xchg	al,dh			;0752 86 F0
+	jmp	7FBh			;0754 E9 A4 00
+	mov	al,1			;0757 B0 01
+	jmp	0ABDh			;0759 E9 61 03
+	xor	cx,cx			;075C 33 C9
+	mov	dx,8002h		;075E BA 02 80
+	xor	dh,0FF80h		;0761 80 F6 80
+	and	dh,0FFBFh		;0764 80 E6 BF
+	inc	si			;0767 46
+	call	588h			;0768 E8 1D FE
+	jz	7A9h			;076B 74 3C
+	cmp	al,5Dh			;076D 3C 5D
+	jz	7C4h			;076F 74 53
+	cmp	al,2Bh			;0771 3C 2B
+	jz	764h			;0773 74 EF
+	cmp	al,2Dh			;0775 3C 2D
+	jz	761h			;0777 74 E8
+	push	cx			;0779 51
+	call	8DCh			;077A E8 5F 01
+	pop	cx			;077D 59
+	jnc	78Dh			;077E 73 0D
+	push	cx			;0780 51
+	call	92Eh			;0781 E8 AA 01
+	pop	cx			;0784 59
+	jc	757h			;0785 72 D0
+	add	[2941h],ax		;0787 01 06 41 29
+	jmp	short 768h		;078B EB DB
+	mov	cl,1			;078D B1 01
+	cmp	al,0Eh			;078F 3C 0E
+	jz	7AEh			;0791 74 1B
+	cmp	al,0Fh			;0793 3C 0F
+	jz	7B0h			;0795 74 19
+	cmp	al,0Dh			;0797 3C 0D
+	jz	7B2h			;0799 74 17
+	cmp	al,0Bh			;079B 3C 0B
+	jz	7B4h			;079D 74 15
+	xor	al,al			;079F 32 C0
+	jmp	0ABDh			;07A1 E9 19 03
+	mov	al,2			;07A4 B0 02
+	jmp	0ABDh			;07A6 E9 14 03
+	mov	al,8			;07A9 B0 08
+	jmp	0ABDh			;07AB E9 0F 03
+	shl	cl,1			;07AE D0 E1
+	shl	cl,1			;07B0 D0 E1
+	shl	cl,1			;07B2 D0 E1
+	test	cl,ch			;07B4 84 E9
+	jnz	7A4h			;07B6 75 EC
+	test	dh,0FF80h		;07B8 F6 C6 80
+	jnz	7A4h			;07BB 75 E7
+	or	ch,cl			;07BD 0A E9
+	or	dh,40h			;07BF 80 CE 40
+	jmp	short 768h		;07C2 EB A4
+	or	dh,dh			;07C4 0A F6
+	jz	7A9h			;07C6 74 E1
+	inc	si			;07C8 46
+	mov	al,ch			;07C9 8A C5
+	mov	bx,2630h		;07CB BB 30 26
+	xlatb				;07CE D7
+	test	al,0FFF0h		;07CF A8 F0
+	jnz	7A4h			;07D1 75 D1
+	xchg	dh,al			;07D3 86 C6
+	test	al,3			;07D5 A8 03
+	jnz	7F2h			;07D7 75 19
+	cmp	dh,0Eh			;07D9 80 FE 0E
+	jz	7F2h			;07DC 74 14
+	xor	cl,cl			;07DE 32 C9
+	mov	ax,[2941h]		;07E0 A1 41 29
+	or	ax,ax			;07E3 0B C0
+	jz	7F4h			;07E5 74 0D
+	mov	cl,8			;07E7 B1 08
+	or	ah,ah			;07E9 0A E4
+	jz	7F4h			;07EB 74 07
+	call	6E2h			;07ED E8 F2 FE
+	jnc	7F4h			;07F0 73 02
+	mov	cl,0Ch			;07F2 B1 0C
+	mov	al,[2937h]		;07F4 A0 37 29
+	or	[2936h],cl		;07F7 08 0E 36 29
+	mov	cl,4			;07FB B1 04
+	test	byte ptr [2939h],0Fh	;07FD F6 06 39 29 0F
+	jz	808h			;0802 74 04
+	rol	al,cl			;0804 D2 C0
+	rol	dx,cl			;0806 D3 C2
+	or	[293Bh],al		;0808 08 06 3B 29
+	or	[2939h],dx		;080C 09 16 39 29
+	call	588h			;0810 E8 75 FD
+	jz	81Ah			;0813 74 05
+	cmp	al,2Ch			;0815 3C 2C
+	jnz	81Eh			;0817 75 05
+	inc	si			;0819 46
+	mov	ax,[2939h]		;081A A1 39 29
+	ret				;081D C3
+	mov	al,1			;081E B0 01
+	jmp	0ABDh			;0820 E9 9A 02
+	mov	dx,8004h		;0823 BA 04 80
+	dec	si			;0826 4E
+	xor	dh,0FF80h		;0827 80 F6 80
+	and	dh,0FFBFh		;082A 80 E6 BF
+	inc	si			;082D 46
+	call	588h			;082E E8 57 FD
+	jz	846h			;0831 74 13
+	cmp	al,2Bh			;0833 3C 2B
+	jz	82Ah			;0835 74 F3
+	cmp	al,2Dh			;0837 3C 2D
+	jz	827h			;0839 74 EC
+	call	92Eh			;083B E8 F0 00
+	jc	846h			;083E 72 06
+	add	[2943h],ax		;0840 01 06 43 29
+	jmp	short 82Eh		;0844 EB E8
+	test	dh,40h			;0846 F6 C6 40
+	jz	84Fh			;0849 74 04
+	mov	ax,[2943h]		;084B A1 43 29
+	ret				;084E C3
+	mov	al,8			;084F B0 08
+	jmp	0ABDh			;0851 E9 69 02
+	mov	di,4			;0854 BF 04 00
+	cmp	al,62h			;0857 3C 62
+	jz	871h			;0859 74 16
+	cmp	al,77h			;085B 3C 77
+	jz	872h			;085D 74 13
+	cmp	al,64h			;085F 3C 64
+	jz	873h			;0861 74 10
+	cmp	al,71h			;0863 3C 71
+	jz	874h			;0865 74 0D
+	cmp	al,74h			;0867 3C 74
+	jz	875h			;0869 74 0A
+	cmp	al,5Bh			;086B 3C 5B
+	jz	8A8h			;086D 74 39
+	stc				;086F F9
+	ret				;0870 C3
+	dec	di			;0871 4F
+	dec	di			;0872 4F
+	dec	di			;0873 4F
+	dec	di			;0874 4F
+	shl	di,1			;0875 D1 E7
+	mov	di,[di+275Eh]		;0877 8B BD 5E 27
+	call	6CCh			;087B E8 4E FE
+	jz	86Fh			;087E 74 EF
+	mov	al,[di]			;0880 8A 05
+	mov	[2937h],al		;0882 A2 37 29
+	call	588h			;0885 E8 00 FD
+	jz	8AFh			;0888 74 25
+	mov	di,1D33h		;088A BF 33 1D
+	call	6CCh			;088D E8 3C FE
+	jz	8A1h			;0890 74 0F
+	call	588h			;0892 E8 F3 FC
+	jz	8AFh			;0895 74 18
+	call	8DCh			;0897 E8 42 00
+	jc	8A1h			;089A 72 05
+	call	8B4h			;089C E8 15 00
+	jc	8AAh			;089F 72 09
+	call	588h			;08A1 E8 E4 FC
+	cmp	al,5Bh			;08A4 3C 5B
+	jnz	8AAh			;08A6 75 02
+	clc				;08A8 F8
+	ret				;08A9 C3
+	mov	al,1			;08AA B0 01
+	jmp	0ABDh			;08AC E9 0E 02
+	mov	al,8			;08AF B0 08
+	jmp	0ABDh			;08B1 E9 09 02
+	cmp	al,10h			;08B4 3C 10
+	jc	8DAh			;08B6 72 22
+	cmp	al,20h			;08B8 3C 20
+	jnc	8DAh			;08BA 73 1E
+	push	ax			;08BC 50
+	call	588h			;08BD E8 C8 FC
+	cmp	al,3Ah			;08C0 3C 3A
+	pop	ax			;08C2 58
+	jnz	8DAh			;08C3 75 15
+	and	al,3			;08C5 24 03
+	shl	al,1			;08C7 D0 E0
+	shl	al,1			;08C9 D0 E0
+	shl	al,1			;08CB D0 E0
+	or	al,26h			;08CD 0C 26
+	mov	[293Eh],al		;08CF A2 3E 29
+	or	byte ptr [2936h],40h	;08D2 80 0E 36 29 40
+	inc	si			;08D7 46
+	clc				;08D8 F8
+	ret				;08D9 C3
+	stc				;08DA F9
+	ret				;08DB C3
+	cld				;08DC FC
+	lodsw				;08DD AD
+	cmp	bx,2			;08DE 83 FB 02
+	jnz	8F8h			;08E1 75 15
+	cmp	ax,7473h		;08E3 3D 73 74
+	jz	8FCh			;08E6 74 14
+	mov	di,2770h		;08E8 BF 70 27
+	mov	cx,14h			;08EB B9 14 00
+	repnz				;08EE F2
+	scasw				;08EF AF
+	jnz	8F8h			;08F0 75 06
+	mov	al,13h			;08F2 B0 13
+	sub	al,cl			;08F4 2A C1
+	clc				;08F6 F8
+	ret				;08F7 C3
+	dec	si			;08F8 4E
+	dec	si			;08F9 4E
+	stc				;08FA F9
+	ret				;08FB C3
+	call	588h			;08FC E8 89 FC
+	jz	925h			;08FF 74 24
+	cmp	al,28h			;0901 3C 28
+	jnz	925h			;0903 75 20
+	inc	si			;0905 46
+	call	588h			;0906 E8 7F FC
+	jz	929h			;0909 74 1E
+	call	5E0h			;090B E8 D2 FC
+	jc	929h			;090E 72 19
+	cmp	ax,7			;0910 3D 07 00
+	ja	929h			;0913 77 14
+	or	al,20h			;0915 0C 20
+	push	ax			;0917 50
+	call	588h			;0918 E8 6D FC
+	jz	929h			;091B 74 0C
+	cmp	al,29h			;091D 3C 29
+	jnz	929h			;091F 75 08
+	pop	ax			;0921 58
+	inc	si			;0922 46
+	clc				;0923 F8
+	ret				;0924 C3
+	mov	al,20h			;0925 B0 20
+	clc				;0927 F8
+	ret				;0928 C3
+	mov	al,0Dh			;0929 B0 0D
+	jmp	0ABDh			;092B E9 8F 01
+	test	dh,40h			;092E F6 C6 40
+	jnz	958h			;0931 75 25
+	call	588h			;0933 E8 52 FC
+	jz	958h			;0936 74 20
+	cmp	al,24h			;0938 3C 24
+	jz	95Ah			;093A 74 1E
+	cmp	al,22h			;093C 3C 22
+	jz	968h			;093E 74 28
+	cmp	al,27h			;0940 3C 27
+	jz	968h			;0942 74 24
+	call	5E0h			;0944 E8 99 FC
+	jc	98Dh			;0947 72 44
+	test	dh,0FF80h		;0949 F6 C6 80
+	jz	950h			;094C 74 02
+	neg	ax			;094E F7 D8
+	and	dh,7Fh			;0950 80 E6 7F
+	or	dh,40h			;0953 80 CE 40
+	clc				;0956 F8
+	ret				;0957 C3
+	stc				;0958 F9
+	ret				;0959 C3
+	or	dh,2			;095A 80 CE 02
+	mov	ax,[2928h]		;095D A1 28 29
+	add	ax,[292Eh]		;0960 03 06 2E 29
+	add	si,bx			;0964 03 F3
+	jmp	short 949h		;0966 EB E1
+	push	word ptr [si+1]		;0968 FF 74 01
+	add	si,bx			;096B 03 F3
+	mov	al,bl			;096D 8A C3
+	cmp	al,3			;096F 3C 03
+	jc	983h			;0971 72 10
+	cmp	al,4			;0973 3C 04
+	ja	97Eh			;0975 77 07
+	pop	ax			;0977 58
+	jnc	949h			;0978 73 CF
+	xor	ah,ah			;097A 32 E4
+	jmp	short 949h		;097C EB CB
+	mov	al,7			;097E B0 07
+	jmp	0ABDh			;0980 E9 3A 01
+	mov	al,8			;0983 B0 08
+	jmp	0ABDh			;0985 E9 35 01
+	mov	al,0Ch			;0988 B0 0C
+	jmp	0ABDh			;098A E9 30 01
+	call	8DCh			;098D E8 4C FF
+	jnc	988h			;0990 73 F6
+	or	dh,1			;0992 80 CE 01
+	mov	di,1D0Ch		;0995 BF 0C 1D
+	call	6CCh			;0998 E8 31 FD
+	call	588h			;099B E8 EA FB
+	jz	983h			;099E 74 E3
+	mov	di,2E25h		;09A0 BF 25 2E
+	call	6A7h			;09A3 E8 01 FD
+	jnc	949h			;09A6 73 A1
+	test	byte ptr [2930h],2	;09A8 F6 06 30 29 02
+	jz	95Ah			;09AD 74 AB
+	mov	al,4			;09AF B0 04
+	jmp	0ABDh			;09B1 E9 09 01
+	push	ax			;09B4 50
+	mov	al,[293Bh]		;09B5 A0 3B 29
+	mov	ah,al			;09B8 8A E0
+	mov	cl,4			;09BA B1 04
+	shr	ah,cl			;09BC D2 EC
+	and	ax,0F0Fh		;09BE 25 0F 0F
+	jz	9DFh			;09C1 74 1C
+	or	al,al			;09C3 0A C0
+	jz	9D4h			;09C5 74 0D
+	or	ah,ah			;09C7 0A E4
+	jz	9DAh			;09C9 74 0F
+	cmp	al,ah			;09CB 3A C4
+	jz	9DAh			;09CD 74 0B
+	mov	al,6			;09CF B0 06
+	jmp	0ABDh			;09D1 E9 E9 00
+	cmp	al,ah			;09D4 3A C4
+	jz	9DFh			;09D6 74 07
+	mov	al,ah			;09D8 8A C4
+	cmp	al,2			;09DA 3C 02
+	ja	9CFh			;09DC 77 F1
+	dec	ax			;09DE 48
+	mov	[2937h],al		;09DF A2 37 29
+	test	byte ptr [2936h],2	;09E2 F6 06 36 29 02
+	jz	9FEh			;09E7 74 15
+	or	al,al			;09E9 0A C0
+	jz	9F3h			;09EB 74 06
+	or	[2936h],al		;09ED 08 06 36 29
+	pop	ax			;09F1 58
+	ret				;09F2 C3
+	mov	ax,[2943h]		;09F3 A1 43 29
+	call	6EFh			;09F6 E8 F6 FC
+	and	byte ptr [2936h],0FFFEh	;09F9 80 26 36 29 FE
+	pop	ax			;09FE 58
+	ret				;09FF C3
+	call	588h			;0A00 E8 85 FB
+	cmp	al,66h			;0A03 3C 66
+	jz	0A12h			;0A05 74 0B
+	cmp	al,6Eh			;0A07 3C 6E
+	jz	0A18h			;0A09 74 0D
+	cmp	al,73h			;0A0B 3C 73
+	jz	0A1Eh			;0A0D 74 0F
+	xor	ax,ax			;0A0F 33 C0
+	ret				;0A11 C3
+	mov	di,1922h		;0A12 BF 22 19
+	jmp	6CCh			;0A15 E9 B4 FC
+	mov	di,1CF3h		;0A18 BF F3 1C
+	jmp	6CCh			;0A1B E9 AE FC
+	mov	di,1DC8h		;0A1E BF C8 1D
+	jmp	6CCh			;0A21 E9 A8 FC
+	or	byte ptr [2936h],10h	;0A24 80 0E 36 29 10
+	mov	ax,[2939h]		;0A29 A1 39 29
+	mov	cl,4			;0A2C B1 04
+	cmp	al,11h			;0A2E 3C 11
+	jz	0AABh			;0A30 74 79
+	cmp	al,12h			;0A32 3C 12
+	jz	0A70h			;0A34 74 3A
+	cmp	al,13h			;0A36 3C 13
+	jz	0AABh			;0A38 74 71
+	cmp	al,21h			;0A3A 3C 21
+	jz	0A6Eh			;0A3C 74 30
+	cmp	al,23h			;0A3E 3C 23
+	jz	0A6Eh			;0A40 74 2C
+	cmp	al,31h			;0A42 3C 31
+	jz	0AADh			;0A44 74 67
+	cmp	al,32h			;0A46 3C 32
+	jz	0A70h			;0A48 74 26
+	cmp	al,55h			;0A4A 3C 55
+	jz	0AABh			;0A4C 74 5D
+	and	ax,0F0Fh		;0A4E 25 0F 0F
+	cmp	al,1			;0A51 3C 01
+	jz	0AADh			;0A53 74 58
+	cmp	al,2			;0A55 3C 02
+	jz	0A70h			;0A57 74 17
+	cmp	al,5			;0A59 3C 05
+	jz	0AADh			;0A5B 74 50
+	mov	ax,[2939h]		;0A5D A1 39 29
+	ror	ax,cl			;0A60 D3 C8
+	and	ax,0F0Fh		;0A62 25 0F 0F
+	cmp	al,1			;0A65 3C 01
+	jz	0AADh			;0A67 74 44
+	cmp	al,2			;0A69 3C 02
+	jz	0A70h			;0A6B 74 03
+	ret				;0A6D C3
+	ror	ah,cl			;0A6E D2 CC
+	mov	al,ah			;0A70 8A C4
+	push	ax			;0A72 50
+	and	ax,7007h		;0A73 25 07 70
+	ror	ah,1			;0A76 D0 CC
+	or	al,ah			;0A78 0A C4
+	or	[2940h],al		;0A7A 08 06 40 29
+	pop	ax			;0A7E 58
+	test	al,8			;0A7F A8 08
+	jnz	0AAAh			;0A81 75 27
+	test	byte ptr [2936h],8	;0A83 F6 06 36 29 08
+	jz	0A9Ah			;0A88 74 10
+	mov	al,40h			;0A8A B0 40
+	test	byte ptr [2936h],4	;0A8C F6 06 36 29 04
+	jz	0A95h			;0A91 74 02
+	shl	al,1			;0A93 D0 E0
+	or	[2940h],al		;0A95 08 06 40 29
+	ret				;0A99 C3
+	and	al,7			;0A9A 24 07
+	cmp	al,6			;0A9C 3C 06
+	jnz	0AAAh			;0A9E 75 0A
+	or	byte ptr [2936h],8	;0AA0 80 0E 36 29 08
+	or	byte ptr [2940h],40h	;0AA5 80 0E 40 29 40
+	ret				;0AAA C3
+	ror	ah,cl			;0AAB D2 CC
+	mov	al,ah			;0AAD 8A C4
+	ror	ah,1			;0AAF D0 CC
+	and	ax,3807h		;0AB1 25 07 38
+	or	al,ah			;0AB4 0A C4
+	or	al,0FFC0h		;0AB6 0C C0
+	or	[2940h],al		;0AB8 08 06 40 29
+	ret				;0ABC C3
+	mov	sp,[2932h]		;0ABD 8B 26 32 29
+	cld				;0AC1 FC
+	inc	word ptr [292Ch]	;0AC2 FF 06 2C 29
+	mov	di,80h			;0AC6 BF 80 00
+	xor	ah,ah			;0AC9 32 E4
+	push	ax			;0ACB 50
+	shl	ax,1			;0ACC D1 E0
+	add	ax,2658h		;0ACE 05 58 26
+	mov	si,ax			;0AD1 8B F0
+	mov	si,[si]			;0AD3 8B 34
+	mov	al,[2930h]		;0AD5 A0 30 29
+	test	al,4			;0AD8 A8 04
+	jz	0AF0h			;0ADA 74 14
+	push	dx			;0ADC 52
+	push	si			;0ADD 56
+	call	30Dh			;0ADE E8 2C F8
+	mov	si,28BAh		;0AE1 BE BA 28
+	call	0B1Eh			;0AE4 E8 37 00
+	call	65Ah			;0AE7 E8 70 FB
+	mov	ax,203Ah		;0AEA B8 3A 20
+	stosw				;0AED AB
+	pop	si			;0AEE 5E
+	pop	dx			;0AEF 5A
+	call	0B1Eh			;0AF0 E8 2B 00
+	pop	ax			;0AF3 58
+	cmp	al,5			;0AF4 3C 05
+	jz	0B04h			;0AF6 74 0C
+	cmp	al,0Bh			;0AF8 3C 0B
+	jnz	0B02h			;0AFA 75 06
+	mov	si,2C25h		;0AFC BE 25 2C
+	call	0B1Eh			;0AFF E8 1C 00
+	stc				;0B02 F9
+	ret				;0B03 C3
+	mov	ax,[2943h]		;0B04 A1 43 29
+	or	ax,ax			;0B07 0B C0
+	jns	0B0Eh			;0B09 79 03
+	neg	ax			;0B0B F7 D8
+	dec	ax			;0B0D 48
+	sub	ax,7Fh			;0B0E 2D 7F 00
+	push	ax			;0B11 50
+	call	65Ah			;0B12 E8 45 FB
+	pop	ax			;0B15 58
+	mov	si,28C2h		;0B16 BE C2 28
+	call	0B1Eh			;0B19 E8 02 00
+	stc				;0B1C F9
+	ret				;0B1D C3
+	mov	cl,[si]			;0B1E 8A 0C
+	xor	ch,ch			;0B20 32 ED
+	inc	si			;0B22 46
+	cld				;0B23 FC
+	repz				;0B24 F3
+	movsb				;0B25 A4
+	ret				;0B26 C3
+	mov	ax,0A0Dh		;0B27 B8 0D 0A
+	stosw				;0B2A AB
+	mov	al,24h			;0B2B B0 24
+	stosb				;0B2D AA
+	mov	ah,9			;0B2E B4 09
+	mov	dx,80h			;0B30 BA 80 00
+	int	21h			;0B33 CD 21
+	ret				;0B35 C3
+	call	70Eh			;0B36 E8 D5 FB
+	call	70Eh			;0B39 E8 D2 FB
+	call	9B4h			;0B3C E8 75 FE
+	cmp	al,11h			;0B3F 3C 11
+	jz	0B85h			;0B41 74 42
+	cmp	al,12h			;0B43 3C 12
+	jz	0B8Ah			;0B45 74 43
+	cmp	al,21h			;0B47 3C 21
+	jz	0B85h			;0B49 74 3A
+	cmp	al,41h			;0B4B 3C 41
+	jz	0B58h			;0B4D 74 09
+	cmp	al,42h			;0B4F 3C 42
+	jz	0B67h			;0B51 74 14
+	xor	al,al			;0B53 32 C0
+	jmp	0ABDh			;0B55 E9 65 FF
+	and	ah,7			;0B58 80 E4 07
+	jnz	0B67h			;0B5B 75 0A
+	mov	al,[2937h]		;0B5D A0 37 29
+	or	al,4			;0B60 0C 04
+	or	[293Fh],al		;0B62 08 06 3F 29
+	ret				;0B66 C3
+	mov	al,0FF80h		;0B67 B0 80
+	xchg	[293Fh],al		;0B69 86 06 3F 29
+	or	[2940h],al		;0B6D 08 06 40 29
+	mov	ax,[2943h]		;0B71 A1 43 29
+	call	6E2h			;0B74 E8 6B FB
+	jc	0B8Ah			;0B77 72 11
+	and	byte ptr [2936h],0FFFEh	;0B79 80 26 36 29 FE
+	or	byte ptr [2937h],0	;0B7E 80 0E 37 29 00
+	jz	0B8Ah			;0B83 74 05
+	or	byte ptr [293Fh],2	;0B85 80 0E 3F 29 02
+	mov	al,[2937h]		;0B8A A0 37 29
+	or	[293Fh],al		;0B8D 08 06 3F 29
+	jmp	0A24h			;0B91 E9 90 FE
+	call	70Eh			;0B94 E8 77 FB
+	call	9B4h			;0B97 E8 1A FE
+	mov	al,[293Fh]		;0B9A A0 3F 29
+	mov	[2940h],al		;0B9D A2 40 29
+	mov	al,[2937h]		;0BA0 A0 37 29
+	or	al,0FFD0h		;0BA3 0C D0
+	mov	[293Fh],al		;0BA5 A2 3F 29
+	call	588h			;0BA8 E8 DD F9
+	jz	0BCEh			;0BAB 74 21
+	mov	ax,[si]			;0BAD 8B 04
+	add	si,bx			;0BAF 03 F3
+	cmp	bx,2			;0BB1 83 FB 02
+	jz	0BC4h			;0BB4 74 0E
+	cmp	bx,1			;0BB6 83 FB 01
+	jnz	0BBFh			;0BB9 75 04
+	cmp	al,31h			;0BBB 3C 31
+	jz	0BCEh			;0BBD 74 0F
+	xor	al,al			;0BBF 32 C0
+	jmp	0ABDh			;0BC1 E9 F9 FE
+	cmp	ax,6C63h		;0BC4 3D 63 6C
+	jnz	0BBFh			;0BC7 75 F6
+	or	byte ptr [293Fh],2	;0BC9 80 0E 3F 29 02
+	jmp	0A24h			;0BCE E9 53 FE
+	call	70Eh			;0BD1 E8 3A FB
+	or	byte ptr [293Fh],0	;0BD4 80 0E 3F 29 00
+	jnz	0BDEh			;0BD9 75 03
+	call	70Eh			;0BDB E8 30 FB
+	call	9B4h			;0BDE E8 D3 FD
+	cmp	al,1			;0BE1 3C 01
+	jz	0C0Bh			;0BE3 74 26
+	cmp	al,2			;0BE5 3C 02
+	jz	0C0Bh			;0BE7 74 22
+	cmp	al,11h			;0BE9 3C 11
+	jz	0C02h			;0BEB 74 15
+	cmp	al,12h			;0BED 3C 12
+	jz	0C02h			;0BEF 74 11
+	cmp	al,21h			;0BF1 3C 21
+	jz	0C02h			;0BF3 74 0D
+	cmp	al,41h			;0BF5 3C 41
+	jz	0C06h			;0BF7 74 0D
+	cmp	al,42h			;0BF9 3C 42
+	jz	0C0Bh			;0BFB 74 0E
+	xor	al,al			;0BFD 32 C0
+	jmp	0ABDh			;0BFF E9 BB FE
+	mov	ah,0FF84h		;0C02 B4 84
+	jmp	short 0C0Dh		;0C04 EB 07
+	test	ah,7			;0C06 F6 C4 07
+	jz	0C1Dh			;0C09 74 12
+	mov	ah,0FFF6h		;0C0B B4 F6
+	mov	al,[2937h]		;0C0D A0 37 29
+	or	al,ah			;0C10 0A C4
+	xchg	[293Fh],al		;0C12 86 06 3F 29
+	or	[2940h],al		;0C16 08 06 40 29
+	jmp	0A24h			;0C1A E9 07 FE
+	mov	al,[2937h]		;0C1D A0 37 29
+	or	al,0FFA8h		;0C20 0C A8
+	mov	[293Fh],al		;0C22 A2 3F 29
+	ret				;0C25 C3
+	call	70Eh			;0C26 E8 E5 FA
+	call	9B4h			;0C29 E8 88 FD
+	cmp	al,1			;0C2C 3C 01
+	jz	0C3Dh			;0C2E 74 0D
+	cmp	al,2			;0C30 3C 02
+	jz	0C51h			;0C32 74 1D
+	cmp	al,3			;0C34 3C 03
+	jz	0C72h			;0C36 74 3A
+	xor	al,al			;0C38 32 C0
+	jmp	0ABDh			;0C3A E9 80 FE
+	mov	al,[293Bh]		;0C3D A0 3B 29
+	cmp	al,2			;0C40 3C 02
+	jc	0C51h			;0C42 72 0D
+	mov	al,[293Fh]		;0C44 A0 3F 29
+	and	al,18h			;0C47 24 18
+	or	al,40h			;0C49 0C 40
+	or	al,ah			;0C4B 0A C4
+	mov	[293Fh],al		;0C4D A2 3F 29
+	ret				;0C50 C3
+	mov	al,[293Fh]		;0C51 A0 3F 29
+	cmp	al,38h			;0C54 3C 38
+	mov	ax,8Fh			;0C56 B8 8F 00
+	jz	0C6Ch			;0C59 74 11
+	mov	al,[293Bh]		;0C5B A0 3B 29
+	or	al,al			;0C5E 0A C0
+	mov	al,[2937h]		;0C60 A0 37 29
+	jnz	0C66h			;0C63 75 01
+	inc	ax			;0C65 40
+	or	al,0FFFEh		;0C66 0C FE
+	mov	ah,[293Fh]		;0C68 8A 26 3F 29
+	mov	[293Fh],ax		;0C6C A3 3F 29
+	jmp	0A24h			;0C6F E9 B2 FD
+	dec	cx			;0C72 49
+	shl	ah,cl			;0C73 D2 E4
+	mov	al,[293Fh]		;0C75 A0 3F 29
+	shr	al,cl			;0C78 D2 E8
+	and	al,1			;0C7A 24 01
+	or	al,ah			;0C7C 0A C4
+	or	al,6			;0C7E 0C 06
+	mov	[293Fh],al		;0C80 A2 3F 29
+	ret				;0C83 C3
+	call	70Eh			;0C84 E8 87 FA
+	and	byte ptr [2936h],0FFE2h	;0C87 80 26 36 29 E2
+	test	byte ptr [2930h],2	;0C8C F6 06 30 29 02
+	jz	0CB1h			;0C91 74 1E
+	cmp	al,4			;0C93 3C 04
+	jnz	0CB2h			;0C95 75 1B
+	mov	ax,[2943h]		;0C97 A1 43 29
+	sub	ax,[2928h]		;0C9A 2B 06 28 29
+	sub	ax,[292Eh]		;0C9E 2B 06 2E 29
+	dec	ax			;0CA2 48
+	dec	ax			;0CA3 48
+	mov	[2943h],ax		;0CA4 A3 43 29
+	call	6E2h			;0CA7 E8 38 FA
+	jnc	0CB1h			;0CAA 73 05
+	mov	al,5			;0CAC B0 05
+	jmp	0ABDh			;0CAE E9 0C FE
+	ret				;0CB1 C3
+	xor	al,al			;0CB2 32 C0
+	jmp	0ABDh			;0CB4 E9 06 FE
+	call	0A00h			;0CB7 E8 46 FD
+	cmp	al,3			;0CBA 3C 03
+	jz	0CF8h			;0CBC 74 3A
+	cmp	al,4			;0CBE 3C 04
+	jz	0CC6h			;0CC0 74 04
+	cmp	al,5			;0CC2 3C 05
+	jz	0CE9h			;0CC4 74 23
+	call	70Eh			;0CC6 E8 45 FA
+	cmp	al,4			;0CC9 3C 04
+	jz	0D1Bh			;0CCB 74 4E
+	cmp	al,1			;0CCD 3C 01
+	jz	0CD5h			;0CCF 74 04
+	cmp	al,2			;0CD1 3C 02
+	jnz	0D16h			;0CD3 75 41
+	mov	al,[293Bh]		;0CD5 A0 3B 29
+	or	al,al			;0CD8 0A C0
+	jz	0D04h			;0CDA 74 28
+	cmp	al,2			;0CDC 3C 02
+	jz	0D04h			;0CDE 74 24
+	cmp	al,3			;0CE0 3C 03
+	jz	0CFFh			;0CE2 74 1B
+	mov	al,6			;0CE4 B0 06
+	jmp	0ABDh			;0CE6 E9 D4 FD
+	cmp	byte ptr [293Fh],20h	;0CE9 80 3E 3F 29 20
+	jnz	0D16h			;0CEE 75 26
+	mov	byte ptr [293Fh],0FFEBh	;0CF0 C6 06 3F 29 EB
+	jmp	0C84h			;0CF5 E9 8C FF
+	or	byte ptr [293Fh],8	;0CF8 80 0E 3F 29 08
+	jmp	short 0CC6h		;0CFD EB C7
+	or	byte ptr [293Fh],8	;0CFF 80 0E 3F 29 08
+	mov	al,0FFFFh		;0D04 B0 FF
+	xchg	[293Fh],al		;0D06 86 06 3F 29
+	or	[2940h],al		;0D0A 08 06 40 29
+	jmp	0A24h			;0D0E E9 13 FD
+	mov	al,8			;0D11 B0 08
+	jmp	0ABDh			;0D13 E9 A7 FD
+	xor	al,al			;0D16 32 C0
+	jmp	0ABDh			;0D18 E9 A2 FD
+	call	588h			;0D1B E8 6A F8
+	cmp	al,3Ah			;0D1E 3C 3A
+	jz	0D4Ah			;0D20 74 28
+	mov	al,[293Fh]		;0D22 A0 3F 29
+	test	al,8			;0D25 A8 08
+	jnz	0D11h			;0D27 75 E8
+	dec	cx			;0D29 49
+	rol	al,cl			;0D2A D2 C0
+	and	al,1			;0D2C 24 01
+	or	al,0FFE8h		;0D2E 0C E8
+	mov	[293Fh],al		;0D30 A2 3F 29
+	mov	ax,[2943h]		;0D33 A1 43 29
+	sub	ax,[2928h]		;0D36 2B 06 28 29
+	sub	ax,[292Eh]		;0D3A 2B 06 2E 29
+	sub	ax,3			;0D3E 2D 03 00
+	mov	[2943h],ax		;0D41 A3 43 29
+	or	byte ptr [2936h],3	;0D44 80 0E 36 29 03
+	ret				;0D49 C3
+	inc	si			;0D4A 46
+	call	588h			;0D4B E8 3A F8
+	jz	0D16h			;0D4E 74 C6
+	call	5E0h			;0D50 E8 8D F8
+	jc	0D16h			;0D53 72 C1
+	mov	[2941h],ax		;0D55 A3 41 29
+	or	byte ptr [2936h],0Fh	;0D58 80 0E 36 29 0F
+	xor	al,al			;0D5D 32 C0
+	xchg	[293Fh],al		;0D5F 86 06 3F 29
+	cmp	al,20h			;0D63 3C 20
+	jc	0D6Ch			;0D65 72 05
+	add	byte ptr [293Fh],50h	;0D67 80 06 3F 29 50
+	add	byte ptr [293Fh],0FF9Ah	;0D6C 80 06 3F 29 9A
+	ret				;0D71 C3
+	call	588h			;0D72 E8 13 F8
+	jnz	0D83h			;0D75 75 0C
+	mov	ax,0Ah			;0D77 B8 0A 00
+	mov	[2943h],ax		;0D7A A3 43 29
+	or	byte ptr [2936h],2	;0D7D 80 0E 36 29 02
+	ret				;0D82 C3
+	call	823h			;0D83 E8 9D FA
+	or	ah,ah			;0D86 0A E4
+	jz	0D7Dh			;0D88 74 F3
+	mov	al,7			;0D8A B0 07
+	jmp	0ABDh			;0D8C E9 2E FD
+	call	70Eh			;0D8F E8 7C F9
+	call	70Eh			;0D92 E8 79 F9
+	cmp	byte ptr [2939h],21h	;0D95 80 3E 39 29 21
+	jnz	0D9Fh			;0D9A 75 03
+	jmp	0A24h			;0D9C E9 85 FC
+	xor	al,al			;0D9F 32 C0
+	jmp	0ABDh			;0DA1 E9 19 FD
+	call	70Eh			;0DA4 E8 67 F9
+	call	70Eh			;0DA7 E8 64 F9
+	call	9B4h			;0DAA E8 07 FC
+	cmp	al,11h			;0DAD 3C 11
+	jz	0DEFh			;0DAF 74 3E
+	cmp	al,12h			;0DB1 3C 12
+	jz	0E12h			;0DB3 74 5D
+	cmp	al,13h			;0DB5 3C 13
+	jz	0E2Ch			;0DB7 74 73
+	cmp	al,21h			;0DB9 3C 21
+	jz	0DEFh			;0DBB 74 32
+	cmp	al,23h			;0DBD 3C 23
+	jz	0E2Ch			;0DBF 74 6B
+	cmp	al,31h			;0DC1 3C 31
+	jz	0E24h			;0DC3 74 5F
+	cmp	al,32h			;0DC5 3C 32
+	jz	0E24h			;0DC7 74 5B
+	cmp	al,41h			;0DC9 3C 41
+	jz	0DD6h			;0DCB 74 09
+	cmp	al,42h			;0DCD 3C 42
+	jz	0DE4h			;0DCF 74 13
+	xor	al,al			;0DD1 32 C0
+	jmp	0ABDh			;0DD3 E9 E7 FC
+	mov	al,[2937h]		;0DD6 A0 37 29
+	dec	cx			;0DD9 49
+	shl	al,cl			;0DDA D2 E0
+	or	al,ah			;0DDC 0A C4
+	or	al,0FFB0h		;0DDE 0C B0
+	mov	[293Fh],al		;0DE0 A2 3F 29
+	ret				;0DE3 C3
+	mov	al,[2937h]		;0DE4 A0 37 29
+	or	al,0FFC6h		;0DE7 0C C6
+	mov	[293Fh],al		;0DE9 A2 3F 29
+	jmp	0A24h			;0DEC E9 35 FC
+	mov	al,2			;0DEF B0 02
+	cmp	ah,0FFE0h		;0DF1 80 FC E0
+	jnz	0E19h			;0DF4 75 23
+	xor	al,2			;0DF6 34 02
+	or	al,0FFA0h		;0DF8 0C A0
+	or	al,[2937h]		;0DFA 0A 06 37 29
+	mov	[293Fh],al		;0DFE A2 3F 29
+	mov	al,[2936h]		;0E01 A0 36 29
+	and	al,0FFE3h		;0E04 24 E3
+	or	al,3			;0E06 0C 03
+	mov	[2936h],al		;0E08 A2 36 29
+	mov	ax,[2941h]		;0E0B A1 41 29
+	mov	[2943h],ax		;0E0E A3 43 29
+	ret				;0E11 C3
+	xor	al,al			;0E12 32 C0
+	cmp	ah,0Eh			;0E14 80 FC 0E
+	jz	0DF6h			;0E17 74 DD
+	or	al,[2937h]		;0E19 0A 06 37 29
+	or	[293Fh],al		;0E1D 08 06 3F 29
+	jmp	0A24h			;0E21 E9 00 FC
+	mov	byte ptr [293Fh],0FF8Ch	;0E24 C6 06 3F 29 8C
+	jmp	0A24h			;0E29 E9 F8 FB
+	mov	byte ptr [293Fh],0FF8Eh	;0E2C C6 06 3F 29 8E
+	jmp	0A24h			;0E31 E9 F0 FB
+	call	588h			;0E34 E8 51 F7
+	jz	0E3Fh			;0E37 74 06
+	call	52Ch			;0E39 E8 F0 F6
+	jmp	494h			;0E3C E9 55 F6
+	ret				;0E3F C3
+	call	0A00h			;0E40 E8 BD FB
+	cmp	al,4			;0E43 3C 04
+	jz	0E50h			;0E45 74 09
+	cmp	al,3			;0E47 3C 03
+	jnz	0E50h			;0E49 75 05
+	or	byte ptr [293Fh],8	;0E4B 80 0E 3F 29 08
+	call	588h			;0E50 E8 35 F7
+	jz	0E61h			;0E53 74 0C
+	call	823h			;0E55 E8 CB F9
+	or	byte ptr [2936h],3	;0E58 80 0E 36 29 03
+	dec	byte ptr [293Fh]	;0E5D FE 0E 3F 29
+	ret				;0E61 C3
+	call	823h			;0E62 E8 BE F9
+	cmp	ax,3			;0E65 3D 03 00
+	jz	0E74h			;0E68 74 0A
+	or	ah,ah			;0E6A 0A E4
+	jnz	0E79h			;0E6C 75 0B
+	or	byte ptr [2936h],2	;0E6E 80 0E 36 29 02
+	ret				;0E73 C3
+	dec	byte ptr [293Fh]	;0E74 FE 0E 3F 29
+	ret				;0E78 C3
+	mov	al,7			;0E79 B0 07
+	jmp	0ABDh			;0E7B E9 3F FC
+	push	si			;0E7E 56
+	mov	si,bp			;0E7F 8B F5
+	call	588h			;0E81 E8 04 F7
+	mov	di,2E25h		;0E84 BF 25 2E
+	call	6A7h			;0E87 E8 1D F8
+	pop	si			;0E8A 5E
+	push	di			;0E8B 57
+	call	823h			;0E8C E8 94 F9
+	pop	di			;0E8F 5F
+	stosw				;0E90 AB
+	xor	al,al			;0E91 32 C0
+	mov	[2936h],al		;0E93 A2 36 29
+	ret				;0E96 C3
+	call	70Eh			;0E97 E8 74 F8
+	call	70Eh			;0E9A E8 71 F8
+	cmp	al,14h			;0E9D 3C 14
+	jz	0EAAh			;0E9F 74 09
+	cmp	al,24h			;0EA1 3C 24
+	jz	0EAAh			;0EA3 74 05
+	xor	al,al			;0EA5 32 C0
+	jmp	0ABDh			;0EA7 E9 13 FC
+	mov	ax,[2943h]		;0EAA A1 43 29
+	cmp	ax,3Fh			;0EAD 3D 3F 00
+	ja	0EC8h			;0EB0 77 16
+	mov	ah,al			;0EB2 8A E0
+	dec	cx			;0EB4 49
+	ror	al,cl			;0EB5 D2 C8
+	and	ax,707h			;0EB7 25 07 07
+	rol	ah,cl			;0EBA D2 C4
+	or	[293Fh],ax		;0EBC 09 06 3F 29
+	and	byte ptr [2936h],0FFFCh	;0EC0 80 26 36 29 FC
+	jmp	0A24h			;0EC5 E9 5C FB
+	mov	al,7			;0EC8 B0 07
+	jmp	0ABDh			;0ECA E9 F0 FB
+	xor	al,al			;0ECD 32 C0
+	mov	[2936h],al		;0ECF A2 36 29
+	test	byte ptr [2930h],4	;0ED2 F6 06 30 29 04
+	jnz	0EDAh			;0ED7 75 01
+	ret				;0ED9 C3
+	call	588h			;0EDA E8 AB F6
+	jz	0F07h			;0EDD 74 28
+	cmp	al,22h			;0EDF 3C 22
+	jz	0EE7h			;0EE1 74 04
+	cmp	al,27h			;0EE3 3C 27
+	jnz	0EF1h			;0EE5 75 0A
+	inc	si			;0EE7 46
+	sub	bx,2			;0EE8 83 EB 02
+	jna	0F07h			;0EEB 76 1A
+	xor	al,al			;0EED 32 C0
+	mov	[bx+si],al		;0EEF 88 00
+	mov	di,2C25h		;0EF1 BF 25 2C
+	call	1AAh			;0EF4 E8 B3 F2
+	push	si			;0EF7 56
+	mov	si,2C25h		;0EF8 BE 25 2C
+	call	31Eh			;0EFB E8 20 F4
+	pop	si			;0EFE 5E
+	jc	0F02h			;0EFF 72 01
+	ret				;0F01 C3
+	mov	al,0Bh			;0F02 B0 0B
+	jmp	0ABDh			;0F04 E9 B6 FB
+	mov	al,8			;0F07 B0 08
+	jmp	0ABDh			;0F09 E9 B1 FB
+	call	70Eh			;0F0C E8 FF F7
+	call	70Eh			;0F0F E8 FC F7
+	call	9B4h			;0F12 E8 9F FA
+	cmp	al,11h			;0F15 3C 11
+	jz	0F26h			;0F17 74 0D
+	cmp	al,12h			;0F19 3C 12
+	jz	0F37h			;0F1B 74 1A
+	cmp	al,21h			;0F1D 3C 21
+	jz	0F37h			;0F1F 74 16
+	xor	al,al			;0F21 32 C0
+	jmp	0ABDh			;0F23 E9 97 FB
+	or	byte ptr [2937h],0	;0F26 80 0E 37 29 00
+	jz	0F37h			;0F2B 74 0A
+	test	ah,0Fh			;0F2D F6 C4 0F
+	jz	0F42h			;0F30 74 10
+	test	ah,0FFF0h		;0F32 F6 C4 F0
+	jz	0F44h			;0F35 74 0D
+	mov	al,[2937h]		;0F37 A0 37 29
+	or	al,0FF86h		;0F3A 0C 86
+	mov	[293Fh],al		;0F3C A2 3F 29
+	jmp	0A24h			;0F3F E9 E2 FA
+	shr	ah,cl			;0F42 D2 EC
+	mov	al,ah			;0F44 8A C4
+	or	al,0FF90h		;0F46 0C 90
+	mov	[293Fh],al		;0F48 A2 3F 29
+	ret				;0F4B C3
+	call	70Eh			;0F4C E8 BF F7
+	call	70Eh			;0F4F E8 BC F7
+	and	byte ptr [2936h],0FFFEh	;0F52 80 26 36 29 FE
+	mov	ch,[293Bh]		;0F57 8A 2E 3B 29
+	cmp	al,41h			;0F5B 3C 41
+	jz	0F79h			;0F5D 74 1A
+	cmp	al,14h			;0F5F 3C 14
+	jz	0F77h			;0F61 74 14
+	or	byte ptr [293Fh],8	;0F63 80 0E 3F 29 08
+	cmp	ax,2011h		;0F68 3D 11 20
+	jz	0F79h			;0F6B 74 0C
+	cmp	ax,211h			;0F6D 3D 11 02
+	jz	0F77h			;0F70 74 05
+	xor	al,al			;0F72 32 C0
+	jmp	0ABDh			;0F74 E9 46 FB
+	shr	ch,cl			;0F77 D2 ED
+	mov	al,ch			;0F79 8A C5
+	and	al,0Fh			;0F7B 24 0F
+	cmp	al,2			;0F7D 3C 02
+	jc	0F85h			;0F7F 72 04
+	inc	byte ptr [293Fh]	;0F81 FE 06 3F 29
+	ret				;0F85 C3
+	test	byte ptr [2930h],4	;0F86 F6 06 30 29 04
+	jz	0F94h			;0F8B 74 07
+	mov	sp,[2934h]		;0F8D 8B 26 34 29
+	jmp	29Fh			;0F91 E9 0B F3
+	ret				;0F94 C3
+	call	823h			;0F95 E8 8B F8
+	mov	[292Eh],ax		;0F98 A3 2E 29
+	xor	al,al			;0F9B 32 C0
+	mov	[2936h],al		;0F9D A2 36 29
+	ret				;0FA0 C3
+	xor	ax,ax			;0FA1 33 C0
+	mov	bp,ax			;0FA3 8B E8
+	mov	[2936h],al		;0FA5 A2 36 29
+	mov	di,2DA6h		;0FA8 BF A6 2D
+	call	588h			;0FAB E8 DA F5
+	jz	102Eh			;0FAE 74 7E
+	cmp	al,3Fh			;0FB0 3C 3F
+	jz	1033h			;0FB2 74 7F
+	call	1042h			;0FB4 E8 8B 00
+	cmp	al,22h			;0FB7 3C 22
+	jz	0FF8h			;0FB9 74 3D
+	cmp	al,27h			;0FBB 3C 27
+	jz	0FF8h			;0FBD 74 39
+	push	di			;0FBF 57
+	call	823h			;0FC0 E8 60 F8
+	pop	di			;0FC3 5F
+	xor	ax,ax			;0FC4 33 C0
+	xchg	[2943h],ax		;0FC6 87 06 43 29
+	mov	cl,[293Fh]		;0FCA 8A 0E 3F 29
+	dec	cx			;0FCE 49
+	jnz	0FD4h			;0FCF 75 03
+	call	6EFh			;0FD1 E8 1B F7
+	mov	dx,1			;0FD4 BA 01 00
+	shl	dx,cl			;0FD7 D3 E2
+	cmp	cl,4			;0FD9 80 F9 04
+	jnz	0FE1h			;0FDC 75 03
+	mov	dx,0Ah			;0FDE BA 0A 00
+	cld				;0FE1 FC
+	stosb				;0FE2 AA
+	or	cl,cl			;0FE3 0A C9
+	jz	0FEAh			;0FE5 74 03
+	mov	al,ah			;0FE7 8A C4
+	stosb				;0FE9 AA
+	sub	dx,2			;0FEA 83 EA 02
+	jna	1011h			;0FED 76 22
+	mov	cx,dx			;0FEF 8B CA
+	rcl	ah,1			;0FF1 D0 D4
+	salc				;0FF3 D6
+	repz				;0FF4 F3
+	stosb				;0FF5 AA
+	jmp	short 1011h		;0FF6 EB 19
+	cmp	byte ptr [293Fh],1	;0FF8 80 3E 3F 29 01
+	ja	102Eh			;0FFD 77 2F
+	mov	ah,al			;0FFF 8A E0
+	mov	cx,bx			;1001 8B CB
+	sub	cx,2			;1003 83 E9 02
+	jna	102Eh			;1006 76 26
+	inc	si			;1008 46
+	cld				;1009 FC
+	repz				;100A F3
+	movsb				;100B A4
+	lodsb				;100C AC
+	cmp	al,ah			;100D 3A C4
+	jnz	102Eh			;100F 75 1D
+	call	588h			;1011 E8 74 F5
+	jz	101Dh			;1014 74 07
+	cmp	al,2Ch			;1016 3C 2C
+	jnz	102Eh			;1018 75 14
+	inc	si			;101A 46
+	jmp	short 0FABh		;101B EB 8E
+	mov	ax,di			;101D 8B C7
+	sub	ax,2DA6h		;101F 2D A6 2D
+	mov	[2DA5h],al		;1022 A2 A5 2D
+	add	[292Ah],bp		;1025 01 2E 2A 29
+	add	[2928h],bp		;1029 01 2E 28 29
+	ret				;102D C3
+	mov	al,1			;102E B0 01
+	jmp	0ABDh			;1030 E9 8A FA
+	mov	cl,[293Fh]		;1033 8A 0E 3F 29
+	mov	ax,1			;1037 B8 01 00
+	dec	cx			;103A 49
+	shl	ax,cl			;103B D3 E0
+	add	bp,ax			;103D 03 E8
+	inc	si			;103F 46
+	jmp	short 1011h		;1040 EB CF
+	xor	cx,cx			;1042 33 C9
+	xchg	bp,cx			;1044 87 CD
+	jcxz	104Fh			;1046 E3 07
+	push	ax			;1048 50
+	xor	al,al			;1049 32 C0
+	cld				;104B FC
+	repz				;104C F3
+	stosb				;104D AA
+	pop	ax			;104E 58
+	ret				;104F C3
+	mov	al,0Ch			;1050 B0 0C
+	jmp	0ABDh			;1052 E9 68 FA
+	call	588h			;1055 E8 30 F5
+	cmp	al,3Ah			;1058 3C 3A
+	jnz	1063h			;105A 75 07
+	inc	si			;105C 46
+	call	52Ch			;105D E8 CC F4
+	jmp	494h			;1060 E9 31 F4
+	call	823h			;1063 E8 BD F7
+	add	[292Ah],ax		;1066 01 06 2A 29
+	add	[2928h],ax		;106A 01 06 28 29
+	xor	al,al			;106E 32 C0
+	mov	[2936h],al		;1070 A2 36 29
+	ret				;1073 C3
+	mov	ax,[2928h]		;1074 A1 28 29
+	and	al,1			;1077 24 01
+	jnz	107Eh			;1079 75 03
+	mov	[2936h],al		;107B A2 36 29
+	ret				;107E C3
+	call	70Eh			;107F E8 8C F6
+	xor	ah,ah			;1082 32 E4
+	mov	al,[293Fh]		;1084 A0 3F 29
+	shl	ax,1			;1087 D1 E0
+	shl	ax,1			;1089 D1 E0
+	add	ax,2650h		;108B 05 50 26
+	mov	bx,ax			;108E 8B D8
+	mov	al,[2939h]		;1090 A0 39 29
+	cmp	al,5			;1093 3C 05
+	jz	10AFh			;1095 74 18
+	cmp	al,2			;1097 3C 02
+	jnz	10AAh			;1099 75 0F
+	mov	al,[293Bh]		;109B A0 3B 29
+	cmp	al,3			;109E 3C 03
+	jz	10B2h			;10A0 74 10
+	cmp	al,4			;10A2 3C 04
+	jz	10B1h			;10A4 74 0B
+	cmp	al,5			;10A6 3C 05
+	jz	10B0h			;10A8 74 06
+	mov	al,1			;10AA B0 01
+	jmp	0ABDh			;10AC E9 0E FA
+	inc	bx			;10AF 43
+	inc	bx			;10B0 43
+	inc	bx			;10B1 43
+	mov	al,[bx]			;10B2 8A 07
+	mov	[293Fh],al		;10B4 A2 3F 29
+	call	14ACh			;10B7 E8 F2 03
+	jmp	0A24h			;10BA E9 67 F9
+	mov	al,0FFD9h		;10BD B0 D9
+	xchg	[293Fh],al		;10BF 86 06 3F 29
+	mov	[2940h],al		;10C3 A2 40 29
+	or	byte ptr [2936h],10h	;10C6 80 0E 36 29 10
+	ret				;10CB C3
+	call	588h			;10CC E8 B9 F4
+	jnz	10D7h			;10CF 75 06
+	inc	byte ptr [293Fh]	;10D1 FE 06 3F 29
+	jmp	short 10EBh		;10D5 EB 14
+	call	70Eh			;10D7 E8 34 F6
+	call	70Eh			;10DA E8 31 F6
+	cmp	al,55h			;10DD 3C 55
+	jnz	10FAh			;10DF 75 19
+	mov	al,ah			;10E1 8A C4
+	test	al,0FFF0h		;10E3 A8 F0
+	jnz	10FAh			;10E5 75 13
+	or	[293Fh],al		;10E7 08 06 3F 29
+	mov	al,0FFDEh		;10EB B0 DE
+	xchg	[293Fh],al		;10ED 86 06 3F 29
+	mov	[2940h],al		;10F1 A2 40 29
+	or	byte ptr [2936h],10h	;10F4 80 0E 36 29 10
+	ret				;10F9 C3
+	mov	al,1			;10FA B0 01
+	jmp	0ABDh			;10FC E9 BE F9
+	call	14ACh			;10FF E8 AA 03
+	call	70Eh			;1102 E8 09 F6
+	cmp	al,2			;1105 3C 02
+	jnz	1114h			;1107 75 0B
+	mov	al,[293Bh]		;1109 A0 3B 29
+	cmp	al,2			;110C 3C 02
+	jz	1119h			;110E 74 09
+	cmp	al,3			;1110 3C 03
+	jz	111Eh			;1112 74 0A
+	mov	al,1			;1114 B0 01
+	jmp	0ABDh			;1116 E9 A4 F9
+	or	byte ptr [293Fh],4	;1119 80 0E 3F 29 04
+	jmp	0A24h			;111E E9 03 F9
+	call	70Eh			;1121 E8 EA F5
+	call	14ACh			;1124 E8 85 03
+	cmp	al,2			;1127 3C 02
+	jnz	112Eh			;1129 75 03
+	jmp	0A24h			;112B E9 F6 F8
+	mov	al,1			;112E B0 01
+	jmp	0ABDh			;1130 E9 8A F9
+	mov	ax,0D9DEh		;1133 B8 DE D9
+	mov	[293Fh],ax		;1136 A3 3F 29
+	or	byte ptr [2936h],10h	;1139 80 0E 36 29 10
+	ret				;113E C3
+	mov	al,0FFDBh		;113F B0 DB
+	xchg	[293Fh],al		;1141 86 06 3F 29
+	test	al,10h			;1145 A8 10
+	jz	1155h			;1147 74 0C
+	xor	al,10h			;1149 34 10
+	mov	byte ptr [293Dh],0FF9Bh	;114B C6 06 3D 29 9B
+	or	byte ptr [2936h],0FF80h	;1150 80 0E 36 29 80
+	or	al,0FFE0h		;1155 0C E0
+	mov	[2940h],al		;1157 A2 40 29
+	or	byte ptr [2936h],10h	;115A 80 0E 36 29 10
+	ret				;115F C3
+	call	14ACh			;1160 E8 49 03
+	call	70Eh			;1163 E8 A8 F5
+	cmp	al,2			;1166 3C 02
+	jz	1173h			;1168 74 09
+	cmp	al,5			;116A 3C 05
+	jz	117Eh			;116C 74 10
+	xor	al,al			;116E 32 C0
+	jmp	0ABDh			;1170 E9 4A F9
+	mov	al,[293Bh]		;1173 A0 3B 29
+	cmp	al,3			;1176 3C 03
+	jz	1183h			;1178 74 09
+	cmp	al,4			;117A 3C 04
+	jnz	1186h			;117C 75 08
+	or	byte ptr [293Fh],4	;117E 80 0E 3F 29 04
+	jmp	0A24h			;1183 E9 9E F8
+	mov	al,1			;1186 B0 01
+	jmp	0ABDh			;1188 E9 32 F9
+	call	14ACh			;118B E8 1E 03
+	call	588h			;118E E8 F7 F3
+	jnz	1197h			;1191 75 04
+	mov	ah,1			;1193 B4 01
+	jmp	short 119Eh		;1195 EB 07
+	call	70Eh			;1197 E8 74 F5
+	cmp	al,5			;119A 3C 05
+	jnz	11A6h			;119C 75 08
+	or	ah,0FFC0h		;119E 80 CC C0
+	or	[2940h],ah		;11A1 08 26 40 29
+	ret				;11A5 C3
+	xor	al,al			;11A6 32 C0
+	jmp	0ABDh			;11A8 E9 12 F9
+	call	70Eh			;11AB E8 60 F5
+	call	14ACh			;11AE E8 FB 02
+	or	byte ptr [2936h],0FF80h	;11B1 80 0E 36 29 80
+	mov	byte ptr [293Dh],0FF9Bh	;11B6 C6 06 3D 29 9B
+	mov	al,[2939h]		;11BB A0 39 29
+	cmp	al,2			;11BE 3C 02
+	jnz	11C5h			;11C0 75 03
+	jmp	0A24h			;11C2 E9 5F F8
+	mov	al,1			;11C5 B0 01
+	jmp	0ABDh			;11C7 E9 F3 F8
+	call	14ACh			;11CA E8 DF 02
+	call	588h			;11CD E8 B8 F3
+	jnz	11D8h			;11D0 75 06
+	or	byte ptr [2940h],0FFD1h	;11D2 80 0E 40 29 D1
+	ret				;11D7 C3
+	call	70Eh			;11D8 E8 33 F5
+	cmp	al,5			;11DB 3C 05
+	jz	11F8h			;11DD 74 19
+	cmp	al,2			;11DF 3C 02
+	jnz	11EEh			;11E1 75 0B
+	mov	al,[293Bh]		;11E3 A0 3B 29
+	cmp	al,3			;11E6 3C 03
+	jz	11F8h			;11E8 74 0E
+	cmp	al,4			;11EA 3C 04
+	jz	11F3h			;11EC 74 05
+	mov	al,1			;11EE B0 01
+	jmp	0ABDh			;11F0 E9 CA F8
+	or	byte ptr [293Fh],4	;11F3 80 0E 3F 29 04
+	jmp	0A24h			;11F8 E9 29 F8
+	mov	al,0FFD8h		;11FB B0 D8
+	xor	ah,ah			;11FD 32 E4
+	xchg	[293Fh],al		;11FF 86 06 3F 29
+	shl	al,1			;1203 D0 E0
+	mov	bx,ax			;1205 8B D8
+	add	bx,2640h		;1207 81 C3 40 26
+	shl	al,1			;120B D0 E0
+	shl	al,1			;120D D0 E0
+	mov	[2940h],al		;120F A2 40 29
+	push	bx			;1212 53
+	call	70Eh			;1213 E8 F8 F4
+	call	588h			;1216 E8 6F F3
+	pop	bx			;1219 5B
+	jz	124Eh			;121A 74 32
+	push	bx			;121C 53
+	call	70Eh			;121D E8 EE F4
+	pop	bx			;1220 5B
+	cmp	al,55h			;1221 3C 55
+	jnz	126Bh			;1223 75 46
+	mov	al,ah			;1225 8A C4
+	and	ax,0F00Fh		;1227 25 0F F0
+	shr	ah,cl			;122A D2 EC
+	or	al,al			;122C 0A C0
+	jz	1240h			;122E 74 10
+	or	ah,ah			;1230 0A E4
+	jnz	126Bh			;1232 75 37
+	inc	bx			;1234 43
+	mov	ah,[bx]			;1235 8A 27
+	and	ah,7			;1237 80 E4 07
+	or	[293Fh],ah		;123A 08 26 3F 29
+	xor	ah,ah			;123E 32 E4
+	or	al,ah			;1240 0A C4
+	or	al,0FFC0h		;1242 0C C0
+	or	[2940h],al		;1244 08 06 40 29
+	or	byte ptr [2936h],10h	;1248 80 0E 36 29 10
+	ret				;124D C3
+	mov	al,[2939h]		;124E A0 39 29
+	cmp	al,2			;1251 3C 02
+	jnz	126Bh			;1253 75 16
+	mov	al,[293Bh]		;1255 A0 3B 29
+	cmp	al,3			;1258 3C 03
+	jz	1268h			;125A 74 0C
+	cmp	al,4			;125C 3C 04
+	jnz	126Bh			;125E 75 0B
+	mov	al,[bx]			;1260 8A 07
+	and	al,7			;1262 24 07
+	or	[293Fh],al		;1264 08 06 3F 29
+	jmp	0A24h			;1268 E9 B9 F7
+	xor	al,al			;126B 32 C0
+	jmp	0ABDh			;126D E9 4D F8
+	call	70Eh			;1270 E8 9B F4
+	cmp	al,2			;1273 3C 02
+	jnz	128Eh			;1275 75 17
+	mov	al,[293Fh]		;1277 A0 3F 29
+	and	al,38h			;127A 24 38
+	mov	[2940h],al		;127C A2 40 29
+	mov	al,[293Bh]		;127F A0 3B 29
+	cmp	al,2			;1282 3C 02
+	jz	1298h			;1284 74 12
+	cmp	al,3			;1286 3C 03
+	jz	12A0h			;1288 74 16
+	cmp	al,4			;128A 3C 04
+	jz	1293h			;128C 74 05
+	mov	al,1			;128E B0 01
+	jmp	0ABDh			;1290 E9 2A F8
+	or	byte ptr [2940h],28h	;1293 80 0E 40 29 28
+	mov	al,0FFDFh		;1298 B0 DF
+	mov	[293Fh],al		;129A A2 3F 29
+	jmp	0A24h			;129D E9 84 F7
+	mov	al,0FFDBh		;12A0 B0 DB
+	mov	[293Fh],al		;12A2 A2 3F 29
+	jmp	0A24h			;12A5 E9 7C F7
+	push	si			;12A8 56
+	mov	si,ax			;12A9 8B F0
+	lodsw				;12AB AD
+	push	si			;12AC 56
+	mov	si,ax			;12AD 8B F0
+	xor	ch,ch			;12AF 32 ED
+	mov	cl,[si]			;12B1 8A 0C
+	jcxz	12BBh			;12B3 E3 06
+	inc	si			;12B5 46
+	repz				;12B6 F3
+	movsb				;12B7 A4
+	mov	al,9			;12B8 B0 09
+	stosb				;12BA AA
+	pop	si			;12BB 5E
+	lodsw				;12BC AD
+	pop	si			;12BD 5E
+	jmp	ax			;12BE FF E0
+	mov	ah,al			;12C0 8A E0
+	and	al,0Fh			;12C2 24 0F
+	shr	ah,1			;12C4 D0 EC
+	shr	ah,1			;12C6 D0 EC
+	shr	ah,1			;12C8 D0 EC
+	shr	ah,1			;12CA D0 EC
+	cmp	al,9			;12CC 3C 09
+	jna	12D2h			;12CE 76 02
+	add	al,7			;12D0 04 07
+	xchg	al,ah			;12D2 86 E0
+	cmp	al,9			;12D4 3C 09
+	jna	12DAh			;12D6 76 02
+	add	al,7			;12D8 04 07
+	add	ax,3030h		;12DA 05 30 30
+	ret				;12DD C3
+	cld				;12DE FC
+	push	ax			;12DF 50
+	mov	al,ah			;12E0 8A C4
+	call	12C0h			;12E2 E8 DB FF
+	stosw				;12E5 AB
+	pop	ax			;12E6 58
+	call	12C0h			;12E7 E8 D6 FF
+	stosw				;12EA AB
+	ret				;12EB C3
+	mov	dx,26BEh		;12EC BA BE 26
+	call	13B8h			;12EF E8 C6 00
+	mov	al,2Ch			;12F2 B0 2C
+	stosb				;12F4 AA
+	lodsb				;12F5 AC
+	cbw				;12F6 98
+	or	ax,ax			;12F7 0B C0
+	jns	1301h			;12F9 79 06
+	neg	ax			;12FB F7 D8
+	mov	byte ptr [di],2Dh	;12FD C6 05 2D
+	inc	di			;1300 47
+	push	ax			;1301 50
+	push	bx			;1302 53
+	mov	bx,10h			;1303 BB 10 00
+	call	65Dh			;1306 E8 54 F3
+	pop	bx			;1309 5B
+	pop	ax			;130A 58
+	cmp	ax,9			;130B 3D 09 00
+	jna	1313h			;130E 76 03
+	mov	al,68h			;1310 B0 68
+	stosb				;1312 AA
+	ret				;1313 C3
+	cld				;1314 FC
+	push	si			;1315 56
+	mov	si,ax			;1316 8B F0
+	shr	si,1			;1318 D1 EE
+	shr	si,1			;131A D1 EE
+	and	si,0Eh			;131C 83 E6 0E
+	add	si,2770h		;131F 81 C6 70 27
+	add	si,[2937h]		;1323 03 36 37 29
+	movsw				;1327 A5
+	pop	si			;1328 5E
+	ret				;1329 C3
+	mov	al,[293Fh]		;132A A0 3F 29
+	shr	al,1			;132D D0 E8
+	shr	al,1			;132F D0 E8
+	and	ax,6			;1331 25 06 00
+	add	ax,2790h		;1334 05 90 27
+	xchg	ax,si			;1337 96
+	movsw				;1338 A5
+	xchg	ax,si			;1339 96
+	ret				;133A C3
+	cld				;133B FC
+	xor	al,al			;133C 32 C0
+	xchg	[293Eh],al		;133E 86 06 3E 29
+	or	al,al			;1342 0A C0
+	jz	134Ch			;1344 74 06
+	call	132Dh			;1346 E8 E4 FF
+	mov	al,3Ah			;1349 B0 3A
+	stosb				;134B AA
+	ret				;134C C3
+	xor	dl,dl			;134D 32 D2
+	xchg	[293Dh],dl		;134F 86 16 3D 29
+	or	dl,dl			;1353 0A D2
+	jz	13B7h			;1355 74 60
+	cld				;1357 FC
+	push	di			;1358 57
+	mov	di,2C26h		;1359 BF 26 2C
+	mov	al,9			;135C B0 09
+	stosb				;135E AA
+	push	si			;135F 56
+	mov	si,1E0Dh		;1360 BE 0D 1E
+	movsw				;1363 A5
+	movsw				;1364 A5
+	pop	si			;1365 5E
+	jmp	short 1382h		;1366 EB 1A
+	xor	dl,dl			;1368 32 D2
+	xchg	[293Eh],dl		;136A 86 16 3E 29
+	or	dl,dl			;136E 0A D2
+	jz	13B7h			;1370 74 45
+	cld				;1372 FC
+	push	di			;1373 57
+	mov	di,2C26h		;1374 BF 26 2C
+	mov	al,9			;1377 B0 09
+	stosb				;1379 AA
+	mov	al,dl			;137A 8A C2
+	call	132Dh			;137C E8 AE FF
+	mov	al,3Ah			;137F B0 3A
+	stosb				;1381 AA
+	push	dx			;1382 52
+	mov	bp,2C26h		;1383 BD 26 2C
+	call	1475h			;1386 E8 EC 00
+	pop	dx			;1389 5A
+	mov	ax,[2928h]		;138A A1 28 29
+	add	ax,[292Eh]		;138D 03 06 2E 29
+	call	12DEh			;1391 E8 4A FF
+	mov	al,20h			;1394 B0 20
+	stosb				;1396 AA
+	mov	al,dl			;1397 8A C2
+	call	12C0h			;1399 E8 24 FF
+	stosw				;139C AB
+	mov	ax,0A0Dh		;139D B8 0D 0A
+	stosw				;13A0 AB
+	pop	cx			;13A1 59
+	push	si			;13A2 56
+	mov	si,2DA6h		;13A3 BE A6 2D
+	sub	cx,si			;13A6 2B CE
+	repz				;13A8 F3
+	movsb				;13A9 A4
+	mov	cx,di			;13AA 8B CF
+	mov	si,2C26h		;13AC BE 26 2C
+	sub	cx,si			;13AF 2B CE
+	mov	di,2DA6h		;13B1 BF A6 2D
+	repz				;13B4 F3
+	movsb				;13B5 A4
+	pop	si			;13B6 5E
+	ret				;13B7 C3
+	push	si			;13B8 56
+	mov	al,[si]			;13B9 8A 04
+	shr	al,1			;13BB D0 E8
+	shr	al,1			;13BD D0 E8
+	and	ax,0Eh			;13BF 25 0E 00
+	add	ax,dx			;13C2 03 C2
+	mov	si,ax			;13C4 8B F0
+	mov	si,[si]			;13C6 8B 34
+	call	0B1Eh			;13C8 E8 53 F7
+	pop	si			;13CB 5E
+	mov	al,9			;13CC B0 09
+	stosb				;13CE AA
+	lodsb				;13CF AC
+	cmp	al,0FFC0h		;13D0 3C C0
+	jnc	13FAh			;13D2 73 26
+	push	ax			;13D4 50
+	push	si			;13D5 56
+	mov	ax,[2937h]		;13D6 A1 37 29
+	cmp	al,10h			;13D9 3C 10
+	mov	si,[2760h]		;13DB 8B 36 60 27
+	jz	13E9h			;13DF 74 08
+	mov	si,ax			;13E1 8B F0
+	shl	si,1			;13E3 D1 E6
+	mov	si,[si+275Eh]		;13E5 8B B4 5E 27
+	lodsb				;13E9 AC
+	mov	cx,ax			;13EA 8B C8
+	cld				;13EC FC
+	repz				;13ED F3
+	movsb				;13EE A4
+	mov	al,20h			;13EF B0 20
+	mov	si,1D34h		;13F1 BE 34 1D
+	stosb				;13F4 AA
+	movsw				;13F5 A5
+	movsb				;13F6 A4
+	stosb				;13F7 AA
+	pop	si			;13F8 5E
+	pop	ax			;13F9 58
+	cmp	al,0FFC0h		;13FA 3C C0
+	jc	1411h			;13FC 72 13
+	push	si			;13FE 56
+	mov	si,ax			;13FF 8B F0
+	and	si,7			;1401 83 E6 07
+	shl	si,1			;1404 D1 E6
+	add	si,2770h		;1406 81 C6 70 27
+	add	si,[2937h]		;140A 03 36 37 29
+	movsw				;140E A5
+	pop	si			;140F 5E
+	ret				;1410 C3
+	push	ax			;1411 50
+	call	133Bh			;1412 E8 26 FF
+	mov	al,5Bh			;1415 B0 5B
+	stosb				;1417 AA
+	pop	ax			;1418 58
+	push	ax			;1419 50
+	and	al,0FFC7h		;141A 24 C7
+	cmp	al,6			;141C 3C 06
+	jnz	1426h			;141E 75 06
+	lodsw				;1420 AD
+	call	1301h			;1421 E8 DD FE
+	jmp	short 1470h		;1424 EB 4A
+	push	si			;1426 56
+	push	bx			;1427 53
+	mov	bx,2768h		;1428 BB 68 27
+	and	al,7			;142B 24 07
+	xlatb				;142D D7
+	pop	bx			;142E 5B
+	mov	ah,al			;142F 8A E0
+	and	ax,0F00Fh		;1431 25 0F F0
+	shr	ah,1			;1434 D0 EC
+	shr	ah,1			;1436 D0 EC
+	shr	ah,1			;1438 D0 EC
+	shl	al,1			;143A D0 E0
+	xor	dx,dx			;143C 33 D2
+	xchg	ah,dl			;143E 86 D4
+	add	ax,2770h		;1440 05 70 27
+	mov	si,ax			;1443 8B F0
+	movsw				;1445 A5
+	or	dl,dl			;1446 0A D2
+	jz	1453h			;1448 74 09
+	mov	al,2Bh			;144A B0 2B
+	stosb				;144C AA
+	mov	si,2770h		;144D BE 70 27
+	add	si,dx			;1450 03 F2
+	movsw				;1452 A5
+	pop	si			;1453 5E
+	pop	ax			;1454 58
+	push	ax			;1455 50
+	cmp	al,40h			;1456 3C 40
+	jc	1470h			;1458 72 16
+	cmp	al,0FF80h		;145A 3C 80
+	jc	1461h			;145C 72 03
+	lodsw				;145E AD
+	jmp	short 1463h		;145F EB 02
+	lodsb				;1461 AC
+	cbw				;1462 98
+	or	ax,ax			;1463 0B C0
+	js	146Dh			;1465 78 06
+	jz	1470h			;1467 74 07
+	mov	byte ptr [di],2Bh	;1469 C6 05 2B
+	inc	di			;146C 47
+	call	12F7h			;146D E8 87 FE
+	mov	al,5Dh			;1470 B0 5D
+	stosb				;1472 AA
+	pop	ax			;1473 58
+	ret				;1474 C3
+	cld				;1475 FC
+	push	si			;1476 56
+	mov	si,bp			;1477 8B F5
+	mov	cx,di			;1479 8B CF
+	sub	cx,bp			;147B 2B CD
+	jna	14AAh			;147D 76 2B
+	xor	dx,dx			;147F 33 D2
+	lodsb				;1481 AC
+	cmp	al,9			;1482 3C 09
+	jz	148Bh			;1484 74 05
+	inc	dx			;1486 42
+	loop	1481h			;1487 E2 F8
+	jmp	short 1499h		;1489 EB 0E
+	mov	ax,dx			;148B 8B C2
+	and	ax,7			;148D 25 07 00
+	neg	ax			;1490 F7 D8
+	add	ax,8			;1492 05 08 00
+	add	dx,ax			;1495 03 D0
+	loop	1481h			;1497 E2 E8
+	mov	al,9			;1499 B0 09
+	mov	cl,3			;149B B1 03
+	shr	dx,cl			;149D D3 EA
+	inc	cx			;149F 41
+	inc	cx			;14A0 41
+	sub	cx,dx			;14A1 2B CA
+	jna	14A7h			;14A3 76 02
+	repz				;14A5 F3
+	stosb				;14A6 AA
+	mov	al,3Bh			;14A7 B0 3B
+	stosb				;14A9 AA
+	pop	si			;14AA 5E
+	ret				;14AB C3
+	mov	al,[293Fh]		;14AC A0 3F 29
+	mov	ah,al			;14AF 8A E0
+	and	ax,3807h		;14B1 25 07 38
+	or	al,0FFD8h		;14B4 0C D8
+	mov	[293Fh],al		;14B6 A2 3F 29
+	or	[2940h],ah		;14B9 08 26 40 29
+	or	byte ptr [2936h],10h	;14BD 80 0E 36 29 10
+	ret				;14C2 C3
+	xor	al,al			;14C3 32 C0
+	xchg	[293Dh],al		;14C5 86 06 3D 29
+	xor	dx,dx			;14C9 33 D2
+	cmp	al,0FF9Bh		;14CB 3C 9B
+	jnz	14D2h			;14CD 75 03
+	mov	dx,8			;14CF BA 08 00
+	add	dx,273Eh		;14D2 81 C2 3E 27
+	jmp	17D4h			;14D6 E9 FB 02
+	push	ax			;14D9 50
+	and	al,7			;14DA 24 07
+	or	al,30h			;14DC 0C 30
+	mov	ah,28h			;14DE B4 28
+	xchg	ah,al			;14E0 86 C4
+	push	ax			;14E2 50
+	mov	ax,7473h		;14E3 B8 73 74
+	stosw				;14E6 AB
+	pop	ax			;14E7 58
+	stosw				;14E8 AB
+	inc	ax			;14E9 40
+	stosb				;14EA AA
+	pop	ax			;14EB 58
+	ret				;14EC C3
+	dec	di			;14ED 4F
+	ret				;14EE C3
+	mov	al,[293Fh]		;14EF A0 3F 29
+	mov	[293Eh],al		;14F2 A2 3E 29
+	dec	di			;14F5 4F
+	jmp	451h			;14F6 E9 58 EF
+	mov	bp,2DA6h		;14F9 BD A6 2D
+	call	1475h			;14FC E8 76 FF
+	mov	ax,[2928h]		;14FF A1 28 29
+	add	ax,[292Eh]		;1502 03 06 2E 29
+	or	byte ptr [293Eh],0	;1506 80 0E 3E 29 00
+	jz	150Eh			;150B 74 01
+	inc	ax			;150D 40
+	call	12DEh			;150E E8 CD FD
+	mov	cx,si			;1511 8B CE
+	sub	cx,bx			;1513 2B CB
+	mov	si,bx			;1515 8B F3
+	or	byte ptr [293Eh],0	;1517 80 0E 3E 29 00
+	jz	1520h			;151C 74 02
+	dec	cx			;151E 49
+	inc	si			;151F 46
+	mov	al,20h			;1520 B0 20
+	stosb				;1522 AA
+	lodsb				;1523 AC
+	call	12C0h			;1524 E8 99 FD
+	stosw				;1527 AB
+	loop	1520h			;1528 E2 F6
+	mov	ax,0A0Dh		;152A B8 0D 0A
+	stosw				;152D AB
+	ret				;152E C3
+	xor	al,al			;152F 32 C0
+	call	1314h			;1531 E8 E0 FD
+	jmp	16B4h			;1534 E9 7D 01
+	lodsb				;1537 AC
+	push	ax			;1538 50
+	call	13FAh			;1539 E8 BE FE
+	mov	al,2Ch			;153C B0 2C
+	stosb				;153E AA
+	pop	ax			;153F 58
+	jmp	1314h			;1540 E9 D1 FD
+	mov	al,10h			;1543 B0 10
+	mov	[2937h],al		;1545 A2 37 29
+	lodsb				;1548 AC
+	call	1314h			;1549 E8 C8 FD
+	push	ax			;154C 50
+	mov	al,2Ch			;154D B0 2C
+	stosb				;154F AA
+	pop	ax			;1550 58
+	jmp	13FAh			;1551 E9 A6 FE
+	mov	al,10h			;1554 B0 10
+	mov	[2937h],al		;1556 A2 37 29
+	lodsb				;1559 AC
+	push	ax			;155A 50
+	call	13FAh			;155B E8 9C FE
+	mov	al,2Ch			;155E B0 2C
+	stosb				;1560 AA
+	pop	ax			;1561 58
+	jmp	132Dh			;1562 E9 C8 FD
+	mov	al,10h			;1565 B0 10
+	mov	[2937h],al		;1567 A2 37 29
+	lodsb				;156A AC
+	push	ax			;156B 50
+	call	132Dh			;156C E8 BE FD
+	mov	al,2Ch			;156F B0 2C
+	stosb				;1571 AA
+	pop	ax			;1572 58
+	jmp	13FAh			;1573 E9 84 FE
+	mov	ax,7861h		;1576 B8 61 78
+	stosw				;1579 AB
+	mov	al,2Ch			;157A B0 2C
+	stosb				;157C AA
+	mov	al,10h			;157D B0 10
+	mov	[2937h],al		;157F A2 37 29
+	mov	al,[293Fh]		;1582 A0 3F 29
+	or	al,0FFC0h		;1585 0C C0
+	jmp	13FAh			;1587 E9 70 FE
+	xor	al,al			;158A 32 C0
+	call	1314h			;158C E8 85 FD
+	mov	al,2Ch			;158F B0 2C
+	stosb				;1591 AA
+	call	133Bh			;1592 E8 A6 FD
+	mov	al,5Bh			;1595 B0 5B
+	stosb				;1597 AA
+	lodsw				;1598 AD
+	call	1301h			;1599 E8 65 FD
+	mov	al,5Dh			;159C B0 5D
+	stosb				;159E AA
+	ret				;159F C3
+	call	133Bh			;15A0 E8 98 FD
+	mov	al,5Bh			;15A3 B0 5B
+	stosb				;15A5 AA
+	lodsw				;15A6 AD
+	call	1301h			;15A7 E8 57 FD
+	mov	ax,2C5Dh		;15AA B8 5D 2C
+	stosw				;15AD AB
+	xor	al,al			;15AE 32 C0
+	jmp	1314h			;15B0 E9 61 FD
+	lodsb				;15B3 AC
+	call	13D0h			;15B4 E8 19 FE
+	jmp	16B4h			;15B7 E9 FA 00
+	mov	al,[293Fh]		;15BA A0 3F 29
+	push	si			;15BD 56
+	and	ax,0Fh			;15BE 25 0F 00
+	shl	al,1			;15C1 D0 E0
+	add	ax,2770h		;15C3 05 70 27
+	mov	si,ax			;15C6 8B F0
+	movsw				;15C8 A5
+	pop	si			;15C9 5E
+	mov	cl,3			;15CA B1 03
+	shr	byte ptr [293Fh],cl	;15CC D2 2E 3F 29
+	jmp	16B4h			;15D0 E9 E1 00
+	cmp	byte ptr [293Fh],0FFEBh	;15D3 80 3E 3F 29 EB
+	jnz	15E5h			;15D8 75 0B
+	push	si			;15DA 56
+	mov	si,1DC9h		;15DB BE C9 1D
+	movsw				;15DE A5
+	movsw				;15DF A5
+	movsb				;15E0 A4
+	pop	si			;15E1 5E
+	mov	al,20h			;15E2 B0 20
+	stosb				;15E4 AA
+	lodsb				;15E5 AC
+	cbw				;15E6 98
+	add	ax,[2928h]		;15E7 03 06 28 29
+	add	ax,[292Eh]		;15EB 03 06 2E 29
+	inc	ax			;15EF 40
+	inc	ax			;15F0 40
+	jmp	1301h			;15F1 E9 0D FD
+	lodsw				;15F4 AD
+	add	ax,[2928h]		;15F5 03 06 28 29
+	add	ax,[292Eh]		;15F9 03 06 2E 29
+	add	ax,3			;15FD 05 03 00
+	jmp	1301h			;1600 E9 FE FC
+	lodsb				;1603 AC
+	cmp	al,0Ah			;1604 3C 0A
+	jz	160Dh			;1606 74 05
+	xor	ah,ah			;1608 32 E4
+	call	1301h			;160A E8 F4 FC
+	ret				;160D C3
+	lodsb				;160E AC
+	mov	ah,al			;160F 8A E0
+	mov	[2940h],al		;1611 A2 40 29
+	mov	al,[293Fh]		;1614 A0 3F 29
+	and	ax,0F807h		;1617 25 07 F8
+	mov	cl,3			;161A B1 03
+	ror	ax,cl			;161C D3 C8
+	xchg	ah,al			;161E 86 C4
+	dec	cx			;1620 49
+	shl	ax,cl			;1621 D3 E0
+	add	ax,2230h		;1623 05 30 22
+	jmp	12A8h			;1626 E9 7F FC
+	lodsb				;1629 AC
+	xor	ah,ah			;162A 32 E4
+	jmp	1301h			;162C E9 D2 FC
+	mov	al,33h			;162F B0 33
+	stosb				;1631 AA
+	ret				;1632 C3
+	push	si			;1633 56
+	mov	si,1923h		;1634 BE 23 19
+	movsw				;1637 A5
+	movsb				;1638 A4
+	pop	si			;1639 5E
+	test	byte ptr [293Fh],1	;163A F6 06 3F 29 01
+	jnz	1648h			;163F 75 07
+	mov	al,20h			;1641 B0 20
+	stosb				;1643 AA
+	lodsw				;1644 AD
+	call	1301h			;1645 E8 B9 FC
+	ret				;1648 C3
+	mov	ax,[2937h]		;1649 A1 37 29
+	add	ax,2770h		;164C 05 70 27
+	push	si			;164F 56
+	mov	si,ax			;1650 8B F0
+	lodsw				;1652 AD
+	pop	si			;1653 5E
+	mov	dx,7864h		;1654 BA 64 78
+	test	byte ptr [293Fh],2	;1657 F6 06 3F 29 02
+	jz	165Fh			;165C 74 01
+	xchg	ax,dx			;165E 92
+	stosw				;165F AB
+	mov	al,2Ch			;1660 B0 2C
+	stosb				;1662 AA
+	mov	ax,dx			;1663 8B C2
+	stosw				;1665 AB
+	ret				;1666 C3
+	lodsb				;1667 AC
+	xor	ah,ah			;1668 32 E4
+	call	1301h			;166A E8 94 FC
+	mov	al,2Ch			;166D B0 2C
+	stosb				;166F AA
+	mov	al,0FFC0h		;1670 B0 C0
+	jmp	13FAh			;1672 E9 85 FD
+	lodsw				;1675 AD
+	push	ax			;1676 50
+	lodsw				;1677 AD
+	call	1301h			;1678 E8 86 FC
+	mov	al,3Ah			;167B B0 3A
+	stosb				;167D AA
+	pop	ax			;167E 58
+	jmp	1301h			;167F E9 7F FC
+	mov	al,[293Fh]		;1682 A0 3F 29
+	xor	ah,ah			;1685 32 E4
+	jmp	1301h			;1687 E9 77 FC
+	mov	dx,26CEh		;168A BA CE 26
+	call	13B8h			;168D E8 28 FD
+	mov	al,2Ch			;1690 B0 2C
+	stosb				;1692 AA
+	mov	al,[293Fh]		;1693 A0 3F 29
+	test	al,2			;1696 A8 02
+	jz	169Fh			;1698 74 05
+	mov	ax,6C63h		;169A B8 63 6C
+	stosw				;169D AB
+	ret				;169E C3
+	mov	al,31h			;169F B0 31
+	stosb				;16A1 AA
+	ret				;16A2 C3
+	mov	dx,26DEh		;16A3 BA DE 26
+	call	13B8h			;16A6 E8 0F FD
+	test	al,30h			;16A9 A8 30
+	jz	16B4h			;16AB 74 07
+	ret				;16AD C3
+	mov	dx,26BEh		;16AE BA BE 26
+	call	13B8h			;16B1 E8 04 FD
+	mov	al,2Ch			;16B4 B0 2C
+	stosb				;16B6 AA
+	lodsw				;16B7 AD
+	test	byte ptr [293Fh],1	;16B8 F6 06 3F 29 01
+	jnz	16C1h			;16BD 75 02
+	cbw				;16BF 98
+	dec	si			;16C0 4E
+	jmp	1301h			;16C1 E9 3D FC
+	push	si			;16C4 56
+	lodsb				;16C5 AC
+	shr	al,1			;16C6 D0 E8
+	shr	al,1			;16C8 D0 E8
+	and	ax,0Eh			;16CA 25 0E 00
+	push	ax			;16CD 50
+	add	ax,26EEh		;16CE 05 EE 26
+	mov	si,ax			;16D1 8B F0
+	mov	si,[si]			;16D3 8B 34
+	call	0B1Eh			;16D5 E8 46 F4
+	mov	al,9			;16D8 B0 09
+	stosb				;16DA AA
+	pop	ax			;16DB 58
+	pop	si			;16DC 5E
+	shr	al,1			;16DD D0 E8
+	cmp	al,5			;16DF 3C 05
+	jz	16F3h			;16E1 74 10
+	cmp	al,4			;16E3 3C 04
+	jz	170Dh			;16E5 74 26
+	cmp	al,3			;16E7 3C 03
+	jz	16F3h			;16E9 74 08
+	cmp	al,2			;16EB 3C 02
+	jz	170Dh			;16ED 74 1E
+	lodsb				;16EF AC
+	jmp	13D0h			;16F0 E9 DD FC
+	mov	al,[si]			;16F3 8A 04
+	push	si			;16F5 56
+	mov	si,1923h		;16F6 BE 23 19
+	cmp	al,0FFC0h		;16F9 3C C0
+	mov	al,20h			;16FB B0 20
+	jnc	1709h			;16FD 73 0A
+	mov	si,18E4h		;16FF BE E4 18
+	movsw				;1702 A5
+	movsw				;1703 A5
+	movsb				;1704 A4
+	stosb				;1705 AA
+	mov	si,1D34h		;1706 BE 34 1D
+	movsw				;1709 A5
+	movsb				;170A A4
+	stosb				;170B AA
+	pop	si			;170C 5E
+	lodsb				;170D AC
+	jmp	13FAh			;170E E9 E9 FC
+	mov	dx,274Eh		;1711 BA 4E 27
+	jmp	short 1719h		;1714 EB 03
+	mov	dx,2756h		;1716 BA 56 27
+	mov	al,[2940h]		;1719 A0 40 29
+	push	ax			;171C 50
+	and	al,8			;171D 24 08
+	shr	al,1			;171F D0 E8
+	shr	al,1			;1721 D0 E8
+	xor	ah,ah			;1723 32 E4
+	add	dx,ax			;1725 03 D0
+	xor	al,al			;1727 32 C0
+	xchg	[293Dh],al		;1729 86 06 3D 29
+	cmp	al,0FF9Bh		;172D 3C 9B
+	pop	ax			;172F 58
+	jnz	1735h			;1730 75 03
+	add	dx,4			;1732 83 C2 04
+	call	17D4h			;1735 E8 9C 00
+	jmp	13FAh			;1738 E9 BF FC
+	mov	al,[2940h]		;173B A0 40 29
+	and	al,7			;173E 24 07
+	cmp	al,1			;1740 3C 01
+	jz	174Fh			;1742 74 0B
+	call	14D9h			;1744 E8 92 FD
+	mov	al,2Ch			;1747 B0 2C
+	stosb				;1749 AA
+	xor	al,al			;174A 32 C0
+	jmp	14D9h			;174C E9 8A FD
+	dec	di			;174F 4F
+	ret				;1750 C3
+	mov	al,[2940h]		;1751 A0 40 29
+	cmp	al,0FFC0h		;1754 3C C0
+	jnc	176Bh			;1756 73 13
+	xor	ax,ax			;1758 33 C0
+	cmp	byte ptr [293Fh],0FFDCh	;175A 80 3E 3F 29 DC
+	cmc				;175F F5
+	adc	al,2			;1760 14 02
+	mov	[2937h],ax		;1762 A3 37 29
+	mov	al,[2940h]		;1765 A0 40 29
+	jmp	13D0h			;1768 E9 65 FC
+	cmp	byte ptr [293Fh],0FFDCh	;176B 80 3E 3F 29 DC
+	jc	177Dh			;1770 72 0B
+	call	14D9h			;1772 E8 64 FD
+	mov	al,2Ch			;1775 B0 2C
+	stosb				;1777 AA
+	xor	al,al			;1778 32 C0
+	jmp	14D9h			;177A E9 5C FD
+	xor	al,al			;177D 32 C0
+	call	14D9h			;177F E8 57 FD
+	mov	al,2Ch			;1782 B0 2C
+	stosb				;1784 AA
+	mov	al,[2940h]		;1785 A0 40 29
+	jmp	14D9h			;1788 E9 4E FD
+	mov	dx,1			;178B BA 01 00
+	mov	al,[293Fh]		;178E A0 3F 29
+	cmp	al,0FFDBh		;1791 3C DB
+	jz	17B7h			;1793 74 22
+	test	byte ptr [2940h],20h	;1795 F6 06 40 29 20
+	jz	17B8h			;179A 74 1C
+	jmp	short 17B6h		;179C EB 18
+	mov	al,[2940h]		;179E A0 40 29
+	cmp	al,0FFC0h		;17A1 3C C0
+	jc	17A8h			;17A3 72 03
+	jmp	14D9h			;17A5 E9 31 FD
+	mov	dx,2			;17A8 BA 02 00
+	mov	al,[293Fh]		;17AB A0 3F 29
+	cmp	al,0FFDDh		;17AE 3C DD
+	jz	17B7h			;17B0 74 05
+	cmp	al,0FFD9h		;17B2 3C D9
+	jz	17B8h			;17B4 74 02
+	inc	dx			;17B6 42
+	inc	dx			;17B7 42
+	mov	[2937h],dx		;17B8 89 16 37 29
+	mov	al,[2940h]		;17BC A0 40 29
+	jmp	13D0h			;17BF E9 0E FC
+	xor	ax,ax			;17C2 33 C0
+	cmp	byte ptr [293Fh],0FFDEh	;17C4 80 3E 3F 29 DE
+	adc	al,1			;17C9 14 01
+	mov	[2937h],ax		;17CB A3 37 29
+	mov	al,[2940h]		;17CE A0 40 29
+	jmp	13D0h			;17D1 E9 FC FB
+	mov	al,[2940h]		;17D4 A0 40 29
+	and	ax,7			;17D7 25 07 00
+	shl	ax,1			;17DA D1 E0
+	add	ax,dx			;17DC 03 C2
+	push	si			;17DE 56
+	mov	si,ax			;17DF 8B F0
+	mov	si,[si]			;17E1 8B 34
+	mov	cl,[si]			;17E3 8A 0C
+	xor	ch,ch			;17E5 32 ED
+	jcxz	17EFh			;17E7 E3 06
+	inc	si			;17E9 46
+	cld				;17EA FC
+	repz				;17EB F3
+	movsb				;17EC A4
+	pop	si			;17ED 5E
+	ret				;17EE C3
+	pop	si			;17EF 5E
+	mov	al,[293Fh]		;17F0 A0 3F 29
+	mov	ah,[2940h]		;17F3 8A 26 40 29
+	mov	cl,3			;17F7 B1 03
+	ror	ah,cl			;17F9 D2 CC
+	and	ax,707h			;17FB 25 07 07
+	rol	al,cl			;17FE D2 C0
+	or	al,ah			;1800 0A C4
+	xor	ah,ah			;1802 32 E4
+	call	1301h			;1804 E8 FA FA
+	mov	al,2Ch			;1807 B0 2C
+	stosb				;1809 AA
+	mov	al,[2940h]		;180A A0 40 29
+	jmp	13FAh			;180D E9 EA FB
+	mov	al,[2940h]		;1810 A0 40 29
+	and	al,7			;1813 24 07
+	cmp	al,1			;1815 3C 01
+	jz	181Ch			;1817 74 03
+	jmp	14D9h			;1819 E9 BD FC
+	ret				;181C C3
+	mov	al,[2940h]		;181D A0 40 29
+	and	ax,1Fh			;1820 25 1F 00
+	shl	ax,1			;1823 D1 E0
+	add	ax,26FEh		;1825 05 FE 26
+	jmp	17DEh			;1828 E9 B3 FF
+	dec	di			;182B 4F
+	mov	al,[293Fh]		;182C A0 3F 29
+	mov	[293Dh],al		;182F A2 3D 29
+	mov	sp,[2932h]		;1832 8B 26 32 29
+	jmp	451h			;1836 E9 18 EC
+	esc	0,[bx+si]		;1839 D8 00
+	add	sp,[bx+di+61h]		;183B 03 61 61
+	db	61h			;183E 61
+	aaa				;183F 37
+	add	[bp+di],al		;1840 00 03
+	db	61h			;1842 61
+	db	61h			;1843 61
+	db	64h			;1844 64
+	aad	7			;1845 D5 07
+	add	sp,[bx+di+61h]		;1847 03 61 61
+	db	6Dh			;184A 6D
+	aam	7			;184B D4 07
+	add	sp,[bx+di+61h]		;184D 03 61 61
+	jnc	1891h			;1850 73 3F
+	add	[bp+di],al		;1852 00 03
+	db	61h			;1854 61
+	db	64h			;1855 64
+	db	63h			;1856 63
+	adc	[bx+di],al		;1857 10 01
+	add	sp,[bx+di+64h]		;1859 03 61 64
+	db	64h			;185C 64
+	add	[bx+di],al		;185D 00 01
+	add	sp,[bx+di+6Eh]		;185F 03 61 6E
+	db	64h			;1862 64
+	and	[bx+di],al		;1863 20 01
+	add	al,62h			;1865 04 62
+	jns	18DDh			;1867 79 74
+	db	65h			;1869 65
+	add	[di],dx			;186A 01 15
+	add	al,63h			;186C 04 63
+	db	61h			;186E 61
+	db	6Ch			;186F 6C
+	db	6Ch			;1870 6C
+	adc	[6303h],al		;1871 10 06 03 63
+	db	62h			;1875 62
+	ja	1810h			;1876 77 98
+	add	[bp+di],al		;1878 00 03
+	db	63h			;187A 63
+	db	6Ch			;187B 6C
+	db	63h			;187C 63
+	clc				;187D F8
+	add	[bp+di],al		;187E 00 03
+	db	63h			;1880 63
+	db	6Ch			;1881 6C
+	db	64h			;1882 64
+	cld				;1883 FC
+	add	[bp+di],al		;1884 00 03
+	db	63h			;1886 63
+	db	6Ch			;1887 6C
+	db	69h			;1888 69
+	cli				;1889 FA
+	add	[bp+di],al		;188A 00 03
+	db	63h			;188C 63
+	db	6Dh			;188D 6D
+	db	63h			;188E 63
+	cmc				;188F F5
+	add	[bp+di],al		;1890 00 03
+	db	63h			;1892 63
+	db	6Dh			;1893 6D
+	jo	18CEh			;1894 70 38
+	add	[di],ax			;1896 01 05
+	db	63h			;1898 63
+	db	6Dh			;1899 6D
+	jo	190Fh			;189A 70 73
+	db	62h			;189C 62
+	cmpsb				;189D A6
+	add	[di],al			;189E 00 05
+	db	63h			;18A0 63
+	db	6Dh			;18A1 6D
+	jo	1917h			;18A2 70 73
+	ja	184Dh			;18A4 77 A7
+	add	[bp+di],al		;18A6 00 03
+	db	63h			;18A8 63
+	ja	190Fh			;18A9 77 64
+	cwd				;18AB 99
+	add	[bp+di],al		;18AC 00 03
+	db	64h			;18AE 64
+	db	61h			;18AF 61
+	db	61h			;18B0 61
+	daa				;18B1 27
+	add	[bp+di],al		;18B2 00 03
+	db	64h			;18B4 64
+	db	61h			;18B5 61
+	jnc	18E7h			;18B6 73 2F
+	add	[bp+si],al		;18B8 00 02
+	db	64h			;18BA 64
+	db	62h			;18BB 62
+	add	[si],dx			;18BC 01 14
+	add	ah,[si+64h]		;18BE 02 64 64
+	add	dx,[si]			;18C1 03 14
+	add	sp,[si+65h]		;18C3 03 64 65
+	db	63h			;18C6 63
+	or	[si],al			;18C7 08 04
+	add	sp,[si+69h]		;18C9 03 64 69
+	jna	18FEh			;18CC 76 30
+	add	ax,[bp+si]		;18CE 03 02
+	db	64h			;18D0 64
+	jno	18D7h			;18D1 71 04
+	adc	al,2			;18D3 14 02
+	db	64h			;18D5 64
+	jnc	18D8h			;18D6 73 00
+	push	ss			;18D8 16
+	add	ah,[si+74h]		;18D9 02 64 74
+	add	ax,214h			;18DC 05 14 02
+	db	64h			;18DF 64
+	ja	18E4h			;18E0 77 02
+	adc	al,5			;18E2 14 05
+	db	64h			;18E4 64
+	ja	1956h			;18E5 77 6F
+	jc	194Dh			;18E7 72 64
+	add	dx,[di]			;18E9 03 15
+	add	sp,[di+6Eh]		;18EB 03 65 6E
+	db	64h			;18EE 64
+	add	[bp+si],dl		;18EF 00 12
+	add	sp,[di+71h]		;18F1 03 65 71
+	jnz	18F6h			;18F4 75 00
+	or	ax,6504h		;18F6 0D 04 65
+	jna	1960h			;18F9 76 65
+	db	6Eh			;18FB 6E
+	nop				;18FC 90
+	pop	ss			;18FD 17
+	add	sp,[di+73h]		;18FE 03 65 73
+	db	63h			;1901 63
+	esc	1,[6605h]		;1902 D8 0E 05 66
+	xor	bh,[bx+si+6Dh]		;1906 32 78 6D
+	xor	ax,si			;1909 31 F0
+	sbb	[si],ax			;190B 19 04
+	db	66h			;190D 66
+	db	61h			;190E 61
+	db	62h			;190F 62
+	jnc	18F3h			;1910 73 E1
+	sbb	[si],ax			;1912 19 04
+	db	66h			;1914 66
+	db	61h			;1915 61
+	db	64h			;1916 64
+	db	64h			;1917 64
+	add	[bp+di],ah		;1918 00 23
+	add	ax,6166h		;191A 05 66 61
+	db	64h			;191D 64
+	db	64h			;191E 64
+	jo	18E1h			;191F 70 C0
+	sbb	al,[bp+di]		;1921 1A 03
+	db	66h			;1923 66
+	db	61h			;1924 61
+	jc	192Ah			;1925 72 03
+	adc	ax,6604h		;1927 15 04 66
+	db	62h			;192A 62
+	db	6Ch			;192B 6C
+	db	64h			;192C 64
+	daa				;192D 27
+	sbb	al,5			;192E 1C 05
+	db	66h			;1930 66
+	db	62h			;1931 62
+	jnc	19A8h			;1932 73 74
+	jo	196Dh			;1934 70 37
+	sbb	al,4			;1936 1C 04
+	db	66h			;1938 66
+	db	63h			;1939 63
+	db	68h			;193A 68
+	jnc	191Dh			;193B 73 E0
+	sbb	[di],ax			;193D 19 05
+	db	66h			;193F 66
+	db	63h			;1940 63
+	db	6Ch			;1941 6C
+	db	65h			;1942 65
+	js	1957h			;1943 78 12
+	push	ds			;1945 1E
+	add	al,66h			;1946 04 66
+	db	63h			;1948 63
+	db	6Fh			;1949 6F
+	db	6Dh			;194A 6D
+	adc	[bp+si],ah		;194B 10 22
+	add	ax,6366h		;194D 05 66 63
+	db	6Fh			;1950 6F
+	db	6Dh			;1951 6D
+	jo	196Ch			;1952 70 18
+	and	al,[6366h]		;1954 22 06 66 63
+	db	6Fh			;1958 6F
+	db	6Dh			;1959 6D
+	jo	19CCh			;195A 70 70
+	esc	0Bh,[di]		;195C D9 1D
+	pop	es			;195E 07
+	db	66h			;195F 66
+	db	64h			;1960 64
+	db	65h			;1961 65
+	db	63h			;1962 63
+	jnc	19D9h			;1963 73 74
+	jo	195Dh			;1965 70 F6
+	sbb	[di],ax			;1967 19 05
+	db	66h			;1969 66
+	db	64h			;196A 64
+	db	69h			;196B 69
+	jnc	19D7h			;196C 73 69
+	adc	[6604h],bx		;196E 11 1E 04 66
+	db	64h			;1972 64
+	db	69h			;1973 69
+	jna	197Ch			;1974 76 06
+	and	ax,[di]			;1976 23 05
+	db	66h			;1978 66
+	db	64h			;1979 64
+	db	69h			;197A 69
+	jna	19EDh			;197B 76 70
+	clc				;197D F8
+	sbb	al,[di]			;197E 1A 05
+	db	66h			;1980 66
+	db	64h			;1981 64
+	db	69h			;1982 69
+	jna	19F7h			;1983 76 72
+	pop	es			;1985 07
+	and	ax,[6466h]		;1986 23 06 66 64
+	db	69h			;198A 69
+	jna	19FFh			;198B 76 72
+	jo	197Fh			;198D 70 F0
+	sbb	al,[si]			;198F 1A 04
+	db	66h			;1991 66
+	db	65h			;1992 65
+	db	6Eh			;1993 6E
+	db	69h			;1994 69
+	adc	[6605h],bl		;1995 10 1E 05 66
+	db	66h			;1999 66
+	jc	1A01h			;199A 72 65
+	db	65h			;199C 65
+	add	ax,620h			;199D 05 20 06
+	db	66h			;19A0 66
+	db	66h			;19A1 66
+	jc	1A09h			;19A2 72 65
+	db	65h			;19A4 65
+	jo	19AEh			;19A5 70 07
+	and	[di],al			;19A7 20 05
+	db	66h			;19A9 66
+	db	69h			;19AA 69
+	db	61h			;19AB 61
+	db	64h			;19AC 64
+	db	64h			;19AD 64
+	add	bl,[bp+di]		;19AE 02 1B
+	add	ax,6966h		;19B0 05 66 69
+	db	63h			;19B3 63
+	db	6Fh			;19B4 6F
+	db	6Dh			;19B5 6D
+	adc	bl,[bp+di]		;19B6 12 1B
+	push	es			;19B8 06
+	db	66h			;19B9 66
+	db	69h			;19BA 69
+	db	63h			;19BB 63
+	db	6Fh			;19BC 6F
+	db	6Dh			;19BD 6D
+	jo	19DAh			;19BE 70 1A
+	sbb	ax,[di]			;19C0 1B 05
+	db	66h			;19C2 66
+	db	69h			;19C3 69
+	db	64h			;19C4 64
+	db	69h			;19C5 69
+	jna	19FAh			;19C6 76 32
+	sbb	ax,[6966h]		;19C8 1B 06 66 69
+	db	64h			;19CC 64
+	db	69h			;19CD 69
+	jna	1A42h			;19CE 76 72
+	cmp	bl,[bp+di]		;19D0 3A 1B
+	add	al,66h			;19D2 04 66
+	db	69h			;19D4 69
+	db	6Ch			;19D5 6C
+	db	64h			;19D6 64
+	pop	es			;19D7 07
+	and	al,5			;19D8 24 05
+	db	66h			;19DA 66
+	db	69h			;19DB 69
+	db	6Dh			;19DC 6D
+	jnz	1A4Bh			;19DD 75 6C
+	or	bl,[bp+di]		;19DF 0A 1B
+	pop	es			;19E1 07
+	db	66h			;19E2 66
+	db	69h			;19E3 69
+	db	6Eh			;19E4 6E
+	db	63h			;19E5 63
+	jnc	1A5Ch			;19E6 73 74
+	jo	19E1h			;19E8 70 F7
+	sbb	[di],ax			;19EA 19 05
+	db	66h			;19EC 66
+	db	69h			;19ED 69
+	db	6Eh			;19EE 6E
+	db	69h			;19EF 69
+	jz	1A05h			;19F0 74 13
+	push	ds			;19F2 1E
+	add	al,66h			;19F3 04 66
+	db	69h			;19F5 69
+	jnc	1A6Ch			;19F6 73 74
+	adc	bx,[bp+di]		;19F8 13 1B
+	add	ax,6966h		;19FA 05 66 69
+	jnc	1A73h			;19FD 73 74
+	jo	1A20h			;19FF 70 1F
+	and	al,5			;1A01 24 05
+	db	66h			;1A03 66
+	db	69h			;1A04 69
+	jnc	1A7Ch			;1A05 73 75
+	db	62h			;1A07 62
+	and	bl,[bp+di]		;1A08 22 1B
+	push	es			;1A0A 06
+	db	66h			;1A0B 66
+	db	69h			;1A0C 69
+	jnc	1A84h			;1A0D 73 75
+	db	62h			;1A0F 62
+	jc	1A3Ch			;1A10 72 2A
+	sbb	ax,[bp+di]		;1A12 1B 03
+	db	66h			;1A14 66
+	db	6Ch			;1A15 6C
+	db	64h			;1A16 64
+	add	[bx+si],bl		;1A17 00 18
+	add	al,66h			;1A19 04 66
+	db	6Ch			;1A1B 6C
+	db	64h			;1A1C 64
+	xor	ax,bp			;1A1D 31 E8
+	sbb	[di],ax			;1A1F 19 05
+	db	66h			;1A21 66
+	db	6Ch			;1A22 6C
+	db	64h			;1A23 64
+	db	63h			;1A24 63
+	ja	1A50h			;1A25 77 29
+	sbb	al,6			;1A27 1C 06
+	db	66h			;1A29 66
+	db	6Ch			;1A2A 6C
+	db	64h			;1A2B 64
+	db	65h			;1A2C 65
+	db	6Eh			;1A2D 6E
+	jna	1A51h			;1A2E 76 21
+	sbb	al,6			;1A30 1C 06
+	db	66h			;1A32 66
+	db	6Ch			;1A33 6C
+	db	64h			;1A34 64
+	db	6Ch			;1A35 6C
+	xor	ah,[di-16h]		;1A36 32 65 EA
+	sbb	[6C66h],ax		;1A39 19 06 66 6C
+	db	64h			;1A3D 64
+	db	6Ch			;1A3E 6C
+	xor	dh,[si-17h]		;1A3F 32 74 E9
+	sbb	[6C66h],ax		;1A42 19 06 66 6C
+	db	64h			;1A46 64
+	db	6Ch			;1A47 6C
+	db	67h			;1A48 67
+	xor	ch,ah			;1A49 32 EC
+	sbb	[6C66h],ax		;1A4B 19 06 66 6C
+	db	64h			;1A4F 64
+	db	6Ch			;1A50 6C
+	db	6Eh			;1A51 6E
+	xor	ch,ch			;1A52 32 ED
+	sbb	[di],ax			;1A54 19 05
+	db	66h			;1A56 66
+	db	6Ch			;1A57 6C
+	db	64h			;1A58 64
+	jo	1AC4h			;1A59 70 69
+	jmp	short 1A76h		;1A5B EB 19
+	add	al,66h			;1A5D 04 66
+	db	6Ch			;1A5F 6C
+	db	64h			;1A60 64
+	jp	1A51h			;1A61 7A EE
+	sbb	[si],ax			;1A63 19 04
+	db	66h			;1A65 66
+	db	6Dh			;1A66 6D
+	jnz	1AD5h			;1A67 75 6C
+	add	[bp+di],sp		;1A69 01 23
+	add	ax,6D66h		;1A6B 05 66 6D
+	jnz	1ADCh			;1A6E 75 6C
+	jo	1A3Ah			;1A70 70 C8
+	sbb	al,[6E66h]		;1A72 1A 06 66 6E
+	db	63h			;1A76 63
+	db	6Ch			;1A77 6C
+	db	65h			;1A78 65
+	js	1A7Dh			;1A79 78 02
+	push	ds			;1A7B 1E
+	push	es			;1A7C 06
+	db	66h			;1A7D 66
+	db	6Eh			;1A7E 6E
+	db	64h			;1A7F 64
+	db	69h			;1A80 69
+	jnc	1AECh			;1A81 73 69
+	add	[6605h],bx		;1A83 01 1E 05 66
+	db	6Eh			;1A87 6E
+	db	65h			;1A88 65
+	db	6Eh			;1A89 6E
+	db	69h			;1A8A 69
+	add	[6606h],bl		;1A8B 00 1E 06 66
+	db	6Eh			;1A8F 6E
+	db	69h			;1A90 69
+	db	6Eh			;1A91 6E
+	db	69h			;1A92 69
+	jz	1A98h			;1A93 74 03
+	push	ds			;1A95 1E
+	add	al,66h			;1A96 04 66
+	db	6Eh			;1A98 6E
+	db	6Fh			;1A99 6F
+	jo	1A6Ch			;1A9A 70 D0
+	sbb	[6E66h],ax		;1A9C 19 06 66 6E
+	jnc	1B03h			;1AA0 73 61
+	jna	1B09h			;1AA2 76 65
+	xor	ax,71Ch			;1AA4 35 1C 07
+	db	66h			;1AA7 66
+	db	6Eh			;1AA8 6E
+	jnc	1B1Fh			;1AA9 73 74
+	db	65h			;1AAB 65
+	db	6Eh			;1AAC 6E
+	jna	1AE0h			;1AAD 76 31
+	sbb	al,6			;1AAF 1C 06
+	db	66h			;1AB1 66
+	db	6Eh			;1AB2 6E
+	jnc	1B29h			;1AB3 73 74
+	db	63h			;1AB5 63
+	ja	1AF1h			;1AB6 77 39
+	sbb	al,6			;1AB8 1C 06
+	db	66h			;1ABA 66
+	db	6Eh			;1ABB 6E
+	jnc	1B32h			;1ABC 73 74
+	jnc	1B37h			;1ABE 73 77
+	cmp	ax,61Ch			;1AC0 3D 1C 06
+	db	66h			;1AC3 66
+	jo	1B27h			;1AC4 70 61
+	jz	1B29h			;1AC6 74 61
+	db	6Eh			;1AC8 6E
+	repz				;1AC9 F3
+	sbb	[di],ax			;1ACA 19 05
+	db	66h			;1ACC 66
+	jo	1B41h			;1ACD 70 72
+	db	65h			;1ACF 65
+	db	6Dh			;1AD0 6D
+	clc				;1AD1 F8
+	sbb	[di],ax			;1AD2 19 05
+	db	66h			;1AD4 66
+	jo	1B4Bh			;1AD5 70 74
+	db	61h			;1AD7 61
+	db	6Eh			;1AD8 6E
+	repnz				;1AD9 F2
+	sbb	[bx],ax			;1ADA 19 07
+	db	66h			;1ADC 66
+	jc	1B4Dh			;1ADD 72 6E
+	db	64h			;1ADF 64
+	db	69h			;1AE0 69
+	db	6Eh			;1AE1 6E
+	jz	1AE0h			;1AE2 74 FC
+	sbb	[7266h],ax		;1AE4 19 06 66 72
+	jnc	1B5Eh			;1AE8 73 74
+	db	6Fh			;1AEA 6F
+	jc	1B12h			;1AEB 72 25
+	sbb	al,5			;1AED 1C 05
+	db	66h			;1AEF 66
+	jnc	1B53h			;1AF0 73 61
+	jna	1B59h			;1AF2 76 65
+	xor	ax,621h			;1AF4 35 21 06
+	db	66h			;1AF7 66
+	jnc	1B5Dh			;1AF8 73 63
+	db	61h			;1AFA 61
+	db	6Ch			;1AFB 6C
+	db	65h			;1AFC 65
+	std				;1AFD FD
+	sbb	[di],ax			;1AFE 19 05
+	db	66h			;1B00 66
+	jnc	1B74h			;1B01 73 71
+	jc	1B79h			;1B03 72 74
+	cli				;1B05 FA
+	sbb	[bp+di],ax		;1B06 19 03
+	db	66h			;1B08 66
+	jnc	1B7Fh			;1B09 73 74
+	adc	[bx],bx			;1B0B 11 1F
+	add	ax,7366h		;1B0D 05 66 73
+	jz	1B75h			;1B10 74 63
+	ja	1B4Dh			;1B12 77 39
+	and	[7366h],ax		;1B14 21 06 66 73
+	jz	1B7Fh			;1B18 74 65
+	db	6Eh			;1B1A 6E
+	jna	1B4Eh			;1B1B 76 31
+	and	[si],ax			;1B1D 21 04
+	db	66h			;1B1F 66
+	jnc	1B96h			;1B20 73 74
+	jo	1B25h			;1B22 70 01
+	sbb	[di],al			;1B24 18 05
+	db	66h			;1B26 66
+	jnc	1B9Dh			;1B27 73 74
+	jnc	1BA2h			;1B29 73 77
+	cmp	ax,421h			;1B2B 3D 21 04
+	db	66h			;1B2E 66
+	jnc	1BA6h			;1B2F 73 75
+	db	62h			;1B31 62
+	add	al,23h			;1B32 04 23
+	add	ax,7366h		;1B34 05 66 73
+	jnz	1B9Bh			;1B37 75 62
+	jo	1B23h			;1B39 70 E8
+	sbb	al,[di]			;1B3B 1A 05
+	db	66h			;1B3D 66
+	jnc	1BB5h			;1B3E 73 75
+	db	62h			;1B40 62
+	jc	1B48h			;1B41 72 05
+	and	ax,[7366h]		;1B43 23 06 66 73
+	jnz	1BABh			;1B47 75 62
+	jc	1BBBh			;1B49 72 70
+	loopnz	1B67h			;1B4B E0 1A
+	add	al,66h			;1B4D 04 66
+	jz	1BC4h			;1B4F 74 73
+	jz	1B37h			;1B51 74 E4
+	sbb	[di],ax			;1B53 19 05
+	db	66h			;1B55 66
+	ja	1BB9h			;1B56 77 61
+	db	69h			;1B58 69
+	jz	1AF6h			;1B59 74 9B
+	add	[si],al			;1B5B 00 04
+	db	66h			;1B5D 66
+	js	1BC1h			;1B5E 78 61
+	db	6Dh			;1B60 6D
+	in	ax,419h			;1B61 E5 19 04
+	db	66h			;1B64 66
+	js	1BCAh			;1B65 78 63
+	db	68h			;1B67 68
+	or	[bx+si],sp		;1B68 09 20
+	pop	es			;1B6A 07
+	db	66h			;1B6B 66
+	js	1BE2h			;1B6C 78 74
+	jc	1BD1h			;1B6E 72 61
+	db	63h			;1B70 63
+	jz	1B67h			;1B71 74 F4
+	sbb	[di],ax			;1B73 19 05
+	db	66h			;1B75 66
+	jns	1BE4h			;1B76 79 6C
+	xor	bh,[bx+si-0Fh]		;1B78 32 78 F1
+	sbb	[bx],ax			;1B7B 19 07
+	db	66h			;1B7D 66
+	jns	1BECh			;1B7E 79 6C
+	xor	bh,[bx+si+70h]		;1B80 32 78 70
+	xor	cx,di			;1B83 31 F9
+	sbb	[bp+di],ax		;1B85 19 03
+	db	68h			;1B87 68
+	db	6Ch			;1B88 6C
+	jz	1B7Fh			;1B89 74 F4
+	add	[si],al			;1B8B 00 04
+	db	69h			;1B8D 69
+	db	64h			;1B8E 64
+	db	69h			;1B8F 69
+	jna	1BCAh			;1B90 76 38
+	add	ax,[si]			;1B92 03 04
+	db	69h			;1B94 69
+	db	6Dh			;1B95 6D
+	jnz	1C04h			;1B96 75 6C
+	sub	[bp+di],al		;1B98 28 03
+	add	ch,[bx+di+6Eh]		;1B9A 02 69 6E
+	in	al,11h			;1B9D E4 11
+	add	bp,[bx+di+6Eh]		;1B9F 03 69 6E
+	db	63h			;1BA2 63
+	add	[si],al			;1BA3 00 04
+	pop	es			;1BA5 07
+	db	69h			;1BA6 69
+	db	6Eh			;1BA7 6E
+	db	63h			;1BA8 63
+	db	6Ch			;1BA9 6C
+	jnz	1C10h			;1BAA 75 64
+	db	65h			;1BAC 65
+	add	[bx],cl			;1BAD 00 0F
+	add	bp,[bx+di+6Eh]		;1BAF 03 69 6E
+	jz	1B81h			;1BB2 74 CD
+	or	al,4			;1BB4 0C 04
+	db	69h			;1BB6 69
+	db	6Eh			;1BB7 6E
+	jz	1C29h			;1BB8 74 6F
+	into				;1BBA CE
+	add	[si],al			;1BBB 00 04
+	db	69h			;1BBD 69
+	jc	1C25h			;1BBE 72 65
+	jz	1B91h			;1BC0 74 CF
+	add	[bp+si],al		;1BC2 00 02
+	db	6Ah			;1BC4 6A
+	db	61h			;1BC5 61
+	ja	1BCDh			;1BC6 77 05
+	add	bp,[bp+si+61h]		;1BC8 03 6A 61
+	db	65h			;1BCB 65
+	jnc	1BD3h			;1BCC 73 05
+	add	ch,[bp+si+62h]		;1BCE 02 6A 62
+	jc	1BD8h			;1BD1 72 05
+	add	bp,[bp+si+62h]		;1BD3 03 6A 62
+	db	65h			;1BD6 65
+	jna	1BDEh			;1BD7 76 05
+	add	ch,[bp+si+63h]		;1BD9 02 6A 63
+	jc	1BE3h			;1BDC 72 05
+	add	al,6Ah			;1BDE 04 6A
+	db	63h			;1BE0 63
+	js	1C5Dh			;1BE1 78 7A
+	jcxz	1BEAh			;1BE3 E3 05
+	add	ch,[bp+si+65h]		;1BE5 02 6A 65
+	jz	1BEFh			;1BE8 74 05
+	add	ch,[bp+si+67h]		;1BEA 02 6A 67
+	jg	1BF4h			;1BED 7F 05
+	add	bp,[bp+si+67h]		;1BEF 03 6A 67
+	db	65h			;1BF2 65
+	jnl	1BFAh			;1BF3 7D 05
+	add	ch,[bp+si+6Ch]		;1BF5 02 6A 6C
+	jl	1BFFh			;1BF8 7C 05
+	add	bp,[bp+si+6Ch]		;1BFA 03 6A 6C
+	db	65h			;1BFD 65
+	jng	1C05h			;1BFE 7E 05
+	add	bp,[bp+si+6Dh]		;1C00 03 6A 6D
+	jo	1C25h			;1C03 70 20
+	push	es			;1C05 06
+	add	bp,[bp+si+6Eh]		;1C06 03 6A 6E
+	db	61h			;1C09 61
+	jna	1C11h			;1C0A 76 05
+	add	al,6Ah			;1C0C 04 6A
+	db	6Eh			;1C0E 6E
+	db	61h			;1C0F 61
+	db	65h			;1C10 65
+	jc	1C18h			;1C11 72 05
+	add	bp,[bp+si+6Eh]		;1C13 03 6A 6E
+	db	62h			;1C16 62
+	jnc	1C1Eh			;1C17 73 05
+	add	al,6Ah			;1C19 04 6A
+	db	6Eh			;1C1B 6E
+	db	62h			;1C1C 62
+	db	65h			;1C1D 65
+	ja	1C25h			;1C1E 77 05
+	add	bp,[bp+si+6Eh]		;1C20 03 6A 6E
+	db	63h			;1C23 63
+	jnc	1C2Bh			;1C24 73 05
+	add	bp,[bp+si+6Eh]		;1C26 03 6A 6E
+	db	65h			;1C29 65
+	jnz	1C31h			;1C2A 75 05
+	add	bp,[bp+si+6Eh]		;1C2C 03 6A 6E
+	db	67h			;1C2F 67
+	jng	1C37h			;1C30 7E 05
+	add	al,6Ah			;1C32 04 6A
+	db	6Eh			;1C34 6E
+	db	67h			;1C35 67
+	db	65h			;1C36 65
+	jl	1C3Eh			;1C37 7C 05
+	add	bp,[bp+si+6Eh]		;1C39 03 6A 6E
+	db	6Ch			;1C3C 6C
+	jnl	1C44h			;1C3D 7D 05
+	add	al,6Ah			;1C3F 04 6A
+	db	6Eh			;1C41 6E
+	db	6Ch			;1C42 6C
+	db	65h			;1C43 65
+	jg	1C4Bh			;1C44 7F 05
+	add	bp,[bp+si+6Eh]		;1C46 03 6A 6E
+	db	6Fh			;1C49 6F
+	jno	1C51h			;1C4A 71 05
+	add	bp,[bp+si+6Eh]		;1C4C 03 6A 6E
+	jo	1CCCh			;1C4F 70 7B
+	add	ax,6A03h		;1C51 05 03 6A
+	db	6Eh			;1C54 6E
+	jnc	1CD0h			;1C55 73 79
+	add	ax,6A03h		;1C57 05 03 6A
+	db	6Eh			;1C5A 6E
+	jp	1CD2h			;1C5B 7A 75
+	add	ax,6A02h		;1C5D 05 02 6A
+	db	6Fh			;1C60 6F
+	jo	1C68h			;1C61 70 05
+	add	ch,[bp+si+70h]		;1C63 02 6A 70
+	jp	1C6Dh			;1C66 7A 05
+	add	bp,[bp+si+70h]		;1C68 03 6A 70
+	db	65h			;1C6B 65
+	jp	1C73h			;1C6C 7A 05
+	add	bp,[bp+si+70h]		;1C6E 03 6A 70
+	db	6Fh			;1C71 6F
+	jnp	1C79h			;1C72 7B 05
+	add	ch,[bp+si+73h]		;1C74 02 6A 73
+	js	1C7Eh			;1C77 78 05
+	add	ch,[bp+si+7Ah]		;1C79 02 6A 7A
+	jz	1C83h			;1C7C 74 05
+	add	al,6Ch			;1C7E 04 6C
+	db	61h			;1C80 61
+	db	68h			;1C81 68
+	db	66h			;1C82 66
+	lahf				;1C83 9F
+	add	[bp+di],al		;1C84 00 03
+	db	6Ch			;1C86 6C
+	db	64h			;1C87 64
+	jnc	1C4Fh			;1C88 73 C5
+	or	[bp+di],al		;1C8A 08 03
+	db	6Ch			;1C8C 6C
+	db	65h			;1C8D 65
+	db	61h			;1C8E 61
+	lea	cx,[bx+si]		;1C8F 8D 08
+	add	bp,[si+65h]		;1C91 03 6C 65
+	jnc	1C5Ah			;1C94 73 C4
+	or	[si],al			;1C96 08 04
+	db	6Ch			;1C98 6C
+	db	6Fh			;1C99 6F
+	db	63h			;1C9A 63
+	db	6Bh			;1C9B 6B
+	lock				;1C9C F0
+	or	al,[di]			;1C9D 0A 05
+	db	6Ch			;1C9F 6C
+	db	6Fh			;1CA0 6F
+	db	64h			;1CA1 64
+	jnc	1D06h			;1CA2 73 62
+	lodsb				;1CA4 AC
+	add	[di],al			;1CA5 00 05
+	db	6Ch			;1CA7 6C
+	db	6Fh			;1CA8 6F
+	db	64h			;1CA9 64
+	jnc	1D23h			;1CAA 73 77
+	lodsw				;1CAC AD
+	add	[si],al			;1CAD 00 04
+	db	6Ch			;1CAF 6C
+	db	6Fh			;1CB0 6F
+	db	6Fh			;1CB1 6F
+	jo	1C96h			;1CB2 70 E2
+	add	ax,6C05h		;1CB4 05 05 6C
+	db	6Fh			;1CB7 6F
+	db	6Fh			;1CB8 6F
+	jo	1D20h			;1CB9 70 65
+	loopz	1CC2h			;1CBB E1 05
+	push	es			;1CBD 06
+	db	6Ch			;1CBE 6C
+	db	6Fh			;1CBF 6F
+	db	6Fh			;1CC0 6F
+	jo	1D31h			;1CC1 70 6E
+	db	65h			;1CC3 65
+	loopnz	1CCBh			;1CC4 E0 05
+	push	es			;1CC6 06
+	db	6Ch			;1CC7 6C
+	db	6Fh			;1CC8 6F
+	db	6Fh			;1CC9 6F
+	jo	1D3Ah			;1CCA 70 6E
+	jp	1CAEh			;1CCC 7A E0
+	add	ax,6C05h		;1CCE 05 05 6C
+	db	6Fh			;1CD1 6F
+	db	6Fh			;1CD2 6F
+	jo	1D4Fh			;1CD3 70 7A
+	loopz	1CDCh			;1CD5 E1 05
+	add	bp,[di+6Fh]		;1CD7 03 6D 6F
+	jna	1C64h			;1CDA 76 88
+	or	[di],ax			;1CDC 09 05
+	db	6Dh			;1CDE 6D
+	db	6Fh			;1CDF 6F
+	jna	1D55h			;1CE0 76 73
+	db	62h			;1CE2 62
+	movsb				;1CE3 A4
+	add	[di],al			;1CE4 00 05
+	db	6Dh			;1CE6 6D
+	db	6Fh			;1CE7 6F
+	jna	1D5Dh			;1CE8 76 73
+	ja	1C91h			;1CEA 77 A5
+	add	[bp+di],al		;1CEC 00 03
+	db	6Dh			;1CEE 6D
+	jnz	1D5Dh			;1CEF 75 6C
+	and	[bp+di],al		;1CF1 20 03
+	add	al,6Eh			;1CF3 04 6E
+	db	65h			;1CF5 65
+	db	61h			;1CF6 61
+	jc	1CFBh			;1CF7 72 02
+	adc	ax,6E03h		;1CF9 15 03 6E
+	db	65h			;1CFC 65
+	db	67h			;1CFD 67
+	sbb	[bp+di],al		;1CFE 18 03
+	add	bp,[bp+6Fh]		;1D00 03 6E 6F
+	jo	1C95h			;1D03 70 90
+	add	[bp+di],al		;1D05 00 03
+	db	6Eh			;1D07 6E
+	db	6Fh			;1D08 6F
+	jz	1D1Bh			;1D09 74 10
+	add	ax,[666Fh]		;1D0B 03 06 6F 66
+	db	66h			;1D0F 66
+	jnc	1D77h			;1D10 73 65
+	jz	1D14h			;1D12 74 00
+	adc	ax,6F02h		;1D14 15 02 6F
+	jc	1D21h			;1D17 72 08
+	add	[bp+di],ax		;1D19 01 03
+	db	6Fh			;1D1B 6F
+	jc	1D85h			;1D1C 72 67
+	add	[bp+di],dl		;1D1E 00 13
+	add	bp,[bx+75h]		;1D20 03 6F 75
+	jz	1D0Bh			;1D23 74 E6
+	adc	[bp+di],ax		;1D25 11 03
+	jo	1D98h			;1D27 70 6F
+	jo	1D83h			;1D29 70 58
+	add	al,4			;1D2B 04 04
+	jo	1D9Eh			;1D2D 70 6F
+	jo	1D97h			;1D2F 70 66
+	popf				;1D31 9D
+	add	[bp+di],al		;1D32 00 03
+	jo	1DAAh			;1D34 70 74
+	jc	1D38h			;1D36 72 00
+	adc	ax,7004h		;1D38 15 04 70
+	jnz	1DB0h			;1D3B 75 73
+	db	68h			;1D3D 68
+	push	ax			;1D3E 50
+	add	al,5			;1D3F 04 05
+	jo	1DB8h			;1D41 70 75
+	jnc	1DADh			;1D43 73 68
+	db	66h			;1D45 66
+	pushf				;1D46 9C
+	add	[di],al			;1D47 00 05
+	jno	1DC2h			;1D49 71 77
+	db	6Fh			;1D4B 6F
+	jc	1DB2h			;1D4C 72 64
+	add	al,15h			;1D4E 04 15
+	add	si,[bp+si+63h]		;1D50 03 72 63
+	db	6Ch			;1D53 6C
+	adc	[bp+si],al		;1D54 10 02
+	add	si,[bp+si+63h]		;1D56 03 72 63
+	jc	1D73h			;1D59 72 18
+	add	al,[bp+di]		;1D5B 02 03
+	jc	1DC4h			;1D5D 72 65
+	jo	1D54h			;1D5F 70 F3
+	or	al,[si]			;1D61 0A 04
+	jc	1DCAh			;1D63 72 65
+	jo	1DCCh			;1D65 70 65
+	repz				;1D67 F3
+	or	al,[di]			;1D68 0A 05
+	jc	1DD1h			;1D6A 72 65
+	jo	1DDCh			;1D6C 70 6E
+	db	65h			;1D6E 65
+	repnz				;1D6F F2
+	or	al,[di]			;1D70 0A 05
+	jc	1DD9h			;1D72 72 65
+	jo	1DE4h			;1D74 70 6E
+	jp	1D6Ah			;1D76 7A F2
+	or	al,[si]			;1D78 0A 04
+	jc	1DE1h			;1D7A 72 65
+	jo	1DF8h			;1D7C 70 7A
+	repz				;1D7E F3
+	or	al,[bp+di]		;1D7F 0A 03
+	jc	1DE8h			;1D81 72 65
+	jz	1D48h			;1D83 74 C3
+	or	ax,[bp+di]		;1D85 0B 03
+	jc	1DF8h			;1D87 72 6F
+	db	6Ch			;1D89 6C
+	add	[bp+si],al		;1D8A 00 02
+	add	si,[bp+si+6Fh]		;1D8C 03 72 6F
+	jc	1D99h			;1D8F 72 08
+	add	al,[si]			;1D91 02 04
+	jnc	1DF6h			;1D93 73 61
+	db	68h			;1D95 68
+	db	66h			;1D96 66
+	sahf				;1D97 9E
+	add	[bp+di],al		;1D98 00 03
+	jnc	1DFDh			;1D9A 73 61
+	db	6Ch			;1D9C 6C
+	and	[bp+si],al		;1D9D 20 02
+	add	al,73h			;1D9F 04 73
+	db	61h			;1DA1 61
+	db	6Ch			;1DA2 6C
+	db	63h			;1DA3 63
+	salc				;1DA4 D6
+	add	[bp+di],al		;1DA5 00 03
+	jnc	1E0Ah			;1DA7 73 61
+	jc	1DE3h			;1DA9 72 38
+	add	al,[bp+di]		;1DAB 02 03
+	jnc	1E11h			;1DAD 73 62
+	db	62h			;1DAF 62
+	sbb	[bx+di],al		;1DB0 18 01
+	add	ax,6373h		;1DB2 05 73 63
+	db	61h			;1DB5 61
+	jnc	1E1Ah			;1DB6 73 62
+	scasb				;1DB8 AE
+	add	[di],al			;1DB9 00 05
+	jnc	1E20h			;1DBB 73 63
+	db	61h			;1DBD 61
+	jnc	1E37h			;1DBE 73 77
+	scasw				;1DC0 AF
+	add	[bp+di],al		;1DC1 00 03
+	jnc	1E2Dh			;1DC3 73 68
+	db	6Ch			;1DC5 6C
+	and	[bp+si],al		;1DC6 20 02
+	add	ax,6873h		;1DC8 05 73 68
+	db	6Fh			;1DCB 6F
+	jc	1E42h			;1DCC 72 74
+	add	[di],dx			;1DCE 01 15
+	add	si,[bp+di+68h]		;1DD0 03 73 68
+	jc	1DFDh			;1DD3 72 28
+	add	al,[bp+di]		;1DD5 02 03
+	jnc	1E4Dh			;1DD7 73 74
+	db	63h			;1DD9 63
+	stc				;1DDA F9
+	add	[bp+di],al		;1DDB 00 03
+	jnc	1E53h			;1DDD 73 74
+	db	64h			;1DDF 64
+	std				;1DE0 FD
+	add	[bp+di],al		;1DE1 00 03
+	jnc	1E59h			;1DE3 73 74
+	db	69h			;1DE5 69
+	sti				;1DE6 FB
+	add	[di],al			;1DE7 00 05
+	jnc	1E5Fh			;1DE9 73 74
+	db	6Fh			;1DEB 6F
+	jnc	1E50h			;1DEC 73 62
+	stosb				;1DEE AA
+	add	[di],al			;1DEF 00 05
+	jnc	1E67h			;1DF1 73 74
+	db	6Fh			;1DF3 6F
+	jnc	1E6Dh			;1DF4 73 77
+	stosw				;1DF6 AB
+	add	[bp+di],al		;1DF7 00 03
+	jnc	1E70h			;1DF9 73 75
+	db	62h			;1DFB 62
+	sub	[bx+di],al		;1DFC 28 01
+	add	ax,6274h		;1DFE 05 74 62
+	jns	1E77h			;1E01 79 74
+	db	65h			;1E03 65
+	add	ax,415h			;1E04 05 15 04
+	jz	1E6Eh			;1E07 74 65
+	jnc	1E7Fh			;1E09 73 74
+	add	[bp+di],al		;1E0B 00 03
+	add	al,77h			;1E0D 04 77
+	db	61h			;1E0F 61
+	db	69h			;1E10 69
+	jz	1DAEh			;1E11 74 9B
+	add	[si],al			;1E13 00 04
+	ja	1E86h			;1E15 77 6F
+	jc	1E7Dh			;1E17 72 64
+	add	dl,[di]			;1E19 02 15
+	add	al,78h			;1E1B 04 78
+	db	63h			;1E1D 63
+	db	68h			;1E1E 68
+	db	67h			;1E1F 67
+	xchg	[bx+si],dl		;1E20 86 10
+	add	ax,6C78h		;1E22 05 78 6C
+	db	61h			;1E25 61
+	jz	1E8Ah			;1E26 74 62
+	xlatb				;1E28 D7
+	add	[bp+di],al		;1E29 00 03
+	js	1E9Ch			;1E2B 78 6F
+	jc	1E5Fh			;1E2D 72 30
+	add	[bx+di+18h],bx		;1E2F 01 59 18
+	aaa				;1E32 37
+	adc	ax,1859h		;1E33 15 59 18
+	aaa				;1E36 37
+	adc	ax,1859h		;1E37 15 59 18
+	dec	ax			;1E3A 48
+	adc	ax,1859h		;1E3B 15 59 18
+	dec	ax			;1E3E 48
+	adc	ax,1859h		;1E3F 15 59 18
+	das				;1E42 2F
+	adc	ax,1859h		;1E43 15 59 18
+	das				;1E46 2F
+	adc	ax,1D39h		;1E47 15 39 1D
+	sub	dl,[bp+di]		;1E4A 2A 13
+	es:				;1E4C 26
+	sbb	ax,132Ah		;1E4D 1D 2A 13
+	adc	ax,371Dh		;1E50 15 1D 37
+	adc	ax,1D15h		;1E53 15 15 1D
+	aaa				;1E56 37
+	adc	ax,1D15h		;1E57 15 15 1D
+	dec	ax			;1E5A 48
+	adc	ax,1D15h		;1E5B 15 15 1D
+	dec	ax			;1E5E 48
+	adc	ax,1D15h		;1E5F 15 15 1D
+	das				;1E62 2F
+	adc	ax,1D15h		;1E63 15 15 1D
+	das				;1E66 2F
+	adc	ax,1D39h		;1E67 15 39 1D
+	sub	dl,[bp+di]		;1E6A 2A 13
+	es:				;1E6C 26
+	sbb	ax,132Ah		;1E6D 1D 2A 13
+	push	bx			;1E70 53
+	sbb	[bx],dh			;1E71 18 37
+	adc	ax,1853h		;1E73 15 53 18
+	aaa				;1E76 37
+	adc	ax,1853h		;1E77 15 53 18
+	dec	ax			;1E7A 48
+	adc	ax,1853h		;1E7B 15 53 18
+	dec	ax			;1E7E 48
+	adc	ax,1853h		;1E7F 15 53 18
+	das				;1E82 2F
+	adc	ax,1853h		;1E83 15 53 18
+	das				;1E86 2F
+	adc	ax,1D39h		;1E87 15 39 1D
+	sub	dl,[bp+di]		;1E8A 2A 13
+	es:				;1E8C 26
+	sbb	ax,132Ah		;1E8D 1D 2A 13
+	lodsb				;1E90 AC
+	sbb	ax,1537h		;1E91 1D 37 15
+	lodsb				;1E94 AC
+	sbb	ax,1537h		;1E95 1D 37 15
+	lodsb				;1E98 AC
+	sbb	ax,1548h		;1E99 1D 48 15
+	lodsb				;1E9C AC
+	sbb	ax,1548h		;1E9D 1D 48 15
+	lodsb				;1EA0 AC
+	sbb	ax,152Fh		;1EA1 1D 2F 15
+	lodsb				;1EA4 AC
+	sbb	ax,152Fh		;1EA5 1D 2F 15
+	cmp	[di],bx			;1EA8 39 1D
+	sub	dl,[bp+di]		;1EAA 2A 13
+	es:				;1EAC 26
+	sbb	ax,132Ah		;1EAD 1D 2A 13
+	pop	di			;1EB0 5F
+	sbb	[bx],dh			;1EB1 18 37
+	adc	ax,185Fh		;1EB3 15 5F 18
+	aaa				;1EB6 37
+	adc	ax,185Fh		;1EB7 15 5F 18
+	dec	ax			;1EBA 48
+	adc	ax,185Fh		;1EBB 15 5F 18
+	dec	ax			;1EBE 48
+	adc	ax,185Fh		;1EBF 15 5F 18
+	das				;1EC2 2F
+	adc	ax,185Fh		;1EC3 15 5F 18
+	das				;1EC6 2F
+	adc	ax,279Ch		;1EC7 15 9C 27
+	out	dx,ax			;1ECA EF
+	adc	al,0FFADh		;1ECB 14 AD
+	sbb	ch,ch			;1ECD 18 ED
+	adc	al,0FFF8h		;1ECF 14 F8
+	sbb	ax,1537h		;1ED1 1D 37 15
+	clc				;1ED4 F8
+	sbb	ax,1537h		;1ED5 1D 37 15
+	clc				;1ED8 F8
+	sbb	ax,1548h		;1ED9 1D 48 15
+	clc				;1EDC F8
+	sbb	ax,1548h		;1EDD 1D 48 15
+	clc				;1EE0 F8
+	sbb	ax,152Fh		;1EE1 1D 2F 15
+	clc				;1EE4 F8
+	sbb	ax,152Fh		;1EE5 1D 2F 15
+	pushf				;1EE8 9C
+	daa				;1EE9 27
+	out	dx,ax			;1EEA EF
+	adc	al,0FFB3h		;1EEB 14 B3
+	sbb	ch,ch			;1EED 18 ED
+	adc	al,2Ah			;1EEF 14 2A
+	push	ds			;1EF1 1E
+	aaa				;1EF2 37
+	adc	ax,1E2Ah		;1EF3 15 2A 1E
+	aaa				;1EF6 37
+	adc	ax,1E2Ah		;1EF7 15 2A 1E
+	dec	ax			;1EFA 48
+	adc	ax,1E2Ah		;1EFB 15 2A 1E
+	dec	ax			;1EFE 48
+	adc	ax,1E2Ah		;1EFF 15 2A 1E
+	das				;1F02 2F
+	adc	ax,1E2Ah		;1F03 15 2A 1E
+	das				;1F06 2F
+	adc	ax,279Ch		;1F07 15 9C 27
+	out	dx,ax			;1F0A EF
+	adc	al,3Bh			;1F0B 14 3B
+	sbb	ch,ch			;1F0D 18 ED
+	adc	al,0FF91h		;1F0F 14 91
+	sbb	[bx],dh			;1F11 18 37
+	adc	ax,1891h		;1F13 15 91 18
+	aaa				;1F16 37
+	adc	ax,1891h		;1F17 15 91 18
+	dec	ax			;1F1A 48
+	adc	ax,1891h		;1F1B 15 91 18
+	dec	ax			;1F1E 48
+	adc	ax,1891h		;1F1F 15 91 18
+	das				;1F22 2F
+	adc	ax,1891h		;1F23 15 91 18
+	das				;1F26 2F
+	adc	ax,279Ch		;1F27 15 9C 27
+	out	dx,ax			;1F2A EF
+	adc	al,4Dh			;1F2B 14 4D
+	sbb	ch,ch			;1F2D 18 ED
+	adc	al,0FF9Fh		;1F2F 14 9F
+	sbb	di,[di+15h]		;1F31 1B 7D 15
+	lahf				;1F34 9F
+	sbb	di,[di+15h]		;1F35 1B 7D 15
+	lahf				;1F38 9F
+	sbb	di,[di+15h]		;1F39 1B 7D 15
+	lahf				;1F3C 9F
+	sbb	di,[di+15h]		;1F3D 1B 7D 15
+	lahf				;1F40 9F
+	sbb	di,[di+15h]		;1F41 1B 7D 15
+	lahf				;1F44 9F
+	sbb	di,[di+15h]		;1F45 1B 7D 15
+	lahf				;1F48 9F
+	sbb	di,[di+15h]		;1F49 1B 7D 15
+	lahf				;1F4C 9F
+	sbb	di,[di+15h]		;1F4D 1B 7D 15
+	ret				;1F50 C3
+	sbb	[di+15h],bh		;1F51 18 7D 15
+	ret				;1F54 C3
+	sbb	[di+15h],bh		;1F55 18 7D 15
+	ret				;1F58 C3
+	sbb	[di+15h],bh		;1F59 18 7D 15
+	ret				;1F5C C3
+	sbb	[di+15h],bh		;1F5D 18 7D 15
+	ret				;1F60 C3
+	sbb	[di+15h],bh		;1F61 18 7D 15
+	ret				;1F64 C3
+	sbb	[di+15h],bh		;1F65 18 7D 15
+	ret				;1F68 C3
+	sbb	[di+15h],bh		;1F69 18 7D 15
+	ret				;1F6C C3
+	sbb	[di+15h],bh		;1F6D 18 7D 15
+	cmp	[di],bx			;1F70 39 1D
+	jnl	1F89h			;1F72 7D 15
+	cmp	[di],bx			;1F74 39 1D
+	jnl	1F8Dh			;1F76 7D 15
+	cmp	[di],bx			;1F78 39 1D
+	jnl	1F91h			;1F7A 7D 15
+	cmp	[di],bx			;1F7C 39 1D
+	jnl	1F95h			;1F7E 7D 15
+	cmp	[di],bx			;1F80 39 1D
+	jnl	1F99h			;1F82 7D 15
+	cmp	[di],bx			;1F84 39 1D
+	jnl	1F9Dh			;1F86 7D 15
+	cmp	[di],bx			;1F88 39 1D
+	jnl	1FA1h			;1F8A 7D 15
+	cmp	[di],bx			;1F8C 39 1D
+	jnl	1FA5h			;1F8E 7D 15
+	es:				;1F90 26
+	sbb	ax,157Dh		;1F91 1D 7D 15
+	es:				;1F94 26
+	sbb	ax,157Dh		;1F95 1D 7D 15
+	es:				;1F98 26
+	sbb	ax,157Dh		;1F99 1D 7D 15
+	es:				;1F9C 26
+	sbb	ax,157Dh		;1F9D 1D 7D 15
+	es:				;1FA0 26
+	sbb	ax,157Dh		;1FA1 1D 7D 15
+	es:				;1FA4 26
+	sbb	ax,157Dh		;1FA5 1D 7D 15
+	es:				;1FA8 26
+	sbb	ax,157Dh		;1FA9 1D 7D 15
+	es:				;1FAC 26
+	sbb	ax,157Dh		;1FAD 1D 7D 15
+	mov	cx,8218h		;1FB0 B9 18 82
+	push	ss			;1FB3 16
+	mov	cx,8218h		;1FB4 B9 18 82
+	push	ss			;1FB7 16
+	mov	cx,8218h		;1FB8 B9 18 82
+	push	ss			;1FBB 16
+	mov	cx,8218h		;1FBC B9 18 82
+	push	ss			;1FBF 16
+	mov	cx,8218h		;1FC0 B9 18 82
+	push	ss			;1FC3 16
+	mov	cx,8218h		;1FC4 B9 18 82
+	push	ss			;1FC7 16
+	mov	cx,8218h		;1FC8 B9 18 82
+	push	ss			;1FCB 16
+	mov	cx,8218h		;1FCC B9 18 82
+	push	ss			;1FCF 16
+	mov	cx,8218h		;1FD0 B9 18 82
+	push	ss			;1FD3 16
+	mov	cx,8218h		;1FD4 B9 18 82
+	push	ss			;1FD7 16
+	mov	cx,8218h		;1FD8 B9 18 82
+	push	ss			;1FDB 16
+	mov	cx,8218h		;1FDC B9 18 82
+	push	ss			;1FDF 16
+	mov	cx,8218h		;1FE0 B9 18 82
+	push	ss			;1FE3 16
+	mov	cx,8218h		;1FE4 B9 18 82
+	push	ss			;1FE7 16
+	mov	cx,8218h		;1FE8 B9 18 82
+	push	ss			;1FEB 16
+	mov	cx,8218h		;1FEC B9 18 82
+	push	ss			;1FEF 16
+	pop	si			;1FF0 5E
+	sbb	al,0FFD3h		;1FF1 1C D3
+	adc	ax,1C46h		;1FF3 15 46 1C
+	rcl	word ptr [di],cl	;1FF6 D3 15
+	esc	0Bh,[bp+di]		;1FF8 D9 1B
+	rcl	word ptr [di],cl	;1FFA D3 15
+	and	[si],bl			;1FFC 20 1C
+	rcl	word ptr [di],cl	;1FFE D3 15
+	jns	201Eh			;2000 79 1C
+	rcl	word ptr [di],cl	;2002 D3 15
+	pop	ax			;2004 58
+	sbb	al,0FFD3h		;2005 1C D3
+	adc	ax,1C06h		;2007 15 06 1C
+	rcl	word ptr [di],cl	;200A D3 15
+	ret				;200C C3
+	sbb	dx,bx			;200D 1B D3
+	adc	ax,1C74h		;200F 15 74 1C
+	rcl	word ptr [di],cl	;2012 D3 15
+	push	dx			;2014 52
+	sbb	al,0FFD3h		;2015 1C D3
+	adc	ax,1C63h		;2017 15 63 1C
+	rcl	word ptr [di],cl	;201A D3 15
+	dec	sp			;201C 4C
+	sbb	al,0FFD3h		;201D 1C D3
+	adc	ax,1BF5h		;201F 15 F5 1B
+	rcl	word ptr [di],cl	;2022 D3 15
+	cmp	[si],bx			;2024 39 1C
+	rcl	word ptr [di],cl	;2026 D3 15
+	sub	al,1Ch			;2028 2C 1C
+	rcl	word ptr [di],cl	;202A D3 15
+	jmp	9C15h:0D31Bh		;202C EA 1B D3 15 9C
+	daa				;2031 27
+	scasb				;2032 AE
+	push	ss			;2033 16
+	pushf				;2034 9C
+	daa				;2035 27
+	scasb				;2036 AE
+	push	ss			;2037 16
+	pushf				;2038 9C
+	daa				;2039 27
+	in	al,dx			;203A EC
+	adc	bl,[si-13D9h]		;203B 12 9C 27 EC
+	adc	al,[371Eh]		;203F 12 06 1E 37
+	adc	ax,1E06h		;2043 15 06 1E
+	aaa				;2046 37
+	adc	ax,1E1Bh		;2047 15 1B 1E
+	aaa				;204A 37
+	adc	ax,1E1Bh		;204B 15 1B 1E
+	aaa				;204E 37
+	adc	ax,1CD7h		;204F 15 D7 1C
+	aaa				;2052 37
+	adc	ax,1CD7h		;2053 15 D7 1C
+	aaa				;2056 37
+	adc	ax,1CD7h		;2057 15 D7 1C
+	dec	ax			;205A 48
+	adc	ax,1CD7h		;205B 15 D7 1C
+	dec	ax			;205E 48
+	adc	ax,1CD7h		;205F 15 D7 1C
+	push	sp			;2062 54
+	adc	ax,1C8Bh		;2063 15 8B 1C
+	dec	ax			;2066 48
+	adc	ax,1CD7h		;2067 15 D7 1C
+	db	65h			;206A 65
+	adc	ax,1D26h		;206B 15 26 1D
+	or	ax,17h			;206E 0D 17 00
+	sbb	ax,14EDh		;2071 1D ED 14
+	sbb	bx,[1576h]		;2074 1B 1E 76 15
+	sbb	bx,[1576h]		;2078 1B 1E 76 15
+	sbb	bx,[1576h]		;207C 1B 1E 76 15
+	sbb	bx,[1576h]		;2080 1B 1E 76 15
+	sbb	bx,[1576h]		;2084 1B 1E 76 15
+	sbb	bx,[1576h]		;2088 1B 1E 76 15
+	sbb	bx,[1576h]		;208C 1B 1E 76 15
+	jnc	20AAh			;2090 73 18
+	in	ax,dx			;2092 ED
+	adc	al,0FFA7h		;2093 14 A7
+	sbb	ch,ch			;2095 18 ED
+	adc	al,6Ch			;2097 14 6C
+	sbb	[di+16h],dh		;2099 18 75 16
+	pushf				;209C 9C
+	daa				;209D 27
+	sub	bx,[bx+si]		;209E 2B 18
+	inc	ax			;20A0 40
+	sbb	ax,14EDh		;20A1 1D ED 14
+	sub	al,1Dh			;20A4 2C 1D
+	in	ax,dx			;20A6 ED
+	adc	al,0FF92h		;20A7 14 92
+	sbb	ax,14EDh		;20A9 1D ED 14
+	jng	20CAh			;20AC 7E 1C
+	in	ax,dx			;20AE ED
+	adc	al,0FFD7h		;20AF 14 D7
+	sbb	al,0FF8Ah		;20B1 1C 8A
+	adc	ax,1CD7h		;20B3 15 D7 1C
+	mov	dl,[di]			;20B6 8A 15
+	xlatb				;20B8 D7
+	sbb	al,0FFA0h		;20B9 1C A0
+	adc	ax,1CD7h		;20BB 15 D7 1C
+	mov	al,[0DD15h]		;20BE A0 15 DD
+	sbb	al,0FFEDh		;20C1 1C ED
+	adc	al,0FFE5h		;20C3 14 E5
+	sbb	al,0FFEDh		;20C5 1C ED
+	adc	al,0FF97h		;20C7 14 97
+	sbb	ch,ch			;20C9 18 ED
+	adc	al,0FF9Fh		;20CB 14 9F
+	sbb	ch,ch			;20CD 18 ED
+	adc	al,6			;20CF 14 06
+	push	ds			;20D1 1E
+	das				;20D2 2F
+	adc	ax,1E06h		;20D3 15 06 1E
+	das				;20D6 2F
+	adc	ax,1DE8h		;20D7 15 E8 1D
+	in	ax,dx			;20DA ED
+	adc	al,0FFF0h		;20DB 14 F0
+	sbb	ax,14EDh		;20DD 1D ED 14
+	sahf				;20E0 9E
+	sbb	al,0FFEDh		;20E1 1C ED
+	adc	al,0FFA6h		;20E3 14 A6
+	sbb	al,0FFEDh		;20E5 1C ED
+	adc	al,0FFB2h		;20E7 14 B2
+	sbb	ax,14EDh		;20E9 1D ED 14
+	mov	dx,0ED1Dh		;20EC BA 1D ED
+	adc	al,0FFD7h		;20EF 14 D7
+	sbb	al,0FFBAh		;20F1 1C BA
+	adc	ax,1CD7h		;20F3 15 D7 1C
+	mov	dx,0D715h		;20F6 BA 15 D7
+	sbb	al,0FFBAh		;20F9 1C BA
+	adc	ax,1CD7h		;20FB 15 D7 1C
+	mov	dx,0D715h		;20FE BA 15 D7
+	sbb	al,0FFBAh		;2101 1C BA
+	adc	ax,1CD7h		;2103 15 D7 1C
+	mov	dx,0D715h		;2106 BA 15 D7
+	sbb	al,0FFBAh		;2109 1C BA
+	adc	ax,1CD7h		;210B 15 D7 1C
+	mov	dx,0D715h		;210E BA 15 D7
+	sbb	al,0FFBAh		;2111 1C BA
+	adc	ax,1CD7h		;2113 15 D7 1C
+	mov	dx,0D715h		;2116 BA 15 D7
+	sbb	al,0FFBAh		;2119 1C BA
+	adc	ax,1CD7h		;211B 15 D7 1C
+	mov	dx,0D715h		;211E BA 15 D7
+	sbb	al,0FFBAh		;2121 1C BA
+	adc	ax,1CD7h		;2123 15 D7 1C
+	mov	dx,0D715h		;2126 BA 15 D7
+	sbb	al,0FFBAh		;2129 1C BA
+	adc	ax,1CD7h		;212B 15 D7 1C
+	mov	dx,0B915h		;212E BA 15 B9
+	sbb	[bp+si-46EAh],al	;2131 18 82 16 B9
+	sbb	[bp+si-7FEAh],al	;2135 18 82 16 80
+	sbb	ax,1644h		;2139 1D 44 16
+	sbb	byte ptr [di],0FFEDh	;213C 80 1D ED
+	adc	al,0FF91h		;213F 14 91
+	sbb	al,43h			;2141 1C 43
+	adc	ax,1C85h		;2143 15 85 1C
+	dec	ax			;2146 48
+	adc	ax,1CD7h		;2147 15 D7 1C
+	mov	bl,15h			;214A B3 15
+	xlatb				;214C D7
+	sbb	al,0FFB3h		;214D 1C B3
+	adc	ax,18B9h		;214F 15 B9 18
+	adc	byte ptr [18B9h],-7Eh	;2152 82 16 B9 18 82
+	push	ss			;2157 16
+	sbb	byte ptr [di],33h	;2158 80 1D 33
+	push	ss			;215B 16
+	sbb	byte ptr [di],33h	;215C 80 1D 33
+	push	ss			;215F 16
+	scasw				;2160 AF
+	sbb	bp,[bx]			;2161 1B 2F
+	push	ss			;2163 16
+	scasw				;2164 AF
+	sbb	bp,[bx+di]		;2165 1B 29
+	push	ss			;2167 16
+	mov	ch,1Bh			;2168 B5 1B
+	in	ax,dx			;216A ED
+	adc	al,0FFBCh		;216B 14 BC
+	sbb	bp,bp			;216D 1B ED
+	adc	al,0FF9Ch		;216F 14 9C
+	daa				;2171 27
+	mov	dl,[279Ch]		;2172 8A 16 9C 27
+	mov	dl,[279Ch]		;2176 8A 16 9C 27
+	mov	dl,[279Ch]		;217A 8A 16 9C 27
+	mov	dl,[1847h]		;217E 8A 16 47 18
+	add	dx,[1841h]		;2182 03 16 41 18
+	add	dx,[1D9Fh]		;2186 03 16 9F 1D
+	in	ax,dx			;218A ED
+	adc	al,22h			;218B 14 22
+	push	ds			;218D 1E
+	in	ax,dx			;218E ED
+	adc	al,0FF9Ch		;218F 14 9C
+	daa				;2191 27
+	push	cs			;2192 0E
+	push	ss			;2193 16
+	pushf				;2194 9C
+	daa				;2195 27
+	push	cs			;2196 0E
+	push	ss			;2197 16
+	pushf				;2198 9C
+	daa				;2199 27
+	push	cs			;219A 0E
+	push	ss			;219B 16
+	pushf				;219C 9C
+	daa				;219D 27
+	push	cs			;219E 0E
+	push	ss			;219F 16
+	pushf				;21A0 9C
+	daa				;21A1 27
+	push	cs			;21A2 0E
+	push	ss			;21A3 16
+	pushf				;21A4 9C
+	daa				;21A5 27
+	push	cs			;21A6 0E
+	push	ss			;21A7 16
+	pushf				;21A8 9C
+	daa				;21A9 27
+	push	cs			;21AA 0E
+	push	ss			;21AB 16
+	pushf				;21AC 9C
+	daa				;21AD 27
+	push	cs			;21AE 0E
+	push	ss			;21AF 16
+	mov	byte ptr [si],0FFD3h	;21B0 C6 1C D3
+	adc	ax,1CCFh		;21B3 15 CF 1C
+	rcl	word ptr [di],cl	;21B6 D3 15
+	scasb				;21B8 AE
+	sbb	al,0FFD3h		;21B9 1C D3
+	adc	ax,1BDEh		;21BB 15 DE 1B
+	rcl	word ptr [di],cl	;21BE D3 15
+	call	9A15h:2F1Bh		;21C0 9A 1B 2F 15 9A
+	sbb	bp,[bx]			;21C5 1B 2F
+	adc	ax,1D20h		;21C7 15 20 1D
+	db	67h			;21CA 67
+	push	ss			;21CB 16
+	and	[di],bl			;21CC 20 1D
+	db	67h			;21CE 67
+	push	ss			;21CF 16
+	db	6Ch			;21D0 6C
+	sbb	ah,dh			;21D1 18 F4
+	adc	ax,1C00h		;21D3 15 00 1C
+	hlt				;21D6 F4
+	adc	ax,1C00h		;21D7 15 00 1C
+	jnz	21F2h			;21DA 75 16
+	add	[si],bl			;21DC 00 1C
+	rcl	word ptr [di],cl	;21DE D3 15
+	call	9A16h:491Bh		;21E0 9A 1B 49 16 9A
+	sbb	cx,[bx+di+16h]		;21E5 1B 49 16
+	and	[di],bl			;21E8 20 1D
+	dec	cx			;21EA 49
+	push	ss			;21EB 16
+	and	[di],bl			;21EC 20 1D
+	dec	cx			;21EE 49
+	push	ss			;21EF 16
+	xchg	ax,di			;21F0 97
+	sbb	al,0FFEDh		;21F1 1C ED
+	adc	al,0FFB9h		;21F3 14 B9
+	sbb	[bp+si+7116h],al	;21F5 18 82 16 71
+	sbb	ax,14EDh		;21F9 1D ED 14
+	jns	221Bh			;21FC 79 1D
+	in	ax,dx			;21FE ED
+	adc	al,0FF86h		;21FF 14 86
+	sbb	bp,bp			;2201 1B ED
+	adc	al,0FF8Bh		;2203 14 8B
+	sbb	ch,ch			;2205 18 ED
+	adc	al,0FF9Ch		;2207 14 9C
+	daa				;2209 27
+	mov	[9C16h],ax		;220A A3 16 9C
+	daa				;220D 27
+	mov	[7916h],ax		;220E A3 16 79
+	sbb	ch,ch			;2211 18 ED
+	adc	al,0FFD6h		;2213 14 D6
+	sbb	ax,14EDh		;2215 1D ED 14
+	test	[bx+si],bx		;2218 85 18
+	in	ax,dx			;221A ED
+	adc	al,0FFE2h		;221B 14 E2
+	sbb	ax,14EDh		;221D 1D ED 14
+	jg	223Ah			;2220 7F 18
+	in	ax,dx			;2222 ED
+	adc	al,0FFDCh		;2223 14 DC
+	sbb	ax,14EDh		;2225 1D ED 14
+	pushf				;2228 9C
+	daa				;2229 27
+	les	dx,[279Ch]		;222A C4 16 9C 27
+	les	dx,[1913h]		;222E C4 16 13 19
+	push	cx			;2232 51
+	pop	ss			;2233 17
+	db	64h			;2234 64
+	sbb	dl,[bx+di+17h]		;2235 1A 51 17
+	inc	si			;2238 46
+	sbb	[bx+di+17h],dx		;2239 19 51 17
+	dec	bp			;223C 4D
+	sbb	[bx+di+17h],dx		;223D 19 51 17
+	sub	ax,511Bh		;2240 2D 1B 51
+	pop	ss			;2243 17
+	cmp	al,1Bh			;2244 3C 1B
+	push	cx			;2246 51
+	pop	ss			;2247 17
+	jo	2263h			;2248 70 19
+	push	cx			;224A 51
+	pop	ss			;224B 17
+	jg	2267h			;224C 7F 19
+	push	cx			;224E 51
+	pop	ss			;224F 17
+	adc	bx,[bx+di]		;2250 13 19
+	push	cx			;2252 51
+	pop	ss			;2253 17
+	db	64h			;2254 64
+	sbb	dl,[bx+di+17h]		;2255 1A 51 17
+	inc	si			;2258 46
+	sbb	[bx+di+17h],dx		;2259 19 51 17
+	dec	bp			;225C 4D
+	sbb	[bx+di+17h],dx		;225D 19 51 17
+	sub	ax,511Bh		;2260 2D 1B 51
+	pop	ss			;2263 17
+	cmp	al,1Bh			;2264 3C 1B
+	push	cx			;2266 51
+	pop	ss			;2267 17
+	jo	2283h			;2268 70 19
+	push	cx			;226A 51
+	pop	ss			;226B 17
+	jg	2287h			;226C 7F 19
+	push	cx			;226E 51
+	pop	ss			;226F 17
+	adc	bx,[bx+di]		;2270 13 19
+	push	cx			;2272 51
+	pop	ss			;2273 17
+	db	64h			;2274 64
+	sbb	dl,[bx+di+17h]		;2275 1A 51 17
+	inc	si			;2278 46
+	sbb	[bx+di+17h],dx		;2279 19 51 17
+	dec	bp			;227C 4D
+	sbb	[bx+di+17h],dx		;227D 19 51 17
+	sub	ax,511Bh		;2280 2D 1B 51
+	pop	ss			;2283 17
+	cmp	al,1Bh			;2284 3C 1B
+	push	cx			;2286 51
+	pop	ss			;2287 17
+	jo	22A3h			;2288 70 19
+	push	cx			;228A 51
+	pop	ss			;228B 17
+	jg	22A7h			;228C 7F 19
+	push	cx			;228E 51
+	pop	ss			;228F 17
+	adc	bx,[bx+di]		;2290 13 19
+	push	cx			;2292 51
+	pop	ss			;2293 17
+	db	64h			;2294 64
+	sbb	dl,[bx+di+17h]		;2295 1A 51 17
+	inc	si			;2298 46
+	sbb	[bx+si],dx		;2299 19 10
+	sbb	[di+19h],cl		;229B 18 4D 19
+	adc	[bx+si],bl		;229E 10 18
+	sub	ax,511Bh		;22A0 2D 1B 51
+	pop	ss			;22A3 17
+	cmp	al,1Bh			;22A4 3C 1B
+	push	cx			;22A6 51
+	pop	ss			;22A7 17
+	jo	22C3h			;22A8 70 19
+	push	cx			;22AA 51
+	pop	ss			;22AB 17
+	jg	22C7h			;22AC 7F 19
+	push	cx			;22AE 51
+	pop	ss			;22AF 17
+	adc	bx,[bp+si]		;22B0 13 1A
+	sahf				;22B2 9E
+	pop	ss			;22B3 17
+	call	dword ptr [bx+si]	;22B4 FE 18
+	lock				;22B6 F0
+	pop	ss			;22B7 17
+	pop	es			;22B8 07
+	sbb	bx,[bp+1E17h]		;22B9 1B 9E 17 1E
+	sbb	bx,[bp+2817h]		;22BD 1B 9E 17 28
+	sbb	cl,[bp+si]		;22C1 1A 0A
+	sbb	[bx+si],ah		;22C3 18 20
+	sbb	cl,[bp+si]		;22C5 1A 0A
+	sbb	[si+1127h],bl		;22C7 18 9C 27 11
+	pop	ss			;22CB 17
+	pushf				;22CC 9C
+	daa				;22CD 27
+	adc	[bx],dx			;22CE 11 17
+	adc	bx,[bp+si]		;22D0 13 1A
+	sahf				;22D2 9E
+	pop	ss			;22D3 17
+	call	dword ptr [bx+si]	;22D4 FE 18
+	lock				;22D6 F0
+	pop	ss			;22D7 17
+	pop	es			;22D8 07
+	sbb	bx,[bp+1E17h]		;22D9 1B 9E 17 1E
+	sbb	bx,[bp+2817h]		;22DD 1B 9E 17 28
+	sbb	cl,[bp+si]		;22E1 1A 0A
+	sbb	[bx+si],ah		;22E3 18 20
+	sbb	cl,[bp+si]		;22E5 1A 0A
+	sbb	[si+1127h],bl		;22E7 18 9C 27 11
+	pop	ss			;22EB 17
+	pushf				;22EC 9C
+	daa				;22ED 27
+	adc	[bx],dx			;22EE 11 17
+	adc	bx,[bp+si]		;22F0 13 1A
+	sahf				;22F2 9E
+	pop	ss			;22F3 17
+	call	dword ptr [bx+si]	;22F4 FE 18
+	lock				;22F6 F0
+	pop	ss			;22F7 17
+	pop	es			;22F8 07
+	sbb	bx,[bp+1E17h]		;22F9 1B 9E 17 1E
+	sbb	bx,[bp+2817h]		;22FD 1B 9E 17 28
+	sbb	cl,[bp+si]		;2301 1A 0A
+	sbb	[bx+si],ah		;2303 18 20
+	sbb	cl,[bp+si]		;2305 1A 0A
+	sbb	[si+1127h],bl		;2307 18 9C 27 11
+	pop	ss			;230B 17
+	pushf				;230C 9C
+	daa				;230D 27
+	adc	[bx],dx			;230E 11 17
+	adc	bx,[bp+si]		;2310 13 1A
+	sahf				;2312 9E
+	pop	ss			;2313 17
+	db	63h			;2314 63
+	sbb	dx,[bx+si]		;2315 1B 10
+	sbb	[bp-12E6h],dl		;2317 18 96 1A ED
+	adc	al,0FFFEh		;231B 14 FE
+	sbb	al,dh			;231D 18 F0
+	pop	ss			;231F 17
+	pushf				;2320 9C
+	daa				;2321 27
+	sbb	ax,9C18h		;2322 1D 18 9C
+	daa				;2325 27
+	sbb	ax,9C18h		;2326 1D 18 9C
+	daa				;2329 27
+	sbb	ax,9C18h		;232A 1D 18 9C
+	daa				;232D 27
+	sbb	ax,0A818h		;232E 1D 18 A8
+	sbb	dx,ax			;2331 19 C2
+	pop	ss			;2333 17
+	esc	0Bh,[bx+di]		;2334 D9 19
+	ret	0B017h			;2336 C2 17 B0
+	sbb	dx,ax			;2339 19 C2
+	pop	ss			;233B 17
+	mov	ax,0C219h		;233C B8 19 C2
+	pop	ss			;233F 17
+	add	bl,[bp+si]		;2340 02 1A
+	ret	0A17h			;2342 C2 17 0A
+	sbb	al,dl			;2345 1A C2
+	pop	ss			;2347 17
+	db	0C1h			;2348 C1
+	sbb	dx,ax			;2349 19 C2
+	pop	ss			;234B 17
+	db	0C9h			;234C C9
+	sbb	dx,ax			;234D 19 C2
+	pop	ss			;234F 17
+	test	al,19h			;2350 A8 19
+	ret	0D917h			;2352 C2 17 D9
+	sbb	dx,ax			;2355 19 C2
+	pop	ss			;2357 17
+	mov	al,19h			;2358 B0 19
+	ret	0B817h			;235A C2 17 B8
+	sbb	dx,ax			;235D 19 C2
+	pop	ss			;235F 17
+	add	bl,[bp+si]		;2360 02 1A
+	ret	0A17h			;2362 C2 17 0A
+	sbb	al,dl			;2365 1A C2
+	pop	ss			;2367 17
+	db	0C1h			;2368 C1
+	sbb	dx,ax			;2369 19 C2
+	pop	ss			;236B 17
+	db	0C9h			;236C C9
+	sbb	dx,ax			;236D 19 C2
+	pop	ss			;236F 17
+	test	al,19h			;2370 A8 19
+	ret	0D917h			;2372 C2 17 D9
+	sbb	dx,ax			;2375 19 C2
+	pop	ss			;2377 17
+	mov	al,19h			;2378 B0 19
+	ret	0B817h			;237A C2 17 B8
+	sbb	dx,ax			;237D 19 C2
+	pop	ss			;237F 17
+	add	bl,[bp+si]		;2380 02 1A
+	ret	0A17h			;2382 C2 17 0A
+	sbb	al,dl			;2385 1A C2
+	pop	ss			;2387 17
+	db	0C1h			;2388 C1
+	sbb	dx,ax			;2389 19 C2
+	pop	ss			;238B 17
+	db	0C9h			;238C C9
+	sbb	dx,ax			;238D 19 C2
+	pop	ss			;238F 17
+	call	dword ptr [bx+si]	;2390 FE 18
+	lock				;2392 F0
+	pop	ss			;2393 17
+	call	dword ptr [bx+si]	;2394 FE 18
+	lock				;2396 F0
+	pop	ss			;2397 17
+	call	dword ptr [bx+si]	;2398 FE 18
+	lock				;239A F0
+	pop	ss			;239B 17
+	call	dword ptr [bx+si]	;239C FE 18
+	lock				;239E F0
+	pop	ss			;239F 17
+	call	dword ptr [bx+si]	;23A0 FE 18
+	lock				;23A2 F0
+	pop	ss			;23A3 17
+	call	dword ptr [bx+si]	;23A4 FE 18
+	lock				;23A6 F0
+	pop	ss			;23A7 17
+	call	dword ptr [bx+si]	;23A8 FE 18
+	lock				;23AA F0
+	pop	ss			;23AB 17
+	call	dword ptr [bx+si]	;23AC FE 18
+	lock				;23AE F0
+	pop	ss			;23AF 17
+	rcr	byte ptr [bx+di],cl	;23B0 D2 19
+	mov	dx,[bx]			;23B2 8B 17
+	call	dword ptr [bx+si]	;23B4 FE 18
+	lock				;23B6 F0
+	pop	ss			;23B7 17
+	repz				;23B8 F3
+	sbb	[bp+di-5E9h],cx		;23B9 19 8B 17 FA
+	sbb	[bp+di-1E9h],cx		;23BD 19 8B 17 FE
+	sbb	al,dh			;23C1 18 F0
+	pop	ss			;23C3 17
+	adc	bx,[bp+si]		;23C4 13 1A
+	sahf				;23C6 9E
+	pop	ss			;23C7 17
+	call	dword ptr [bx+si]	;23C8 FE 18
+	lock				;23CA F0
+	pop	ss			;23CB 17
+	push	ds			;23CC 1E
+	sbb	bx,[bp-2DE9h]		;23CD 1B 9E 17 D2
+	sbb	[bp+di-1E9h],cx		;23D1 19 8B 17 FE
+	sbb	al,dh			;23D5 18 F0
+	pop	ss			;23D7 17
+	repz				;23D8 F3
+	sbb	[bp+di-5E9h],cx		;23D9 19 8B 17 FA
+	sbb	[bp+di-1E9h],cx		;23DD 19 8B 17 FE
+	sbb	al,dh			;23E1 18 F0
+	pop	ss			;23E3 17
+	adc	bx,[bp+si]		;23E4 13 1A
+	sahf				;23E6 9E
+	pop	ss			;23E7 17
+	call	dword ptr [bx+si]	;23E8 FE 18
+	lock				;23EA F0
+	pop	ss			;23EB 17
+	push	ds			;23EC 1E
+	sbb	bx,[bp-2DE9h]		;23ED 1B 9E 17 D2
+	sbb	[bp+di-1E9h],cx		;23F1 19 8B 17 FE
+	sbb	al,dh			;23F5 18 F0
+	pop	ss			;23F7 17
+	repz				;23F8 F3
+	sbb	[bp+di-5E9h],cx		;23F9 19 8B 17 FA
+	sbb	[bp+di-1E9h],cx		;23FD 19 8B 17 FE
+	sbb	al,dh			;2401 18 F0
+	pop	ss			;2403 17
+	adc	bx,[bp+si]		;2404 13 1A
+	sahf				;2406 9E
+	pop	ss			;2407 17
+	call	dword ptr [bx+si]	;2408 FE 18
+	lock				;240A F0
+	pop	ss			;240B 17
+	push	ds			;240C 1E
+	sbb	bx,[bp-1E9h]		;240D 1B 9E 17 FE
+	sbb	al,dh			;2411 18 F0
+	pop	ss			;2413 17
+	call	dword ptr [bx+si]	;2414 FE 18
+	lock				;2416 F0
+	pop	ss			;2417 17
+	call	dword ptr [bx+si]	;2418 FE 18
+	lock				;241A F0
+	pop	ss			;241B 17
+	call	dword ptr [bx+si]	;241C FE 18
+	lock				;241E F0
+	pop	ss			;241F 17
+	pushf				;2420 9C
+	daa				;2421 27
+	ret				;2422 C3
+	adc	al,0FFFEh		;2423 14 FE
+	sbb	al,dh			;2425 18 F0
+	pop	ss			;2427 17
+	call	dword ptr [bx+si]	;2428 FE 18
+	lock				;242A F0
+	pop	ss			;242B 17
+	call	dword ptr [bx+si]	;242C FE 18
+	lock				;242E F0
+	pop	ss			;242F 17
+	adc	bx,[bx+di]		;2430 13 19
+	push	cx			;2432 51
+	pop	ss			;2433 17
+	db	64h			;2434 64
+	sbb	dl,[bx+di+17h]		;2435 1A 51 17
+	inc	si			;2438 46
+	sbb	[bx+di+17h],dx		;2439 19 51 17
+	dec	bp			;243C 4D
+	sbb	[bx+di+17h],dx		;243D 19 51 17
+	sub	ax,511Bh		;2440 2D 1B 51
+	pop	ss			;2443 17
+	cmp	al,1Bh			;2444 3C 1B
+	push	cx			;2446 51
+	pop	ss			;2447 17
+	jo	2463h			;2448 70 19
+	push	cx			;244A 51
+	pop	ss			;244B 17
+	jg	2467h			;244C 7F 19
+	push	cx			;244E 51
+	pop	ss			;244F 17
+	adc	bx,[bx+di]		;2450 13 19
+	push	cx			;2452 51
+	pop	ss			;2453 17
+	db	64h			;2454 64
+	sbb	dl,[bx+di+17h]		;2455 1A 51 17
+	inc	si			;2458 46
+	sbb	[bx+di+17h],dx		;2459 19 51 17
+	dec	bp			;245C 4D
+	sbb	[bx+di+17h],dx		;245D 19 51 17
+	sub	ax,511Bh		;2460 2D 1B 51
+	pop	ss			;2463 17
+	cmp	al,1Bh			;2464 3C 1B
+	push	cx			;2466 51
+	pop	ss			;2467 17
+	jo	2483h			;2468 70 19
+	push	cx			;246A 51
+	pop	ss			;246B 17
+	jg	2487h			;246C 7F 19
+	push	cx			;246E 51
+	pop	ss			;246F 17
+	adc	bx,[bx+di]		;2470 13 19
+	push	cx			;2472 51
+	pop	ss			;2473 17
+	db	64h			;2474 64
+	sbb	dl,[bx+di+17h]		;2475 1A 51 17
+	inc	si			;2478 46
+	sbb	[bx+di+17h],dx		;2479 19 51 17
+	dec	bp			;247C 4D
+	sbb	[bx+di+17h],dx		;247D 19 51 17
+	sub	ax,511Bh		;2480 2D 1B 51
+	pop	ss			;2483 17
+	cmp	al,1Bh			;2484 3C 1B
+	push	cx			;2486 51
+	pop	ss			;2487 17
+	jo	24A3h			;2488 70 19
+	push	cx			;248A 51
+	pop	ss			;248B 17
+	jg	24A7h			;248C 7F 19
+	push	cx			;248E 51
+	pop	ss			;248F 17
+	adc	bx,[bx+di]		;2490 13 19
+	push	cx			;2492 51
+	pop	ss			;2493 17
+	db	64h			;2494 64
+	sbb	dl,[bx+di+17h]		;2495 1A 51 17
+	call	dword ptr [bx+si]	;2498 FE 18
+	lock				;249A F0
+	pop	ss			;249B 17
+	call	dword ptr [bx+si]	;249C FE 18
+	lock				;249E F0
+	pop	ss			;249F 17
+	sub	ax,511Bh		;24A0 2D 1B 51
+	pop	ss			;24A3 17
+	cmp	al,1Bh			;24A4 3C 1B
+	push	cx			;24A6 51
+	pop	ss			;24A7 17
+	jo	24C3h			;24A8 70 19
+	push	cx			;24AA 51
+	pop	ss			;24AB 17
+	jg	24C7h			;24AC 7F 19
+	push	cx			;24AE 51
+	pop	ss			;24AF 17
+	adc	bx,[bp+si]		;24B0 13 1A
+	sahf				;24B2 9E
+	pop	ss			;24B3 17
+	call	dword ptr [bx+si]	;24B4 FE 18
+	lock				;24B6 F0
+	pop	ss			;24B7 17
+	pop	es			;24B8 07
+	sbb	bx,[bp+1E17h]		;24B9 1B 9E 17 1E
+	sbb	bx,[bp-1AE9h]		;24BD 1B 9E 17 E5
+	sbb	cl,[bp+si]		;24C1 1A 0A
+	sbb	dh,bh			;24C3 18 FE
+	sbb	al,dh			;24C5 18 F0
+	pop	ss			;24C7 17
+	pushf				;24C8 9C
+	daa				;24C9 27
+	push	ss			;24CA 16
+	pop	ss			;24CB 17
+	pushf				;24CC 9C
+	daa				;24CD 27
+	push	ss			;24CE 16
+	pop	ss			;24CF 17
+	adc	bx,[bp+si]		;24D0 13 1A
+	sahf				;24D2 9E
+	pop	ss			;24D3 17
+	call	dword ptr [bx+si]	;24D4 FE 18
+	lock				;24D6 F0
+	pop	ss			;24D7 17
+	pop	es			;24D8 07
+	sbb	bx,[bp+1E17h]		;24D9 1B 9E 17 1E
+	sbb	bx,[bp-1AE9h]		;24DD 1B 9E 17 E5
+	sbb	cl,[bp+si]		;24E1 1A 0A
+	sbb	dh,bh			;24E3 18 FE
+	sbb	al,dh			;24E5 18 F0
+	pop	ss			;24E7 17
+	pushf				;24E8 9C
+	daa				;24E9 27
+	push	ss			;24EA 16
+	pop	ss			;24EB 17
+	pushf				;24EC 9C
+	daa				;24ED 27
+	push	ss			;24EE 16
+	pop	ss			;24EF 17
+	adc	bx,[bp+si]		;24F0 13 1A
+	sahf				;24F2 9E
+	pop	ss			;24F3 17
+	call	dword ptr [bx+si]	;24F4 FE 18
+	lock				;24F6 F0
+	pop	ss			;24F7 17
+	pop	es			;24F8 07
+	sbb	bx,[bp+1E17h]		;24F9 1B 9E 17 1E
+	sbb	bx,[bp-1AE9h]		;24FD 1B 9E 17 E5
+	sbb	cl,[bp+si]		;2501 1A 0A
+	sbb	dh,bh			;2503 18 FE
+	sbb	al,dh			;2505 18 F0
+	pop	ss			;2507 17
+	pushf				;2508 9C
+	daa				;2509 27
+	push	ss			;250A 16
+	pop	ss			;250B 17
+	pushf				;250C 9C
+	daa				;250D 27
+	push	ss			;250E 16
+	pop	ss			;250F 17
+	xchg	ax,di			;2510 97
+	sbb	[bx+si],dx		;2511 19 10
+	sbb	dh,bh			;2513 18 FE
+	sbb	al,dh			;2515 18 F0
+	pop	ss			;2517 17
+	pop	es			;2518 07
+	sbb	bx,[bp+1E17h]		;2519 1B 9E 17 1E
+	sbb	bx,[bp-1E9h]		;251D 1B 9E 17 FE
+	sbb	al,dh			;2521 18 F0
+	pop	ss			;2523 17
+	call	dword ptr [bx+si]	;2524 FE 18
+	lock				;2526 F0
+	pop	ss			;2527 17
+	call	dword ptr [bx+si]	;2528 FE 18
+	lock				;252A F0
+	pop	ss			;252B 17
+	call	dword ptr [bx+si]	;252C FE 18
+	lock				;252E F0
+	pop	ss			;252F 17
+	test	al,19h			;2530 A8 19
+	ret	0D917h			;2532 C2 17 D9
+	sbb	dx,ax			;2535 19 C2
+	pop	ss			;2537 17
+	mov	al,19h			;2538 B0 19
+	ret	0B817h			;253A C2 17 B8
+	sbb	dx,ax			;253D 19 C2
+	pop	ss			;253F 17
+	add	bl,[bp+si]		;2540 02 1A
+	ret	0A17h			;2542 C2 17 0A
+	sbb	al,dl			;2545 1A C2
+	pop	ss			;2547 17
+	db	0C1h			;2548 C1
+	sbb	dx,ax			;2549 19 C2
+	pop	ss			;254B 17
+	db	0C9h			;254C C9
+	sbb	dx,ax			;254D 19 C2
+	pop	ss			;254F 17
+	test	al,19h			;2550 A8 19
+	ret	0D917h			;2552 C2 17 D9
+	sbb	dx,ax			;2555 19 C2
+	pop	ss			;2557 17
+	mov	al,19h			;2558 B0 19
+	ret	0B817h			;255A C2 17 B8
+	sbb	dx,ax			;255D 19 C2
+	pop	ss			;255F 17
+	add	bl,[bp+si]		;2560 02 1A
+	ret	0A17h			;2562 C2 17 0A
+	sbb	al,dl			;2565 1A C2
+	pop	ss			;2567 17
+	db	0C1h			;2568 C1
+	sbb	dx,ax			;2569 19 C2
+	pop	ss			;256B 17
+	db	0C9h			;256C C9
+	sbb	dx,ax			;256D 19 C2
+	pop	ss			;256F 17
+	test	al,19h			;2570 A8 19
+	ret	0D917h			;2572 C2 17 D9
+	sbb	dx,ax			;2575 19 C2
+	pop	ss			;2577 17
+	mov	al,19h			;2578 B0 19
+	ret	0B817h			;257A C2 17 B8
+	sbb	dx,ax			;257D 19 C2
+	pop	ss			;257F 17
+	add	bl,[bp+si]		;2580 02 1A
+	ret	0A17h			;2582 C2 17 0A
+	sbb	al,dl			;2585 1A C2
+	pop	ss			;2587 17
+	db	0C1h			;2588 C1
+	sbb	dx,ax			;2589 19 C2
+	pop	ss			;258B 17
+	db	0C9h			;258C C9
+	sbb	dx,ax			;258D 19 C2
+	pop	ss			;258F 17
+	sbb	bl,[bx+di]		;2590 1A 19
+	cmp	dx,[bx]			;2592 3B 17
+	db	6Bh			;2594 6B
+	sbb	bh,[bp+di]		;2595 1A 3B
+	pop	ss			;2597 17
+	call	dword ptr [bx+si]	;2598 FE 18
+	lock				;259A F0
+	pop	ss			;259B 17
+	push	bp			;259C 55
+	sbb	[bp+di],di		;259D 19 3B
+	pop	ss			;259F 17
+	inc	sp			;25A0 44
+	sbb	di,[bp+di]		;25A1 1B 3B
+	pop	ss			;25A3 17
+	xor	al,1Bh			;25A4 34 1B
+	cmp	dx,[bx]			;25A6 3B 17
+	xchg	[bx+di],bx		;25A8 87 19
+	cmp	dx,[bx]			;25AA 3B 17
+	ja	25C7h			;25AC 77 19
+	cmp	dx,[bx]			;25AE 3B 17
+	rcr	byte ptr [bx+di],cl	;25B0 D2 19
+	mov	dx,[bx]			;25B2 8B 17
+	call	dword ptr [bx+si]	;25B4 FE 18
+	lock				;25B6 F0
+	pop	ss			;25B7 17
+	repz				;25B8 F3
+	sbb	[bp+di-5E9h],cx		;25B9 19 8B 17 FA
+	sbb	[bp+di+2817h],cx	;25BD 19 8B 17 28
+	sbb	[bp+si],cx		;25C1 19 0A
+	sbb	dl,dl			;25C3 18 D2
+	sbb	[bp+di+2F17h],cx	;25C5 19 8B 17 2F
+	sbb	[bp+si],cx		;25C9 19 0A
+	sbb	dl,bh			;25CB 18 FA
+	sbb	[bp+di-2DE9h],cx	;25CD 19 8B 17 D2
+	sbb	[bp+di-1E9h],cx		;25D1 19 8B 17 FE
+	sbb	al,dh			;25D5 18 F0
+	pop	ss			;25D7 17
+	repz				;25D8 F3
+	sbb	[bp+di-5E9h],cx		;25D9 19 8B 17 FA
+	sbb	[bp+di+2817h],cx	;25DD 19 8B 17 28
+	sbb	[bp+si],cx		;25E1 19 0A
+	sbb	dl,dl			;25E3 18 D2
+	sbb	[bp+di+2F17h],cx	;25E5 19 8B 17 2F
+	sbb	[bp+si],cx		;25E9 19 0A
+	sbb	dl,bh			;25EB 18 FA
+	sbb	[bp+di-2DE9h],cx	;25ED 19 8B 17 D2
+	sbb	[bp+di-1E9h],cx		;25F1 19 8B 17 FE
+	sbb	al,dh			;25F5 18 F0
+	pop	ss			;25F7 17
+	repz				;25F8 F3
+	sbb	[bp+di-5E9h],cx		;25F9 19 8B 17 FA
+	sbb	[bp+di+2817h],cx	;25FD 19 8B 17 28
+	sbb	[bp+si],cx		;2601 19 0A
+	sbb	dl,dl			;2603 18 D2
+	sbb	[bp+di+2F17h],cx	;2605 19 8B 17 2F
+	sbb	[bp+si],cx		;2609 19 0A
+	sbb	dl,bh			;260B 18 FA
+	sbb	[bp+di-60E9h],cx	;260D 19 8B 17 9F
+	sbb	[bx+si],dx		;2611 19 10
+	sbb	dh,bh			;2613 18 FE
+	sbb	al,dh			;2615 18 F0
+	pop	ss			;2617 17
+	call	dword ptr [bx+si]	;2618 FE 18
+	lock				;261A F0
+	pop	ss			;261B 17
+	call	dword ptr [bx+si]	;261C FE 18
+	lock				;261E F0
+	pop	ss			;261F 17
+	call	dword ptr [bx+si]	;2620 FE 18
+	lock				;2622 F0
+	pop	ss			;2623 17
+	call	dword ptr [bx+si]	;2624 FE 18
+	lock				;2626 F0
+	pop	ss			;2627 17
+	call	dword ptr [bx+si]	;2628 FE 18
+	lock				;262A F0
+	pop	ss			;262B 17
+	call	dword ptr [bx+si]	;262C FE 18
+	lock				;262E F0
+	pop	ss			;262F 17
+	push	cs			;2630 0E
+	pop	es			;2631 07
+	push	es			;2632 06
+	inc	word ptr [di]		;2633 FF 05
+	add	[bp+di],ax		;2635 01 03
+	inc	word ptr [si]		;2637 FF 04
+	add	[bp+si],al		;2639 00 02
+	???	di			;263B FF FF
+	???	di			;263D FF FF
+	inc	word ptr [si]		;263F FF 04
+	add	al,0Ch			;2641 04 0C
+	or	al,0			;2643 0C 00
+	add	[bx+si],al		;2645 00 00
+	add	[si],ah			;2647 00 24
+	sub	al,2Ch			;2649 2C 2C
+	and	ax,3C34h		;264B 25 34 3C
+	cmp	al,34h			;264E 3C 34
+	add	[di],ax			;2650 01 05
+	sub	ax,[bx+di]		;2652 2B 01
+	sbb	[di],bx			;2654 19 1D
+	cmp	bx,[di]			;2656 3B 1D
+	mov	dl,27h			;2658 B2 27
+	db	0C0h			;265A C0
+	daa				;265B 27
+	int	27h			;265C CD 27
+	esc	34h,[bx]		;265E DE 27
+	mul	word ptr [bx]		;2660 F7 27
+	or	[bx+si],ch		;2662 08 28
+	push	ds			;2664 1E
+	sub	[si],dh			;2665 28 34
+	sub	[bx+28h],al		;2667 28 47 28
+	push	di			;266A 57
+	sub	[bp+di+28h],ch		;266B 28 6B 28
+	jl	2698h			;266E 7C 28
+	mov	[bx+si],cs		;2670 8C 28
+	mov	ax,[3F28h]		;2672 A1 28 3F
+	push	cs			;2675 0E
+	or	dx,ss:[si-2EF5h]	;2676 36 0B 94 0B D1
+	or	sp,[840Ch]		;267B 0B 26 0C 84
+	or	al,0FFB7h		;267F 0C B7
+	or	al,72h			;2681 0C 72
+	or	ax,0D8Fh		;2683 0D 8F 0D
+	movsb				;2686 A4
+	or	ax,0E34h		;2687 0D 34 0E
+	inc	ax			;268A 40
+	push	cs			;268B 0E
+	db	62h			;268C 62
+	push	cs			;268D 0E
+	jng	269Eh			;268E 7E 0E
+	xchg	ax,di			;2690 97
+	push	cs			;2691 0E
+	int	0Eh			;2692 CD 0E
+	or	al,0Fh			;2694 0C 0F
+	dec	sp			;2696 4C
+	pop	cs			;2697 0F
+	xchg	[bx],cl			;2698 86 0F
+	xchg	ax,bp			;269A 95
+	pop	cs			;269B 0F
+	mov	ax,[500Fh]		;269C A1 0F 50
+	adc	[di+10h],dl		;269F 10 55 10
+	jz	26B4h			;26A2 74 10
+	jg	26B6h			;26A4 7F 10
+	mov	bp,0CC10h		;26A6 BD 10 CC
+	adc	bh,bh			;26A9 10 FF
+	adc	[bx+di],ah		;26AB 10 21
+	adc	[bp+di],si		;26AD 11 33
+	adc	[bx],di			;26AF 11 3F
+	adc	[bx+si+11h],sp		;26B1 11 60 11
+	mov	dx,[bx+di]		;26B4 8B 11
+	stosw				;26B6 AB
+	adc	dx,cx			;26B7 11 CA
+	adc	bx,di			;26B9 11 FB
+	adc	[bx+si+12h],si		;26BB 11 70 12
+	pop	cx			;26BE 59
+	sbb	[di],dl			;26BF 18 15
+	sbb	ax,1853h		;26C1 1D 53 18
+	lodsb				;26C4 AC
+	sbb	ax,185Fh		;26C5 1D 5F 18
+	clc				;26C8 F8
+	sbb	ax,1E2Ah		;26C9 1D 2A 1E
+	xchg	ax,cx			;26CC 91
+	sbb	[bp-73E3h],al		;26CD 18 86 1D 8C
+	sbb	ax,1D50h		;26D1 1D 50 1D
+	push	si			;26D4 56
+	sbb	ax,1DC2h		;26D5 1D C2 1D
+	rcr	byte ptr [di],1		;26D8 D0 1D
+	cbw				;26DA 98
+	daa				;26DB 27
+	cmpsb				;26DC A6
+	sbb	ax,1E06h		;26DD 1D 06 1E
+	push	es			;26E0 06
+	push	ds			;26E1 1E
+	push	es			;26E2 06
+	sbb	ax,1CFAh		;26E3 1D FA 1C
+	in	ax,dx			;26E6 ED
+	sbb	al,0FF93h		;26E7 1C 93
+	sbb	cx,cx			;26E9 1B C9
+	sbb	[si-60E5h],cl		;26EB 18 8C 1B 9F
+	sbb	ax,bx			;26EF 1B C3
+	sbb	[si+18h],ch		;26F1 18 6C 18
+	db	6Ch			;26F4 6C
+	sbb	[bx+si],al		;26F5 18 00
+	sbb	al,0			;26F7 1C 00
+	sbb	al,39h			;26F9 1C 39
+	sbb	ax,2798h		;26FB 1D 98 27
+	aaa				;26FE 37
+	sbb	[si],cx			;26FF 19 0C
+	sbb	[si-63D9h],bx		;2701 19 9C 27 9C
+	daa				;2705 27
+	dec	bp			;2706 4D
+	sbb	bx,[si+1Bh]		;2707 1B 5C 1B
+	pushf				;270A 9C
+	daa				;270B 27
+	pushf				;270C 9C
+	daa				;270D 27
+	sbb	[bp+si],bx		;270E 19 1A
+	cmp	bl,[bp+si]		;2710 3A 1A
+	xor	[bp+si],bx		;2712 31 1A
+	push	bp			;2714 55
+	sbb	al,[bp+di+1Ah]		;2715 1A 43 1A
+	dec	sp			;2718 4C
+	sbb	bl,[si-63D9h]		;2719 1A 9C 27 9C
+	daa				;271D 27
+	add	al,19h			;271E 04 19
+	jz	273Dh			;2720 74 1B
+	rcr	word ptr [bp+si],cl	;2722 D3 1A
+	ret	6A1Ah			;2724 C2 1A 6A
+	sbb	bx,[si+5E27h]		;2727 1B 9C 27 5E
+	sbb	cx,sp			;272B 19 E1
+	sbb	bx,cx			;272D 19 CB
+	sbb	bh,[si+1Bh]		;272F 1A 7C 1B
+	call	dword ptr [bp+si]	;2732 FF 1A
+	pushf				;2734 9C
+	daa				;2735 27
+	esc	1Bh,[bp+si]		;2736 DB 1A
+	neg	byte ptr [bp+si]	;2738 F6 1A
+	pushf				;273A 9C
+	daa				;273B 27
+	pushf				;273C 9C
+	daa				;273D 27
+	test	[bp+si],bx		;273E 85 1A
+	jl	275Ch			;2740 7C 1A
+	jnc	275Eh			;2742 73 1A
+	lea	bx,[bp+si]		;2744 8D 1A
+	nop				;2746 90
+	sbb	[bx+si+19h],bp		;2747 19 68 19
+	ds:				;274A 3E
+	sbb	bx,bp			;274B 19 EB
+	sbb	[bp-4FE6h],sp		;274D 19 A6 1A B0
+	sbb	dl,[di]			;2751 1A 15
+	sbb	cx,[di]			;2753 1B 0D
+	sbb	bx,[di-46E6h]		;2755 1B 9D 1A B9
+	sbb	ch,dh			;2759 1A EE
+	sbb	ah,[di]			;275B 1A 25
+	sbb	sp,[di+18h]		;275D 1B 65 18
+	adc	al,1Eh			;2760 14 1E
+	jcxz	277Ch			;2762 E3 18
+	dec	ax			;2764 48
+	sbb	ax,1DFEh		;2765 1D FE 1D
+	jmp	short 2765h		;2768 EB FB
+	in	ax,dx			;276A ED
+	std				;276B FD
+	push	cs			;276C 0E
+	pop	cs			;276D 0F
+	or	ax,610Bh		;276E 0D 0B 61
+	db	6Ch			;2771 6C
+	db	63h			;2772 63
+	db	6Ch			;2773 6C
+	db	64h			;2774 64
+	db	6Ch			;2775 6C
+	db	62h			;2776 62
+	db	6Ch			;2777 6C
+	db	61h			;2778 61
+	db	68h			;2779 68
+	db	63h			;277A 63
+	db	68h			;277B 68
+	db	64h			;277C 64
+	db	68h			;277D 68
+	db	62h			;277E 62
+	db	68h			;277F 68
+	db	61h			;2780 61
+	js	27E6h			;2781 78 63
+	js	27E9h			;2783 78 64
+	js	27E9h			;2785 78 62
+	js	27FCh			;2787 78 73
+	jo	27EDh			;2789 70 62
+	jo	2800h			;278B 70 73
+	db	69h			;278D 69
+	db	64h			;278E 64
+	db	69h			;278F 69
+	db	65h			;2790 65
+	jnc	27F6h			;2791 73 63
+	jnc	2808h			;2793 73 73
+	jnc	27FBh			;2795 73 64
+	jnc	279Ch			;2797 73 03
+	aas				;2799 3F
+	aas				;279A 3F
+	aas				;279B 3F
+	add	[bx+si],al		;279C 00 00
+	add	[bp+di],al		;279E 00 03
+	inc	cx			;27A0 41
+	push	bx			;27A1 53
+	dec	bp			;27A2 4D
+	add	ax,[bp+di+4Fh]		;27A3 03 43 4F
+	dec	bp			;27A6 4D
+	add	al,49h			;27A7 04 49
+	db	6Eh			;27A9 6E
+	cmp	ah,[bx+si]		;27AA 3A 20
+	add	ax,754Fh		;27AC 05 4F 75
+	jz	27EBh			;27AF 74 3A
+	and	[di],cl			;27B1 20 0D
+	push	di			;27B3 57
+	jc	2825h			;27B4 72 6F
+	db	6Eh			;27B6 6E
+	db	67h			;27B7 67
+	and	[bx+70h],ch		;27B8 20 6F 70
+	db	65h			;27BB 65
+	jc	281Fh			;27BC 72 61
+	db	6Eh			;27BE 6E
+	db	64h			;27BF 64
+	or	al,53h			;27C0 0C 53
+	jns	2832h			;27C2 79 6E
+	jz	2827h			;27C4 74 61
+	js	27E8h			;27C6 78 20
+	db	65h			;27C8 65
+	jc	283Dh			;27C9 72 72
+	db	6Fh			;27CB 6F
+	jc	27DEh			;27CC 72 10
+	inc	dx			;27CE 42
+	db	61h			;27CF 61
+	db	64h			;27D0 64
+	and	[si+69h],ah		;27D1 20 64 69
+	jnc	2846h			;27D4 73 70
+	db	6Ch			;27D6 6C
+	db	61h			;27D7 61
+	db	63h			;27D8 63
+	db	65h			;27D9 65
+	db	6Dh			;27DA 6D
+	db	65h			;27DB 65
+	db	6Eh			;27DC 6E
+	jz	27F7h			;27DD 74 18
+	push	bp			;27DF 55
+	db	6Eh			;27E0 6E
+	jc	2848h			;27E1 72 65
+	db	63h			;27E3 63
+	db	6Fh			;27E4 6F
+	db	67h			;27E5 67
+	db	6Eh			;27E6 6E
+	db	69h			;27E7 69
+	jnc	284Fh			;27E8 73 65
+	db	64h			;27EA 64
+	and	[bx+di+6Eh],ch		;27EB 20 69 6E
+	jnc	2864h			;27EE 73 74
+	jc	2867h			;27F0 72 75
+	db	63h			;27F2 63
+	jz	285Eh			;27F3 74 69
+	db	6Fh			;27F5 6F
+	db	6Eh			;27F6 6E
+	adc	[di+6Eh],dl		;27F7 10 55 6E
+	db	64h			;27FA 64
+	db	65h			;27FB 65
+	db	66h			;27FC 66
+	db	69h			;27FD 69
+	db	6Eh			;27FE 6E
+	db	65h			;27FF 65
+	db	64h			;2800 64
+	and	[bp+di+79h],dh		;2801 20 73 79
+	db	6Dh			;2804 6D
+	db	62h			;2805 62
+	db	6Fh			;2806 6F
+	db	6Ch			;2807 6C
+	adc	ax,754Ah		;2808 15 4A 75
+	db	6Dh			;280B 6D
+	jo	282Eh			;280C 70 20
+	db	6Fh			;280E 6F
+	jnz	2885h			;280F 75 74
+	and	[bx+66h],ch		;2811 20 6F 66
+	and	[bp+si+61h],dh		;2814 20 72 61
+	db	6Eh			;2817 6E
+	db	67h			;2818 67
+	db	65h			;2819 65
+	and	[bp+si+79h],ah		;281A 20 62 79
+	and	[di],dl			;281D 20 15
+	dec	di			;281F 4F
+	jo	2887h			;2820 70 65
+	jc	2885h			;2822 72 61
+	db	6Eh			;2824 6E
+	db	64h			;2825 64
+	and	[bp+di+69h],dh		;2826 20 73 69
+	jp	2890h			;2829 7A 65
+	and	[di+69h],ch		;282B 20 6D 69
+	jnc	289Dh			;282E 73 6D
+	db	61h			;2830 61
+	jz	2896h			;2831 74 63
+	db	68h			;2833 68
+	adc	al,[bp+di+6Fh]		;2834 12 43 6F
+	db	6Eh			;2837 6E
+	jnc	28AEh			;2838 73 74
+	db	61h			;283A 61
+	db	6Eh			;283B 6E
+	jz	285Eh			;283C 74 20
+	jz	28AFh			;283E 74 6F
+	db	6Fh			;2840 6F
+	and	[si+61h],ch		;2841 20 6C 61
+	jc	28ADh			;2844 72 67
+	db	65h			;2846 65
+	pop	cs			;2847 0F
+	dec	bp			;2848 4D
+	db	69h			;2849 69
+	jnc	28BFh			;284A 73 73
+	db	69h			;284C 69
+	db	6Eh			;284D 6E
+	db	67h			;284E 67
+	and	[bx+70h],ch		;284F 20 6F 70
+	db	65h			;2852 65
+	jc	28B6h			;2853 72 61
+	db	6Eh			;2855 6E
+	db	64h			;2856 64
+	adc	ax,[bp+di+68h]		;2857 13 43 68
+	db	61h			;285A 61
+	jc	28BEh			;285B 72 61
+	db	63h			;285D 63
+	jz	28C5h			;285E 74 65
+	jc	28D5h			;2860 72 73
+	and	[bx+si+61h],dh		;2862 20 70 61
+	jnc	28DBh			;2865 73 74
+	and	[di+6Eh],ah		;2867 20 65 6E
+	db	64h			;286A 64
+	adc	[si+75h],al		;286B 10 44 75
+	jo	28DCh			;286E 70 6C
+	db	69h			;2870 69
+	db	63h			;2871 63
+	db	61h			;2872 61
+	jz	28DAh			;2873 74 65
+	and	[bp+di+79h],dh		;2875 20 73 79
+	db	6Dh			;2878 6D
+	db	62h			;2879 62
+	db	6Fh			;287A 6F
+	db	6Ch			;287B 6C
+	pop	cs			;287C 0F
+	inc	bx			;287D 43
+	db	6Fh			;287E 6F
+	jnz	28EDh			;287F 75 6C
+	db	64h			;2881 64
+	and	[bp+6Fh],ch		;2882 20 6E 6F
+	jz	28A7h			;2885 74 20
+	db	6Fh			;2887 6F
+	jo	28EFh			;2888 70 65
+	db	6Eh			;288A 6E
+	and	[si],dl			;288B 20 14
+	push	dx			;288D 52
+	db	65h			;288E 65
+	jnc	28F6h			;288F 73 65
+	jc	2909h			;2891 72 76
+	db	65h			;2893 65
+	db	64h			;2894 64
+	and	[bx+6Fh],dh		;2895 20 77 6F
+	jc	28FEh			;2898 72 64
+	and	[di+69h],ch		;289A 20 6D 69
+	jnc	2914h			;289D 73 75
+	jnc	2906h			;289F 73 65
+	sbb	[di+61h],cl		;28A1 18 4D 61
+	db	6Ch			;28A4 6C
+	db	66h			;28A5 66
+	db	6Fh			;28A6 6F
+	jc	2916h			;28A7 72 6D
+	db	65h			;28A9 65
+	db	64h			;28AA 64
+	and	[bp+di+74h],dh		;28AB 20 73 74
+	db	61h			;28AE 61
+	db	63h			;28AF 63
+	db	6Bh			;28B0 6B
+	and	[bp+si+65h],dh		;28B1 20 72 65
+	db	67h			;28B4 67
+	db	69h			;28B5 69
+	jnc	292Ch			;28B6 73 74
+	db	65h			;28B8 65
+	jc	28C2h			;28B9 72 07
+	sub	al,20h			;28BB 2C 20
+	db	6Ch			;28BD 6C
+	db	69h			;28BE 69
+	db	6Eh			;28BF 6E
+	db	65h			;28C0 65
+	and	[bx+si],cl		;28C1 20 08
+	and	[bp+si+79h],ah		;28C3 20 62 79
+	jz	292Dh			;28C6 74 65
+	sub	[bp+di+29h],dh		;28C8 28 73 29
+	or	[di+72h],al		;28CB 08 45 72
+	jc	293Fh			;28CE 72 6F
+	jc	2945h			;28D0 72 73
+	cmp	ah,[bx+si]		;28D2 3A 20
+	push	ax			;28D4 50
+	inc	bx			;28D5 43
+	sub	ax,3237h		;28D6 2D 37 32
+	and	[bx+di+73h],ah		;28D9 20 61 73
+	jnc	2943h			;28DC 73 65
+	db	6Dh			;28DE 6D
+	db	62h			;28DF 62
+	db	6Ch			;28E0 6C
+	db	65h			;28E1 65
+	jc	2904h			;28E2 72 20
+	jna	2917h			;28E4 76 31
+	xor	cs:[bp+di],dh		;28E6 2E 30 33
+	or	ax,240Ah		;28E9 0D 0A 24
+	inc	cx			;28EC 41
+	aaa				;28ED 37
+	xor	ah,[bx+si]		;28EE 32 20
+	jnp	294Dh			;28F0 7B 5B
+	das				;28F2 2F
+	inc	cx			;28F3 41
+	pop	bp			;28F4 5D
+	and	[si+20h],bh		;28F5 20 7C 20
+	das				;28F8 2F
+	inc	sp			;28F9 44
+	jnl	291Ch			;28FA 7D 20
+	cmp	al,69h			;28FC 3C 69
+	db	6Eh			;28FE 6E
+	and	ds:[bp+di+3Ch],bl	;28FF 3E 20 5B 3C
+	db	6Fh			;2903 6F
+	jnz	297Ah			;2904 75 74
+	ds:				;2906 3E
+	pop	bp			;2907 5D
+	or	ax,240Ah		;2908 0D 0A 24
+	dec	bp			;290B 4D
+	push	bx			;290C 53
+	sub	ax,4F44h		;290D 2D 44 4F
+	push	bx			;2910 53
+	and	[bp+si],dh		;2911 20 32
+	and	[bx+72h],ch		;2913 20 6F 72
+	and	[si+61h],ch		;2916 20 6C 61
+	jz	2980h			;2919 74 65
+	jc	293Dh			;291B 72 20
+	jc	2984h			;291D 72 65
+	jno	2996h			;291F 71 75
+	db	69h			;2921 69
+	jc	2989h			;2922 72 65
+	db	64h			;2924 64
+	or	ax,240Ah		;2925 0D 0A 24
