@@ -1,0 +1,4267 @@
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         1
+
+0100 B409         MOV     AH,9
+0102 BA121F       MOV     DX,1F12H
+0105 CD21         INT     21H
+0107 B430         MOV     AH,30H
+0109 CD21         INT     21H
+010B 84C0         TEST    AL,AL
+010D 751A         JNZ     129H
+010F B409         MOV     AH,9
+0111 BA311F       MOV     DX,1F31H
+0114 CD21         INT     21H
+0116 CD20         INT     20H
+0118 B409         MOV     AH,9
+011A CD21         INT     21H
+011C B8004C       MOV     AX,4C00H
+011F CD21         INT     21H
+0121 E87B05       CALL    69FH
+0124 B8014C       MOV     AX,4C01H
+0127 CD21         INT     21H
+0129 E86006       CALL    78CH
+012C BE8100       MOV     SI,81H
+012F E8A000       CALL    1D2H
+0132 72E4         JC      118H
+0134 E89C05       CALL    6D3H
+0137 72EB         JC      124H
+0139 8B3E2F24     MOV     DI,[242FH]
+013D BE071F       MOV     SI,1F07H
+0140 E8F501       CALL    338H
+0143 BE2723       MOV     SI,2327H
+0146 E8EF01       CALL    338H
+0149 E82706       CALL    773H
+014C FF36A724     PUSH    WORD PTR [24A7H]
+0150 8B3E2F24     MOV     DI,[242FH]
+0154 BE011F       MOV     SI,1F01H
+0157 E8DE01       CALL    338H
+015A A13124       MOV     AX,[2431H]
+015D B90A00       MOV     CX,0AH
+0160 E8B508       CALL    0A18H
+0163 E80D06       CALL    773H
+0166 FF063124     INC     WORD PTR [2431H]
+016A E83A01       CALL    2A7H
+016D 72B2         JC      121H
+016F BE2728       MOV     SI,2827H
+0172 E8BC06       CALL    831H
+0175 A12D24       MOV     AX,[242DH]
+0178 85C0         TEST    AX,AX
+017A 7541         JNZ     1BDH
+017C A1A724       MOV     AX,[24A7H]
+017F 30C0         XOR     AL,AL
+0181 86E0         XCHG    AH,AL
+0183 A3A724       MOV     [24A7H],AX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         2
+
+0186 84C0         TEST    AL,AL
+0188 75C6         JNZ     150H
+018A 8F06A724     POP     [24A7H]
+018E 8B3E2F24     MOV     DI,[242FH]
+0192 BE0C1F       MOV     SI,1F0CH
+0195 E8A001       CALL    338H
+0198 B81010       MOV     AX,1010H
+019B BE6723       MOV     SI,2367H
+019E E82400       CALL    1C5H
+01A1 F706A7248080 ROR     WORD PTR [24A7H],8080H
+01A7 7509         JNZ     1B2H
+01A9 B84040       MOV     AX,4040H
+01AC BEA723       MOV     SI,23A7H
+01AF E81300       CALL    1C5H
+01B2 E8BE05       CALL    773H
+01B5 E8E704       CALL    69FH
+01B8 B8004C       MOV     AX,4C00H
+01BB CD21         INT     21H
+01BD E8DF04       CALL    69FH
+01C0 B8024C       MOV     AX,4C02H
+01C3 CD21         INT     21H
+01C5 8506A724     TEST    AX,[24A7H]
+01C9 7406         JZ      1D1H
+01CB E86A01       CALL    338H
+01CE B020         MOV     AL,20H
+01D0 AA           STOSB
+01D1 C3           RET
+01D2 E88201       CALL    357H
+01D5 722D         JC      204H
+01D7 7503         JNZ     1DCH
+01D9 E97800       JMP     254H
+01DC BF2723       MOV     DI,2327H
+01DF 8A05         MOV     AL,[DI]
+01E1 84C0         TEST    AL,AL
+01E3 7548         JNZ     22DH
+01E5 89F2         MOV     DX,SI
+01E7 E85701       CALL    341H
+01EA A0E723       MOV     AL,[23E7H]
+01ED 84C0         TEST    AL,AL
+01EF 75E1         JNZ     1D2H
+01F1 56           PUSH    SI
+01F2 89D6         MOV     SI,DX
+01F4 BFE723       MOV     DI,23E7H
+01F7 E84701       CALL    341H
+01FA BEE723       MOV     SI,23E7H
+01FD F9           STC
+01FE E88401       CALL    385H
+0201 5E           POP     SI
+0202 EBCE         JMP     SHORT 1D2H
+0204 BFA723       MOV     DI,23A7H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         3
+
+0207 BA0142       MOV     DX,4201H
+020A 3C4C         CMP     AL,4CH
+020C 7424         JZ      232H
+020E BF6723       MOV     DI,2367H
+0211 BAD000       MOV     DX,0D0H
+0214 3C44         CMP     AL,44H
+0216 741A         JZ      232H
+0218 BA9000       MOV     DX,90H
+021B 3C55         CMP     AL,55H
+021D 7413         JZ      232H
+021F BA0112       MOV     DX,1201H
+0222 3C41         CMP     AL,41H
+0224 740C         JZ      232H
+0226 BFCD1D       MOV     DI,1DCDH
+0229 3C4F         CMP     AL,4FH
+022B 7413         JZ      240H
+022D BA571F       MOV     DX,1F57H
+0230 F9           STC
+0231 C3           RET
+0232 0916A724     OR      [24A7H],DX
+0236 E81E01       CALL    357H
+0239 72C9         JC      204H
+023B 7417         JZ      254H
+023D E9A5FF       JMP     1E5H
+0240 E8F606       CALL    939H
+0243 740A         JZ      24FH
+0245 E8AC0C       CALL    0EF4H
+0248 7205         JC      24FH
+024A 8915         MOV     [DI],DX
+024C E983FF       JMP     1D2H
+024F BA431F       MOV     DX,1F43H
+0252 F9           STC
+0253 C3           RET
+0254 A0E723       MOV     AL,[23E7H]
+0257 84C0         TEST    AL,AL
+0259 74F4         JZ      24FH
+025B A1A724       MOV     AX,[24A7H]
+025E 85C0         TEST    AX,AX
+0260 7506         JNZ     268H
+0262 B80152       MOV     AX,5201H
+0265 A3A724       MOV     [24A7H],AX
+0268 BDF91E       MOV     BP,1EF9H
+026B BAF51E       MOV     DX,1EF5H
+026E BF2723       MOV     DI,2327H
+0271 A98080       TEST    AX,8080H
+0274 7402         JZ      278H
+0276 87D5         XCHG    DX,BP
+0278 BEE723       MOV     SI,23E7H
+027B E8EC00       CALL    36AH
+027E E80E00       CALL    28FH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         4
+
+0281 89EA         MOV     DX,BP
+0283 BF6723       MOV     DI,2367H
+0286 E80600       CALL    28FH
+0289 BAFD1E       MOV     DX,1EFDH
+028C BFA723       MOV     DI,23A7H
+028F 53           PUSH    BX
+0290 56           PUSH    SI
+0291 57           PUSH    DI
+0292 8B05         MOV     AX,[DI]
+0294 84C0         TEST    AL,AL
+0296 7503         JNZ     29BH
+0298 E8A600       CALL    341H
+029B 5E           POP     SI
+029C E8CB00       CALL    36AH
+029F F8           CLC
+02A0 E8E200       CALL    385H
+02A3 5E           POP     SI
+02A4 5B           POP     BX
+02A5 F8           CLC
+02A6 C3           RET
+02A7 A1CD1D       MOV     AX,[1DCDH]
+02AA A3B124       MOV     [24B1H],AX
+02AD 31C0         XOR     AX,AX
+02AF A3AD24       MOV     [24ADH],AX
+02B2 A3AF24       MOV     [24AFH],AX
+02B5 A32D24       MOV     [242DH],AX
+02B8 A33724       MOV     [2437H],AX
+02BB A32726       MOV     [2627H],AX
+02BE 40           INC     AX
+02BF A33524       MOV     [2435H],AX
+02C2 E8EC00       CALL    3B1H
+02C5 AD           LODSW
+02C6 BB0042       MOV     BX,4200H
+02C9 93           XCHG    AX,BX
+02CA 31C9         XOR     CX,CX
+02CC 31D2         XOR     DX,DX
+02CE 8914         MOV     [SI],DX
+02D0 CD21         INT     21H
+02D2 E8C102       CALL    596H
+02D5 761B         JNB     2F2H
+02D7 A1AD24       MOV     AX,[24ADH]
+02DA A33324       MOV     [2433H],AX
+02DD E89209       CALL    0C72H
+02E0 7217         JC      2F9H
+02E2 E82901       CALL    40EH
+02E5 7205         JC      2ECH
+02E7 E84C03       CALL    636H
+02EA 73E6         JNC     2D2H
+02EC E80801       CALL    3F7H
+02EF 73FB         JNC     2ECH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         5
+
+02F1 C3           RET
+02F2 E80201       CALL    3F7H
+02F5 73DB         JNC     2D2H
+02F7 F8           CLC
+02F8 C3           RET
+02F9 84C0         TEST    AL,AL
+02FB 7920         JNS     31DH
+02FD 98           CBW
+02FE 40           INC     AX
+02FF 74F1         JZ      2F2H
+0301 F7D8         NEG     AX
+0303 48           DEC     AX
+0304 7503         JNZ     309H
+0306 E80501       CALL    40EH
+0309 50           PUSH    AX
+030A BFD11D       MOV     DI,1DD1H
+030D D1E0         SHL     AX,1
+030F 01C7         ADD     DI,AX
+0311 FF15         CALL    [DI]
+0313 59           POP     CX
+0314 7207         JC      31DH
+0316 E3BA         JCXZ    2D2H
+0318 E8F300       CALL    40EH
+031B EBB5         JMP     SHORT 2D2H
+031D E8EE00       CALL    40EH
+0320 E8FD03       CALL    720H
+0323 FF062D24     INC     WORD PTR [242DH]
+0327 A0A724       MOV     AL,[24A7H]
+032A A840         TEST    AL,40H
+032C 74A4         JZ      2D2H
+032E B440         MOV     AH,40H
+0330 8B1E2924     MOV     BX,[2429H]
+0334 CD21         INT     21H
+0336 EB9A         JMP     SHORT 2D2H
+0338 FC           CLD
+0339 AC           LODSB
+033A AA           STOSB
+033B 3C20         CMP     AL,20H
+033D 73FA         JNC     339H
+033F 4F           DEC     DI
+0340 C3           RET
+0341 FC           CLD
+0342 53           PUSH    BX
+0343 AC           LODSB
+0344 3C61         CMP     AL,61H
+0346 7206         JC      34EH
+0348 3C7B         CMP     AL,7BH
+034A 7302         JNC     34EH
+034C 24DF         AND     AL,0FFDFH
+034E AA           STOSB
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         6
+
+034F 4B           DEC     BX
+0350 75F1         JNZ     343H
+0352 30C0         XOR     AL,AL
+0354 AA           STOSB
+0355 5B           POP     BX
+0356 C3           RET
+0357 FC           CLD
+0358 AC           LODSB
+0359 84C0         TEST    AL,AL
+035B 7422         JZ      37FH
+035D 3C0D         CMP     AL,0DH
+035F 741E         JZ      37FH
+0361 3C21         CMP     AL,21H
+0363 72F3         JC      358H
+0365 3C2F         CMP     AL,2FH
+0367 7417         JZ      380H
+0369 4E           DEC     SI
+036A FC           CLD
+036B 89F3         MOV     BX,SI
+036D AC           LODSB
+036E 3C2F         CMP     AL,2FH
+0370 7404         JZ      376H
+0372 3C21         CMP     AL,21H
+0374 73F7         JNC     36DH
+0376 4E           DEC     SI
+0377 29DE         SUB     SI,BX
+0379 87DE         XCHG    BX,SI
+037B 8A04         MOV     AL,[SI]
+037D 85DB         TEST    BX,BX
+037F C3           RET
+0380 AC           LODSB
+0381 24DF         AND     AL,0FFDFH
+0383 F9           STC
+0384 C3           RET
+0385 9F           LAHF
+0386 8D38         LEA     DI,[BX+SI]
+0388 B02E         MOV     AL,2EH
+038A 89D9         MOV     CX,BX
+038C FD           STI
+038D F2           REPNZ
+038E AE           SCASB
+038F 7506         JNZ     397H
+0391 9E           SAHF
+0392 7317         JNC     3ABH
+0394 47           INC     DI
+0395 EB10         JMP     SHORT 3A7H
+0397 9E           SAHF
+0398 7211         JC      3ABH
+039A 8D38         LEA     DI,[BX+SI]
+039C 87D6         XCHG    DX,SI
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         7
+
+039E FC           CLD
+039F AA           STOSB
+03A0 AC           LODSB
+03A1 84C0         TEST    AL,AL
+03A3 75FA         JNZ     39FH
+03A5 87D6         XCHG    DX,SI
+03A7 89FB         MOV     BX,DI
+03A9 29F3         SUB     BX,SI
+03AB 8D38         LEA     DI,[BX+SI]
+03AD 30C0         XOR     AL,AL
+03AF AA           STOSB
+03B0 C3           RET
+03B1 A12B24       MOV     AX,[242BH]
+03B4 85C0         TEST    AX,AX
+03B6 743D         JZ      3F5H
+03B8 FC           CLD
+03B9 48           DEC     AX
+03BA 9C           PUSHF
+03BB 86E0         XCHG    AH,AL
+03BD D1E8         SHR     AX,1
+03BF D1E8         SHR     AX,1
+03C1 BE2727       MOV     SI,2727H
+03C4 01C6         ADD     SI,AX
+03C6 9D           POPF
+03C7 F8           CLC
+03C8 C3           RET
+03C9 FF062B24     INC     WORD PTR [242BH]
+03CD 89F7         MOV     DI,SI
+03CF E8DFFF       CALL    3B1H
+03D2 721D         JC      3F1H
+03D4 87F7         XCHG    SI,DI
+03D6 57           PUSH    DI
+03D7 FC           CLD
+03D8 31C0         XOR     AX,AX
+03DA AB           STOSW
+03DB AB           STOSW
+03DC 89FA         MOV     DX,DI
+03DE E860FF       CALL    341H
+03E1 B8003D       MOV     AX,3D00H
+03E4 CD21         INT     21H
+03E6 5F           POP     DI
+03E7 7208         JC      3F1H
+03E9 AB           STOSW
+03EA A1CF1D       MOV     AX,[1DCFH]
+03ED A33724       MOV     [2437H],AX
+03F0 C3           RET
+03F1 FF0E2B24     DEC     WORD PTR [242BH]
+03F5 F9           STC
+03F6 C3           RET
+03F7 E8B7FF       CALL    3B1H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         8
+
+03FA 76F9         JNB     3F5H
+03FC B43E         MOV     AH,3EH
+03FE 8B1C         MOV     BX,[SI]
+0400 CD21         INT     21H
+0402 FF0E2B24     DEC     WORD PTR [242BH]
+0406 A1CF1D       MOV     AX,[1DCFH]
+0409 A33724       MOV     [2437H],AX
+040C F8           CLC
+040D C3           RET
+040E 8926B524     MOV     [24B5H],SP
+0412 50           PUSH    AX
+0413 52           PUSH    DX
+0414 53           PUSH    BX
+0415 56           PUSH    SI
+0416 57           PUSH    DI
+0417 8B36AB24     MOV     SI,[24ABH]
+041B 8B3E2F24     MOV     DI,[242FH]
+041F 8B1EC524     MOV     BX,[24C5H]
+0423 8B163324     MOV     DX,[2433H]
+0427 0316B124     ADD     DX,[24B1H]
+042B A0A724       MOV     AL,[24A7H]
+042E 89FD         MOV     BP,DI
+0430 A8C0         TEST    AL,0FFC0H
+0432 746F         JZ      4A3H
+0434 A840         TEST    AL,40H
+0436 7408         JZ      440H
+0438 E86F00       CALL    4AAH
+043B E8A100       CALL    4DFH
+043E 89FD         MOV     BP,DI
+0440 53           PUSH    BX
+0441 56           PUSH    SI
+0442 8B36A924     MOV     SI,[24A9H]
+0446 8B1EC724     MOV     BX,[24C7H]
+044A 85DB         TEST    BX,BX
+044C 7424         JZ      472H
+044E AC           LODSB
+044F 84C0         TEST    AL,AL
+0451 741F         JZ      472H
+0453 3C0D         CMP     AL,0DH
+0455 741B         JZ      472H
+0457 3C0A         CMP     AL,0AH
+0459 74F3         JZ      44EH
+045B 3C09         CMP     AL,9
+045D 750F         JNZ     46EH
+045F 89F8         MOV     AX,DI
+0461 29E8         SUB     AX,BP
+0463 250700       AND     AX,7
+0466 B90800       MOV     CX,8
+0469 29C1         SUB     CX,AX
+046B B020         MOV     AL,20H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         9
+
+046D F3           REPZ
+046E AA           STOSB
+046F 4B           DEC     BX
+0470 75DC         JNZ     44EH
+0472 5E           POP     SI
+0473 5B           POP     BX
+0474 B80D0A       MOV     AX,0A0DH
+0477 AB           STOSW
+0478 52           PUSH    DX
+0479 53           PUSH    BX
+047A 56           PUSH    SI
+047B E89700       CALL    515H
+047E 8B162F24     MOV     DX,[242FH]
+0482 B440         MOV     AH,40H
+0484 8B1E2924     MOV     BX,[2429H]
+0488 89F9         MOV     CX,DI
+048A 29D1         SUB     CX,DX
+048C CD21         INT     21H
+048E 7247         JC      4D7H
+0490 5E           POP     SI
+0491 5B           POP     BX
+0492 5A           POP     DX
+0493 A0A724       MOV     AL,[24A7H]
+0496 A840         TEST    AL,40H
+0498 7409         JZ      4A3H
+049A 8B3E2F24     MOV     DI,[242FH]
+049E E80900       CALL    4AAH
+04A1 75D1         JNZ     474H
+04A3 5F           POP     DI
+04A4 5E           POP     SI
+04A5 5B           POP     BX
+04A6 5A           POP     DX
+04A7 58           POP     AX
+04A8 F8           CLC
+04A9 C3           RET
+04AA 88F0         MOV     AL,DH
+04AC E82105       CALL    9D0H
+04AF 88D0         MOV     AL,DL
+04B1 E81C05       CALL    9D0H
+04B4 85DB         TEST    BX,BX
+04B6 741E         JZ      4D6H
+04B8 89D9         MOV     CX,BX
+04BA 83F906       CMP     CX,6
+04BD 7203         JC      4C2H
+04BF B90600       MOV     CX,6
+04C2 29CB         SUB     BX,CX
+04C4 7302         JNC     4C8H
+04C6 31DB         XOR     BX,BX
+04C8 01CA         ADD     DX,CX
+04CA B020         MOV     AL,20H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         10
+
+04CC FC           CLD
+04CD AA           STOSB
+04CE AC           LODSB
+04CF E8FE04       CALL    9D0H
+04D2 E2FA         LOOP    4CEH
+04D4 84C0         TEST    AL,AL
+04D6 C3           RET
+04D7 BAA723       MOV     DX,23A7H
+04DA B00F         MOV     AL,0FH
+04DC E94102       JMP     720H
+04DF 52           PUSH    DX
+04E0 53           PUSH    BX
+04E1 56           PUSH    SI
+04E2 8B0E2F24     MOV     CX,[242FH]
+04E6 29F9         SUB     CX,DI
+04E8 83C112       ADD     CX,12H
+04EB B020         MOV     AL,20H
+04ED F3           REPZ
+04EE AA           STOSB
+04EF F606A72480   ROR     BYTE PTR [24A7H],0FF80H
+04F4 751B         JNZ     511H
+04F6 E8B8FE       CALL    3B1H
+04F9 7216         JC      511H
+04FB 89FD         MOV     BP,DI
+04FD 8B4402       MOV     AX,[SI+2]
+0500 B90A00       MOV     CX,0AH
+0503 E81205       CALL    0A18H
+0506 89E9         MOV     CX,BP
+0508 29F9         SUB     CX,DI
+050A 83C106       ADD     CX,6
+050D B020         MOV     AL,20H
+050F F3           REPZ
+0510 AA           STOSB
+0511 5E           POP     SI
+0512 5B           POP     BX
+0513 5A           POP     DX
+0514 C3           RET
+0515 FC           CLD
+0516 57           PUSH    DI
+0517 BF2725       MOV     DI,2527H
+051A A0A724       MOV     AL,[24A7H]
+051D A840         TEST    AL,40H
+051F 746E         JZ      58FH
+0521 A13724       MOV     AX,[2437H]
+0524 85C0         TEST    AX,AX
+0526 7413         JZ      53BH
+0528 3B06CF1D     CMP     AX,[1DCFH]
+052C 7261         JC      58FH
+052E FF063524     INC     WORD PTR [2435H]
+0532 C70637240000 MOV     WORD PTR [2437H],0
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         11
+
+0538 B00C         MOV     AL,0CH
+053A AA           STOSB
+053B BE121F       MOV     SI,1F12H
+053E E8F7FD       CALL    338H
+0541 B020         MOV     AL,20H
+0543 B90800       MOV     CX,8
+0546 F3           REPZ
+0547 AA           STOSB
+0548 E866FE       CALL    3B1H
+054B 7216         JC      563H
+054D 57           PUSH    DI
+054E 83C604       ADD     SI,4
+0551 E8E4FD       CALL    338H
+0554 59           POP     CX
+0555 29F9         SUB     CX,DI
+0557 83C110       ADD     CX,10H
+055A 7903         JNS     55FH
+055C B90100       MOV     CX,1
+055F B020         MOV     AL,20H
+0561 F3           REPZ
+0562 AA           STOSB
+0563 A13524       MOV     AX,[2435H]
+0566 B90A00       MOV     CX,0AH
+0569 E8AC04       CALL    0A18H
+056C B80D0A       MOV     AX,0A0DH
+056F AB           STOSW
+0570 BE2726       MOV     SI,2627H
+0573 F604FF       ROR     BYTE PTR [SI],0FFFFH
+0576 7407         JZ      57FH
+0578 E8BDFD       CALL    338H
+057B B80D0A       MOV     AX,0A0DH
+057E AB           STOSW
+057F AB           STOSW
+0580 BA2725       MOV     DX,2527H
+0583 89F9         MOV     CX,DI
+0585 29D1         SUB     CX,DX
+0587 8B1E2924     MOV     BX,[2429H]
+058B B440         MOV     AH,40H
+058D CD21         INT     21H
+058F FF063724     INC     WORD PTR [2437H]
+0593 5F           POP     DI
+0594 F8           CLC
+0595 C3           RET
+0596 8926B524     MOV     [24B5H],SP
+059A E814FE       CALL    3B1H
+059D 7229         JC      5C8H
+059F FF4402       INC     WORD PTR [SI+2]
+05A2 8B1C         MOV     BX,[SI]
+05A4 A0A724       MOV     AL,[24A7H]
+05A7 84C0         TEST    AL,AL
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         12
+
+05A9 7920         JNS     5CBH
+05AB B80042       MOV     AX,4200H
+05AE 31C9         XOR     CX,CX
+05B0 8B16AD24     MOV     DX,[24ADH]
+05B4 CD21         INT     21H
+05B6 7274         JC      62CH
+05B8 B43F         MOV     AH,3FH
+05BA B90800       MOV     CX,8
+05BD 8B16AB24     MOV     DX,[24ABH]
+05C1 CD21         INT     21H
+05C3 7267         JC      62CH
+05C5 85C0         TEST    AX,AX
+05C7 C3           RET
+05C8 29C0         SUB     AX,AX
+05CA C3           RET
+05CB B43F         MOV     AH,3FH
+05CD B90001       MOV     CX,100H
+05D0 8B16A924     MOV     DX,[24A9H]
+05D4 CD21         INT     21H
+05D6 7254         JC      62CH
+05D8 85C0         TEST    AX,AX
+05DA 74EC         JZ      5C8H
+05DC 89C1         MOV     CX,AX
+05DE 89C2         MOV     DX,AX
+05E0 31DB         XOR     BX,BX
+05E2 8B3EA924     MOV     DI,[24A9H]
+05E6 8A01         MOV     AL,[BX+DI]
+05E8 43           INC     BX
+05E9 B40A         MOV     AH,0AH
+05EB 3C0D         CMP     AL,0DH
+05ED 741E         JZ      60DH
+05EF B40D         MOV     AH,0DH
+05F1 3C0A         CMP     AL,0AH
+05F3 7418         JZ      60DH
+05F5 E2EF         LOOP    5E6H
+05F7 81FB0001     CMP     BX,100H
+05FB 730B         JNC     608H
+05FD 8821         MOV     [BX+DI],AH
+05FF 43           INC     BX
+0600 891EC724     MOV     [24C7H],BX
+0604 85DB         TEST    BX,BX
+0606 F8           CLC
+0607 C3           RET
+0608 B00E         MOV     AL,0EH
+060A E91301       JMP     720H
+060D E305         JCXZ    614H
+060F 3821         CMP     [BX+DI],AH
+0611 7501         JNZ     614H
+0613 43           INC     BX
+0614 30C0         XOR     AL,AL
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         13
+
+0616 8801         MOV     [BX+DI],AL
+0618 89D8         MOV     AX,BX
+061A 29D0         SUB     AX,DX
+061C 74E2         JZ      600H
+061E 99           CWD
+061F 53           PUSH    BX
+0620 B90142       MOV     CX,4201H
+0623 92           XCHG    AX,DX
+0624 91           XCHG    AX,CX
+0625 8B1C         MOV     BX,[SI]
+0627 CD21         INT     21H
+0629 5B           POP     BX
+062A 73D4         JNC     600H
+062C BA0400       MOV     DX,4
+062F 01F2         ADD     DX,SI
+0631 B00F         MOV     AL,0FH
+0633 E9EA00       JMP     720H
+0636 8926B524     MOV     [24B5H],SP
+063A A0A724       MOV     AL,[24A7H]
+063D 84C0         TEST    AL,AL
+063F 785C         JS      69DH
+0641 A810         TEST    AL,10H
+0643 7453         JZ      698H
+0645 8B0EC524     MOV     CX,[24C5H]
+0649 E352         JCXZ    69DH
+064B 8B16AF24     MOV     DX,[24AFH]
+064F 85D2         TEST    DX,DX
+0651 742B         JZ      67EH
+0653 8B3E2F24     MOV     DI,[242FH]
+0657 B90001       MOV     CX,100H
+065A 30C0         XOR     AL,AL
+065C FC           CLD
+065D F3           REPZ
+065E AA           STOSB
+065F 52           PUSH    DX
+0660 B90001       MOV     CX,100H
+0663 39D1         CMP     CX,DX
+0665 7202         JC      669H
+0667 89D1         MOV     CX,DX
+0669 51           PUSH    CX
+066A B440         MOV     AH,40H
+066C 8B162F24     MOV     DX,[242FH]
+0670 8B1E2724     MOV     BX,[2427H]
+0674 CD21         INT     21H
+0676 7218         JC      690H
+0678 59           POP     CX
+0679 5A           POP     DX
+067A 29CA         SUB     DX,CX
+067C 77E1         JA      65FH
+067E B440         MOV     AH,40H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         14
+
+0680 8B0EC524     MOV     CX,[24C5H]
+0684 8B16AB24     MOV     DX,[24ABH]
+0688 8B1E2724     MOV     BX,[2427H]
+068C CD21         INT     21H
+068E 7308         JNC     698H
+0690 BA6723       MOV     DX,2367H
+0693 B00F         MOV     AL,0FH
+0695 E98800       JMP     720H
+0698 31C0         XOR     AX,AX
+069A A3AF24       MOV     [24AFH],AX
+069D F8           CLC
+069E C3           RET
+069F E80FFD       CALL    3B1H
+06A2 7206         JC      6AAH
+06A4 B43E         MOV     AH,3EH
+06A6 8B1C         MOV     BX,[SI]
+06A8 CD21         INT     21H
+06AA F706A7244040 ROR     WORD PTR [24A7H],4040H
+06B0 7410         JZ      6C2H
+06B2 F706A7248080 ROR     WORD PTR [24A7H],8080H
+06B8 7508         JNZ     6C2H
+06BA B43E         MOV     AH,3EH
+06BC 8B1E2924     MOV     BX,[2429H]
+06C0 CD21         INT     21H
+06C2 F706A7241010 ROR     WORD PTR [24A7H],1010H
+06C8 7408         JZ      6D2H
+06CA B43E         MOV     AH,3EH
+06CC 8B1E2724     MOV     BX,[2427H]
+06D0 CD21         INT     21H
+06D2 C3           RET
+06D3 BE2723       MOV     SI,2327H
+06D6 E891FC       CALL    36AH
+06D9 E8EDFC       CALL    3C9H
+06DC B00B         MOV     AL,0BH
+06DE 7240         JC      720H
+06E0 F706A7241010 ROR     WORD PTR [24A7H],1010H
+06E6 740E         JZ      6F6H
+06E8 B43C         MOV     AH,3CH
+06EA 31C9         XOR     CX,CX
+06EC BA6723       MOV     DX,2367H
+06EF CD21         INT     21H
+06F1 722B         JC      71EH
+06F3 A32724       MOV     [2427H],AX
+06F6 F706A7248080 ROR     WORD PTR [24A7H],8080H
+06FC 7518         JNZ     716H
+06FE F706A7244040 ROR     WORD PTR [24A7H],4040H
+0704 740E         JZ      714H
+0706 B43C         MOV     AH,3CH
+0708 31C9         XOR     CX,CX
+070A BAA723       MOV     DX,23A7H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         15
+
+070D CD21         INT     21H
+070F 720A         JC      71BH
+0711 A32924       MOV     [2429H],AX
+0714 F8           CLC
+0715 C3           RET
+0716 A32924       MOV     [2429H],AX
+0719 F8           CLC
+071A C3           RET
+071B E8A4FF       CALL    6C2H
+071E B00B         MOV     AL,0BH
+0720 FC           CLD
+0721 98           CBW
+0722 8B3E2F24     MOV     DI,[242FH]
+0726 89C1         MOV     CX,AX
+0728 3C0F         CMP     AL,0FH
+072A 7427         JZ      753H
+072C E882FC       CALL    3B1H
+072F 7218         JC      749H
+0731 AD           LODSW
+0732 AD           LODSW
+0733 50           PUSH    AX
+0734 E801FC       CALL    338H
+0737 B028         MOV     AL,28H
+0739 AA           STOSB
+073A 58           POP     AX
+073B 51           PUSH    CX
+073C 52           PUSH    DX
+073D B90A00       MOV     CX,0AH
+0740 E8D502       CALL    0A18H
+0743 5A           POP     DX
+0744 59           POP     CX
+0745 B82920       MOV     AX,2029H
+0748 AB           STOSW
+0749 80F905       CMP     CL,5
+074C 740C         JZ      75AH
+074E 80F90B       CMP     CL,0BH
+0751 7511         JNZ     764H
+0753 89D6         MOV     SI,DX
+0755 E8E0FB       CALL    338H
+0758 EB0A         JMP     SHORT 764H
+075A 51           PUSH    CX
+075B 89D0         MOV     AX,DX
+075D B90A00       MOV     CX,0AH
+0760 E8B502       CALL    0A18H
+0763 59           POP     CX
+0764 BEDB1D       MOV     SI,1DDBH
+0767 E307         JCXZ    770H
+0769 AC           LODSB
+076A 84C0         TEST    AL,AL
+076C 75FB         JNZ     769H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         16
+
+076E E2F9         LOOP    769H
+0770 E8C5FB       CALL    338H
+0773 8B162F24     MOV     DX,[242FH]
+0777 B80D0A       MOV     AX,0A0DH
+077A AB           STOSW
+077B 89F9         MOV     CX,DI
+077D 29D1         SUB     CX,DX
+077F 51           PUSH    CX
+0780 52           PUSH    DX
+0781 B440         MOV     AH,40H
+0783 BB0100       MOV     BX,1
+0786 CD21         INT     21H
+0788 5A           POP     DX
+0789 59           POP     CX
+078A F9           STC
+078B C3           RET
+078C B82720       MOV     AX,2027H
+078F A3A924       MOV     [24A9H],AX
+0792 B82721       MOV     AX,2127H
+0795 A3AB24       MOV     [24ABH],AX
+0798 B82722       MOV     AX,2227H
+079B A32F24       MOV     [242FH],AX
+079E B82728       MOV     AX,2827H
+07A1 A3B324       MOV     [24B3H],AX
+07A4 31FF         XOR     DI,DI
+07A6 97           XCHG    AX,DI
+07A7 AB           STOSW
+07A8 A32B24       MOV     [242BH],AX
+07AB A3A724       MOV     [24A7H],AX
+07AE A32723       MOV     [2327H],AX
+07B1 A36723       MOV     [2367H],AX
+07B4 A3A723       MOV     [23A7H],AX
+07B7 A3E723       MOV     [23E7H],AX
+07BA 40           INC     AX
+07BB A33124       MOV     [2431H],AX
+07BE C3           RET
+07BF 30C0         XOR     AL,AL
+07C1 8800         MOV     [BX+SI],AL
+07C3 E803FC       CALL    3C9H
+07C6 B00B         MOV     AL,0BH
+07C8 C3           RET
+07C9 B8003D       MOV     AX,3D00H
+07CC 8800         MOV     [BX+SI],AL
+07CE 89F2         MOV     DX,SI
+07D0 CD21         INT     21H
+07D2 72F2         JC      7C6H
+07D4 89C3         MOV     BX,AX
+07D6 B43F         MOV     AH,3FH
+07D8 8B162F24     MOV     DX,[242FH]
+07DC B90001       MOV     CX,100H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         17
+
+07DF CD21         INT     21H
+07E1 89F2         MOV     DX,SI
+07E3 72E1         JC      7C6H
+07E5 0106AD24     ADD     [24ADH],AX
+07E9 89C1         MOV     CX,AX
+07EB E31B         JCXZ    808H
+07ED F606A72410   ROR     BYTE PTR [24A7H],10H
+07F2 7410         JZ      804H
+07F4 50           PUSH    AX
+07F5 53           PUSH    BX
+07F6 B440         MOV     AH,40H
+07F8 8B162F24     MOV     DX,[242FH]
+07FC 8B1E2724     MOV     BX,[2427H]
+0800 CD21         INT     21H
+0802 5B           POP     BX
+0803 58           POP     AX
+0804 85C0         TEST    AX,AX
+0806 75CE         JNZ     7D6H
+0808 B43E         MOV     AH,3EH
+080A CD21         INT     21H
+080C C3           RET
+080D E863FF       CALL    773H
+0810 F8           CLC
+0811 C3           RET
+0812 FC           CLD
+0813 BF2726       MOV     DI,2627H
+0816 89D9         MOV     CX,BX
+0818 F3           REPZ
+0819 A4           MOVSB
+081A 30C0         XOR     AL,AL
+081C AA           STOSB
+081D F8           CLC
+081E C3           RET
+081F 85D2         TEST    DX,DX
+0821 7508         JNZ     82BH
+0823 A1CF1D       MOV     AX,[1DCFH]
+0826 A33724       MOV     [2437H],AX
+0829 F8           CLC
+082A C3           RET
+082B 8916CF1D     MOV     [1DCFH],DX
+082F F8           CLC
+0830 C3           RET
+0831 F606A72440   ROR     BYTE PTR [24A7H],40H
+0836 7501         JNZ     839H
+0838 C3           RET
+0839 FC           CLD
+083A 56           PUSH    SI
+083B E88700       CALL    8C5H
+083E 5E           POP     SI
+083F AD           LODSW
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         18
+
+0840 89C1         MOV     CX,AX
+0842 31D2         XOR     DX,DX
+0844 A1CF1D       MOV     AX,[1DCFH]
+0847 A33724       MOV     [2437H],AX
+084A E378         JCXZ    8C4H
+084C 51           PUSH    CX
+084D 56           PUSH    SI
+084E 31DB         XOR     BX,BX
+0850 AC           LODSB
+0851 43           INC     BX
+0852 84C0         TEST    AL,AL
+0854 75FA         JNZ     850H
+0856 AD           LODSW
+0857 39DA         CMP     DX,BX
+0859 7302         JNC     85DH
+085B 89DA         MOV     DX,BX
+085D E2EF         LOOP    84EH
+085F 5E           POP     SI
+0860 59           POP     CX
+0861 8B3E2F24     MOV     DI,[242FH]
+0865 FC           CLD
+0866 51           PUSH    CX
+0867 89F9         MOV     CX,DI
+0869 AC           LODSB
+086A AA           STOSB
+086B 84C0         TEST    AL,AL
+086D 75FA         JNZ     869H
+086F 4F           DEC     DI
+0870 29F9         SUB     CX,DI
+0872 01D1         ADD     CX,DX
+0874 B020         MOV     AL,20H
+0876 F3           REPZ
+0877 AA           STOSB
+0878 AD           LODSW
+0879 50           PUSH    AX
+087A 88E0         MOV     AL,AH
+087C E85101       CALL    9D0H
+087F 58           POP     AX
+0880 E84D01       CALL    9D0H
+0883 B82020       MOV     AX,2020H
+0886 AB           STOSW
+0887 89F9         MOV     CX,DI
+0889 2B0E2F24     SUB     CX,[242FH]
+088D 01D1         ADD     CX,DX
+088F 83F94E       CMP     CX,4EH
+0892 59           POP     CX
+0893 7207         JC      89CH
+0895 E80700       CALL    89FH
+0898 8B3E2F24     MOV     DI,[242FH]
+089C 49           DEC     CX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         19
+
+089D 75C6         JNZ     865H
+089F 3B3E2F24     CMP     DI,[242FH]
+08A3 761F         JNB     8C4H
+08A5 4F           DEC     DI
+08A6 4F           DEC     DI
+08A7 B80D0A       MOV     AX,0A0DH
+08AA AB           STOSW
+08AB 51           PUSH    CX
+08AC 52           PUSH    DX
+08AD 56           PUSH    SI
+08AE E864FC       CALL    515H
+08B1 B440         MOV     AH,40H
+08B3 8B162F24     MOV     DX,[242FH]
+08B7 89F9         MOV     CX,DI
+08B9 29D1         SUB     CX,DX
+08BB 8B1E2924     MOV     BX,[2429H]
+08BF CD21         INT     21H
+08C1 5E           POP     SI
+08C2 5A           POP     DX
+08C3 59           POP     CX
+08C4 C3           RET
+08C5 FC           CLD
+08C6 AD           LODSW
+08C7 89C1         MOV     CX,AX
+08C9 3D0200       CMP     AX,2
+08CC 7301         JNC     8CFH
+08CE C3           RET
+08CF 89CA         MOV     DX,CX
+08D1 51           PUSH    CX
+08D2 56           PUSH    SI
+08D3 89F7         MOV     DI,SI
+08D5 AC           LODSB
+08D6 247F         AND     AL,7FH
+08D8 AA           STOSB
+08D9 75FA         JNZ     8D5H
+08DB A5           MOVSW
+08DC E2F7         LOOP    8D5H
+08DE 5E           POP     SI
+08DF 59           POP     CX
+08E0 51           PUSH    CX
+08E1 56           PUSH    SI
+08E2 31DB         XOR     BX,BX
+08E4 8A00         MOV     AL,[BX+SI]
+08E6 43           INC     BX
+08E7 84C0         TEST    AL,AL
+08E9 75F9         JNZ     8E4H
+08EB 43           INC     BX
+08EC 43           INC     BX
+08ED 8D38         LEA     DI,[BX+SI]
+08EF 31ED         XOR     BP,BP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         20
+
+08F1 8A03         MOV     AL,[BP+DI]
+08F3 45           INC     BP
+08F4 84C0         TEST    AL,AL
+08F6 75F9         JNZ     8F1H
+08F8 45           INC     BP
+08F9 45           INC     BP
+08FA 89D9         MOV     CX,BX
+08FC 39E9         CMP     CX,BP
+08FE 7302         JNC     902H
+0900 89E9         MOV     CX,BP
+0902 56           PUSH    SI
+0903 57           PUSH    DI
+0904 F3           REPZ
+0905 A6           CMPSB
+0906 5F           POP     DI
+0907 5E           POP     SI
+0908 721E         JC      928H
+090A 56           PUSH    SI
+090B 57           PUSH    DI
+090C 8B3E2F24     MOV     DI,[242FH]
+0910 89D9         MOV     CX,BX
+0912 F3           REPZ
+0913 A4           MOVSB
+0914 5F           POP     DI
+0915 5E           POP     SI
+0916 56           PUSH    SI
+0917 87FE         XCHG    DI,SI
+0919 89E9         MOV     CX,BP
+091B F3           REPZ
+091C A4           MOVSB
+091D 8B362F24     MOV     SI,[242FH]
+0921 89D9         MOV     CX,BX
+0923 F3           REPZ
+0924 A4           MOVSB
+0925 5E           POP     SI
+0926 89EB         MOV     BX,BP
+0928 01DE         ADD     SI,BX
+092A 4A           DEC     DX
+092B 83FA02       CMP     DX,2
+092E 73B2         JNC     8E2H
+0930 5E           POP     SI
+0931 59           POP     CX
+0932 49           DEC     CX
+0933 83F902       CMP     CX,2
+0936 7397         JNC     8CFH
+0938 C3           RET
+0939 31DB         XOR     BX,BX
+093B 8A00         MOV     AL,[BX+SI]
+093D 3C00         CMP     AL,0
+093F 7442         JZ      983H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         21
+
+0941 3C0D         CMP     AL,0DH
+0943 743E         JZ      983H
+0945 3C21         CMP     AL,21H
+0947 722F         JC      978H
+0949 3C22         CMP     AL,22H
+094B 743B         JZ      988H
+094D 3C27         CMP     AL,27H
+094F 7437         JZ      988H
+0951 3C30         CMP     AL,30H
+0953 722A         JC      97FH
+0955 3C3A         CMP     AL,3AH
+0957 721C         JC      975H
+0959 3C3B         CMP     AL,3BH
+095B 7426         JZ      983H
+095D 3C41         CMP     AL,41H
+095F 721E         JC      97FH
+0961 3C5B         CMP     AL,5BH
+0963 7210         JC      975H
+0965 3C5F         CMP     AL,5FH
+0967 740C         JZ      975H
+0969 3C61         CMP     AL,61H
+096B 7212         JC      97FH
+096D 3C7B         CMP     AL,7BH
+096F 730E         JNC     97FH
+0971 24DF         AND     AL,0FFDFH
+0973 8800         MOV     [BX+SI],AL
+0975 43           INC     BX
+0976 EBC3         JMP     SHORT 93BH
+0978 85DB         TEST    BX,BX
+097A 7507         JNZ     983H
+097C 46           INC     SI
+097D EBBC         JMP     SHORT 93BH
+097F 85DB         TEST    BX,BX
+0981 740E         JZ      991H
+0983 8A04         MOV     AL,[SI]
+0985 85DB         TEST    BX,BX
+0987 C3           RET
+0988 85DB         TEST    BX,BX
+098A 75F7         JNZ     983H
+098C 43           INC     BX
+098D 3A00         CMP     AL,[BX+SI]
+098F 75FB         JNZ     98CH
+0991 43           INC     BX
+0992 C3           RET
+0993 3D8000       CMP     AX,80H
+0996 7204         JC      99CH
+0998 3D80FF       CMP     AX,0FF80H
+099B C3           RET
+099C F5           CMC
+099D C3           RET
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         22
+
+099E FC           CLD
+099F 8B15         MOV     DX,[DI]
+09A1 47           INC     DI
+09A2 47           INC     DI
+09A3 4A           DEC     DX
+09A4 7829         JS      9CFH
+09A6 8A01         MOV     AL,[BX+DI]
+09A8 84C0         TEST    AL,AL
+09AA 750F         JNZ     9BBH
+09AC 89D9         MOV     CX,BX
+09AE 4B           DEC     BX
+09AF 7815         JS      9C6H
+09B1 8A01         MOV     AL,[BX+DI]
+09B3 247F         AND     AL,7FH
+09B5 3200         XOR     AL,[BX+SI]
+09B7 74F5         JZ      9AEH
+09B9 89CB         MOV     BX,CX
+09BB F9           STC
+09BC 19C9         SBB     CX,CX
+09BE 30C0         XOR     AL,AL
+09C0 F2           REPNZ
+09C1 AE           SCASB
+09C2 74DD         JZ      9A1H
+09C4 7509         JNZ     9CFH
+09C6 89CB         MOV     BX,CX
+09C8 8B4101       MOV     AX,[BX+DI+1]
+09CB 01DE         ADD     SI,BX
+09CD 31DB         XOR     BX,BX
+09CF C3           RET
+09D0 50           PUSH    AX
+09D1 D0E8         SHR     AL,1
+09D3 D0E8         SHR     AL,1
+09D5 D0E8         SHR     AL,1
+09D7 D0E8         SHR     AL,1
+09D9 E80100       CALL    9DDH
+09DC 58           POP     AX
+09DD 240F         AND     AL,0FH
+09DF 0C30         OR      AL,30H
+09E1 3C3A         CMP     AL,3AH
+09E3 7202         JC      9E7H
+09E5 0407         ADD     AL,7
+09E7 AA           STOSB
+09E8 C3           RET
+09E9 FC           CLD
+09EA 31D2         XOR     DX,DX
+09EC 80F905       CMP     CL,5
+09EF 7202         JC      9F3H
+09F1 30C9         XOR     CL,CL
+09F3 84C9         TEST    CL,CL
+09F5 750A         JNZ     0A01H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         23
+
+09F7 D1E2         SHL     DX,1
+09F9 89D0         MOV     AX,DX
+09FB D1E2         SHL     DX,1
+09FD D1E2         SHL     DX,1
+09FF 01C2         ADD     DX,AX
+0A01 D3E2         SHL     DX,CL
+0A03 30E4         XOR     AH,AH
+0A05 AC           LODSB
+0A06 2C30         SUB     AL,30H
+0A08 3C0A         CMP     AL,0AH
+0A0A 7206         JC      0A12H
+0A0C 2C07         SUB     AL,7
+0A0E 3C0F         CMP     AL,0FH
+0A10 7705         JA      0A17H
+0A12 01C2         ADD     DX,AX
+0A14 4B           DEC     BX
+0A15 75DC         JNZ     9F3H
+0A17 C3           RET
+0A18 FC           CLD
+0A19 39C8         CMP     AX,CX
+0A1B 7309         JNC     0A26H
+0A1D 3D0A00       CMP     AX,0AH
+0A20 7304         JNC     0A26H
+0A22 0C30         OR      AL,30H
+0A24 AA           STOSB
+0A25 C3           RET
+0A26 89FE         MOV     SI,DI
+0A28 31D2         XOR     DX,DX
+0A2A F7F1         DIV     CX
+0A2C 92           XCHG    AX,DX
+0A2D 3C0A         CMP     AL,0AH
+0A2F 1C69         SBB     AL,69H
+0A31 2F           DAS
+0A32 AA           STOSB
+0A33 92           XCHG    AX,DX
+0A34 85C0         TEST    AX,AX
+0A36 75F0         JNZ     0A28H
+0A38 80FA3A       CMP     DL,3AH
+0A3B 7203         JC      0A40H
+0A3D B030         MOV     AL,30H
+0A3F AA           STOSB
+0A40 89F9         MOV     CX,DI
+0A42 29F1         SUB     CX,SI
+0A44 D1E9         SHR     CX,1
+0A46 740C         JZ      0A54H
+0A48 29CF         SUB     DI,CX
+0A4A 01CE         ADD     SI,CX
+0A4C 4E           DEC     SI
+0A4D 8A05         MOV     AL,[DI]
+0A4F 8604         XCHG    AL,[SI]
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         24
+
+0A51 AA           STOSB
+0A52 E2F8         LOOP    0A4CH
+0A54 C3           RET
+0A55 E8E1FE       CALL    939H
+0A58 A0A724       MOV     AL,[24A7H]
+0A5B 2403         AND     AL,3
+0A5D 7423         JZ      0A82H
+0A5F 8B3EB324     MOV     DI,[24B3H]
+0A63 E838FF       CALL    99EH
+0A66 7427         JZ      0A8FH
+0A68 89D9         MOV     CX,BX
+0A6A FC           CLD
+0A6B F3           REPZ
+0A6C A4           MOVSB
+0A6D 30C0         XOR     AL,AL
+0A6F AA           STOSB
+0A70 8B1EB324     MOV     BX,[24B3H]
+0A74 FF07         INC     WORD PTR [BX]
+0A76 89FD         MOV     BP,DI
+0A78 A1AD24       MOV     AX,[24ADH]
+0A7B 0306B124     ADD     AX,[24B1H]
+0A7F AB           STOSW
+0A80 31DB         XOR     BX,BX
+0A82 01DE         ADD     SI,BX
+0A84 E8B2FE       CALL    939H
+0A87 7416         JZ      0A9FH
+0A89 3C3A         CMP     AL,3AH
+0A8B 7501         JNZ     0A8EH
+0A8D 46           INC     SI
+0A8E C3           RET
+0A8F 01CF         ADD     DI,CX
+0A91 47           INC     DI
+0A92 B002         MOV     AL,2
+0A94 2206A724     AND     AL,[24A7H]
+0A98 75DC         JNZ     0A76H
+0A9A B00A         MOV     AL,0AH
+0A9C E9B200       JMP     0B51H
+0A9F B003         MOV     AL,3
+0AA1 E9AD00       JMP     0B51H
+0AA4 8B3EAB24     MOV     DI,[24ABH]
+0AA8 31C9         XOR     CX,CX
+0AAA E88CFE       CALL    939H
+0AAD 7476         JZ      0B25H
+0AAF 3C3F         CMP     AL,3FH
+0AB1 7433         JZ      0AE6H
+0AB3 50           PUSH    AX
+0AB4 31C0         XOR     AX,AX
+0AB6 F3           REPZ
+0AB7 AA           STOSB
+0AB8 58           POP     AX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         25
+
+0AB9 3C22         CMP     AL,22H
+0ABB 7430         JZ      0AEDH
+0ABD 3C27         CMP     AL,27H
+0ABF 742C         JZ      0AEDH
+0AC1 51           PUSH    CX
+0AC2 57           PUSH    DI
+0AC3 E88A09       CALL    1450H
+0AC6 5F           POP     DI
+0AC7 59           POP     CX
+0AC8 AB           STOSW
+0AC9 803EBF2402   CMP     BYTE PTR [24BFH],2
+0ACE 7431         JZ      0B01H
+0AD0 7303         JNC     0AD5H
+0AD2 4F           DEC     DI
+0AD3 EB2C         JMP     SHORT 0B01H
+0AD5 D1E0         SHL     AX,1
+0AD7 18C0         SBB     AL,AL
+0AD9 51           PUSH    CX
+0ADA 8A0EBF24     MOV     CL,[24BFH]
+0ADE 80E902       SUB     CL,2
+0AE1 F3           REPZ
+0AE2 AA           STOSB
+0AE3 59           POP     CX
+0AE4 EB1B         JMP     SHORT 0B01H
+0AE6 020EBF24     ADD     CL,[24BFH]
+0AEA 46           INC     SI
+0AEB EB14         JMP     SHORT 0B01H
+0AED A0BF24       MOV     AL,[24BFH]
+0AF0 0403         ADD     AL,3
+0AF2 38C3         CMP     BL,AL
+0AF4 72CB         JC      0AC1H
+0AF6 51           PUSH    CX
+0AF7 89D9         MOV     CX,BX
+0AF9 83E902       SUB     CX,2
+0AFC 46           INC     SI
+0AFD F3           REPZ
+0AFE A4           MOVSB
+0AFF 46           INC     SI
+0B00 59           POP     CX
+0B01 E835FE       CALL    939H
+0B04 7407         JZ      0B0DH
+0B06 3C2C         CMP     AL,2CH
+0B08 751F         JNZ     0B29H
+0B0A 46           INC     SI
+0B0B EB9D         JMP     SHORT 0AAAH
+0B0D 010EAF24     ADD     [24AFH],CX
+0B11 010EAD24     ADD     [24ADH],CX
+0B15 89F9         MOV     CX,DI
+0B17 2B0EAB24     SUB     CX,[24ABH]
+0B1B 010EC524     ADD     [24C5H],CX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         26
+
+0B1F 010EAD24     ADD     [24ADH],CX
+0B23 F8           CLC
+0B24 C3           RET
+0B25 B008         MOV     AL,8
+0B27 EB28         JMP     SHORT 0B51H
+0B29 B001         MOV     AL,1
+0B2B EB24         JMP     SHORT 0B51H
+0B2D E809FE       CALL    939H
+0B30 74F3         JZ      0B25H
+0B32 3C22         CMP     AL,22H
+0B34 7404         JZ      0B3AH
+0B36 3C27         CMP     AL,27H
+0B38 7507         JNZ     0B41H
+0B3A 46           INC     SI
+0B3B 83EB02       SUB     BX,2
+0B3E 76E5         JNB     0B25H
+0B40 C3           RET
+0B41 31DB         XOR     BX,BX
+0B43 43           INC     BX
+0B44 8A00         MOV     AL,[BX+SI]
+0B46 3C3B         CMP     AL,3BH
+0B48 7404         JZ      0B4EH
+0B4A 3C21         CMP     AL,21H
+0B4C 73F5         JNC     0B43H
+0B4E A0BF24       MOV     AL,[24BFH]
+0B51 8B26B524     MOV     SP,[24B5H]
+0B55 3C05         CMP     AL,5
+0B57 750D         JNZ     0B66H
+0B59 8B16C324     MOV     DX,[24C3H]
+0B5D 85D2         TEST    DX,DX
+0B5F 7902         JNS     0B63H
+0B61 F7D2         NOT     DX
+0B63 83EA7F       SUB     DX,7FH
+0B66 F9           STC
+0B67 C3           RET
+0B68 30C9         XOR     CL,CL
+0B6A 31C0         XOR     AX,AX
+0B6C A3C324       MOV     [24C3H],AX
+0B6F E8C7FD       CALL    939H
+0B72 741E         JZ      0B92H
+0B74 3C2B         CMP     AL,2BH
+0B76 7414         JZ      0B8CH
+0B78 3C2D         CMP     AL,2DH
+0B7A 740D         JZ      0B89H
+0B7C 52           PUSH    DX
+0B7D E81B00       CALL    0B9BH
+0B80 5A           POP     DX
+0B81 720F         JC      0B92H
+0B83 0106C324     ADD     [24C3H],AX
+0B87 EBE6         JMP     SHORT 0B6FH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         27
+
+0B89 80F180       XOR     CL,0FF80H
+0B8C 80E1BF       AND     CL,0FFBFH
+0B8F 46           INC     SI
+0B90 EBDD         JMP     SHORT 0B6FH
+0B92 F6C140       ROR     CL,40H
+0B95 748E         JZ      0B25H
+0B97 A1C324       MOV     AX,[24C3H]
+0B9A C3           RET
+0B9B F6C140       ROR     CL,40H
+0B9E 7530         JNZ     0BD0H
+0BA0 38D0         CMP     AL,DL
+0BA2 741D         JZ      0BC1H
+0BA4 3C22         CMP     AL,22H
+0BA6 742A         JZ      0BD2H
+0BA8 3C27         CMP     AL,27H
+0BAA 7426         JZ      0BD2H
+0BAC E85201       CALL    0D01H
+0BAF 74EA         JZ      0B9BH
+0BB1 E84003       CALL    0EF4H
+0BB4 736B         JNC     0C21H
+0BB6 3C40         CMP     AL,40H
+0BB8 7216         JC      0BD0H
+0BBA A0A724       MOV     AL,[24A7H]
+0BBD 2403         AND     AL,3
+0BBF 7533         JNZ     0BF4H
+0BC1 01DE         ADD     SI,BX
+0BC3 80C901       OR      CL,1
+0BC6 8B16AD24     MOV     DX,[24ADH]
+0BCA 0316B124     ADD     DX,[24B1H]
+0BCE EB51         JMP     SHORT 0C21H
+0BD0 F9           STC
+0BD1 C3           RET
+0BD2 8B5401       MOV     DX,[SI+1]
+0BD5 01DE         ADD     SI,BX
+0BD7 83FB05       CMP     BX,5
+0BDA 730E         JNC     0BEAH
+0BDC 83FB04       CMP     BX,4
+0BDF 7340         JNC     0C21H
+0BE1 83FB03       CMP     BX,3
+0BE4 7209         JC      0BEFH
+0BE6 30F6         XOR     DH,DH
+0BE8 EB37         JMP     SHORT 0C21H
+0BEA B007         MOV     AL,7
+0BEC E962FF       JMP     0B51H
+0BEF B008         MOV     AL,8
+0BF1 E95DFF       JMP     0B51H
+0BF4 51           PUSH    CX
+0BF5 8B3EB324     MOV     DI,[24B3H]
+0BF9 E8A2FD       CALL    99EH
+0BFC 59           POP     CX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         28
+
+0BFD BA0280       MOV     DX,8002H
+0C00 92           XCHG    AX,DX
+0C01 740B         JZ      0C0EH
+0C03 8406A724     TEST    AL,[24A7H]
+0C07 74B8         JZ      0BC1H
+0C09 B004         MOV     AL,4
+0C0B E943FF       JMP     0B51H
+0C0E 84F6         TEST    DH,DH
+0C10 750C         JNZ     0C1EH
+0C12 8406A724     TEST    AL,[24A7H]
+0C16 7502         JNZ     0C1AH
+0C18 0825         OR      [DI],AH
+0C1A 8425         TEST    AH,[DI]
+0C1C 7503         JNZ     0C21H
+0C1E 80C902       OR      CL,2
+0C21 80C940       OR      CL,40H
+0C24 84C9         TEST    CL,CL
+0C26 7905         JNS     0C2DH
+0C28 80F180       XOR     CL,0FF80H
+0C2B F7DA         NEG     DX
+0C2D F6C110       ROR     CL,10H
+0C30 7518         JNZ     0C4AH
+0C32 F6C108       ROR     CL,8
+0C35 7507         JNZ     0C3EH
+0C37 F6C104       ROR     CL,4
+0C3A 7509         JNZ     0C45H
+0C3C EB0C         JMP     SHORT 0C4AH
+0C3E F6C104       ROR     CL,4
+0C41 7507         JNZ     0C4AH
+0C43 86F2         XCHG    DH,DL
+0C45 30F6         XOR     DH,DH
+0C47 80E1FC       AND     CL,0FFFCH
+0C4A 89D0         MOV     AX,DX
+0C4C F8           CLC
+0C4D C3           RET
+0C4E E8FF07       CALL    1450H
+0C51 A3B124       MOV     [24B1H],AX
+0C54 F8           CLC
+0C55 C3           RET
+0C56 E8F707       CALL    1450H
+0C59 0106AF24     ADD     [24AFH],AX
+0C5D 0106AD24     ADD     [24ADH],AX
+0C61 F8           CLC
+0C62 C3           RET
+0C63 A0A724       MOV     AL,[24A7H]
+0C66 A803         TEST    AL,3
+0C68 7406         JZ      0C70H
+0C6A E8E307       CALL    1450H
+0C6D 89EF         MOV     DI,BP
+0C6F AB           STOSW
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         29
+
+0C70 F8           CLC
+0C71 C3           RET
+0C72 8926B524     MOV     [24B5H],SP
+0C76 31C0         XOR     AX,AX
+0C78 A3C524       MOV     [24C5H],AX
+0C7B 8B36A924     MOV     SI,[24A9H]
+0C7F A0A724       MOV     AL,[24A7H]
+0C82 84C0         TEST    AL,AL
+0C84 7913         JNS     0C99H
+0C86 31C0         XOR     AX,AX
+0C88 A3C724       MOV     [24C7H],AX
+0C8B 8B36AB24     MOV     SI,[24ABH]
+0C8F 8B3EA924     MOV     DI,[24A9H]
+0C93 E9CE07       JMP     1464H
+0C96 E8BCFD       CALL    0A55H
+0C99 8B26B524     MOV     SP,[24B5H]
+0C9D 31C0         XOR     AX,AX
+0C9F BFB724       MOV     DI,24B7H
+0CA2 B90700       MOV     CX,7
+0CA5 FC           CLD
+0CA6 F3           REPZ
+0CA7 AB           STOSW
+0CA8 E88EFC       CALL    939H
+0CAB 7452         JZ      0CFFH
+0CAD BF3E1A       MOV     DI,1A3EH
+0CB0 BA6A17       MOV     DX,176AH
+0CB3 E8B302       CALL    0F69H
+0CB6 7419         JZ      0CD1H
+0CB8 BF2E1D       MOV     DI,1D2EH
+0CBB BA8A17       MOV     DX,178AH
+0CBE E8A802       CALL    0F69H
+0CC1 740E         JZ      0CD1H
+0CC3 E86E02       CALL    0F34H
+0CC6 75CE         JNZ     0C96H
+0CC8 E8FB01       CALL    0EC6H
+0CCB 724A         JC      0D17H
+0CCD B8990C       MOV     AX,0C99H
+0CD0 50           PUSH    AX
+0CD1 30D2         XOR     DL,DL
+0CD3 8616BD24     XCHG    DL,[24BDH]
+0CD7 D0E2         SHL     DL,1
+0CD9 7424         JZ      0CFFH
+0CDB 8B3EAB24     MOV     DI,[24ABH]
+0CDF 033EC524     ADD     DI,[24C5H]
+0CE3 56           PUSH    SI
+0CE4 57           PUSH    DI
+0CE5 BEBE24       MOV     SI,24BEH
+0CE8 FC           CLD
+0CE9 AC           LODSB
+0CEA D0E2         SHL     DL,1
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         30
+
+0CEC 7301         JNC     0CEFH
+0CEE AA           STOSB
+0CEF 75F8         JNZ     0CE9H
+0CF1 59           POP     CX
+0CF2 5E           POP     SI
+0CF3 87F9         XCHG    DI,CX
+0CF5 29F9         SUB     CX,DI
+0CF7 010EC524     ADD     [24C5H],CX
+0CFB 010EAD24     ADD     [24ADH],CX
+0CFF F8           CLC
+0D00 C3           RET
+0D01 50           PUSH    AX
+0D02 E84C02       CALL    0F51H
+0D05 7522         JNZ     0D29H
+0D07 01DE         ADD     SI,BX
+0D09 B404         MOV     AH,4
+0D0B 3C11         CMP     AL,11H
+0D0D 740D         JZ      0D1CH
+0D0F 3C12         CMP     AL,12H
+0D11 740D         JZ      0D20H
+0D13 3C13         CMP     AL,13H
+0D15 7407         JZ      0D1EH
+0D17 B00C         MOV     AL,0CH
+0D19 E935FE       JMP     0B51H
+0D1C D0E4         SHL     AH,1
+0D1E D0E4         SHL     AH,1
+0D20 08E1         OR      CL,AH
+0D22 E814FC       CALL    939H
+0D25 7404         JZ      0D2BH
+0D27 38C0         CMP     AL,AL
+0D29 58           POP     AX
+0D2A C3           RET
+0D2B B008         MOV     AL,8
+0D2D E921FE       JMP     0B51H
+0D30 E806FC       CALL    939H
+0D33 74F6         JZ      0D2BH
+0D35 E81902       CALL    0F51H
+0D38 7529         JNZ     0D63H
+0D3A 3C10         CMP     AL,10H
+0D3C 7462         JZ      0DA0H
+0D3E 7323         JNC     0D63H
+0D40 01DE         ADD     SI,BX
+0D42 BFB724       MOV     DI,24B7H
+0D45 3C08         CMP     AL,8
+0D47 7201         JC      0D4AH
+0D49 47           INC     DI
+0D4A 8605         XCHG    AL,[DI]
+0D4C 84C0         TEST    AL,AL
+0D4E 7550         JNZ     0DA0H
+0D50 E8E6FB       CALL    939H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         31
+
+0D53 740E         JZ      0D63H
+0D55 E8F901       CALL    0F51H
+0D58 7509         JNZ     0D63H
+0D5A 3C10         CMP     AL,10H
+0D5C 7542         JNZ     0DA0H
+0D5E 01DE         ADD     SI,BX
+0D60 E8D6FB       CALL    939H
+0D63 C3           RET
+0D64 31D2         XOR     DX,DX
+0D66 31C9         XOR     CX,CX
+0D68 8916B724     MOV     [24B7H],DX
+0D6C E8C1FF       CALL    0D30H
+0D6F 722C         JC      0D9DH
+0D71 3C5B         CMP     AL,5BH
+0D73 7450         JZ      0DC5H
+0D75 E8BC01       CALL    0F34H
+0D78 742B         JZ      0DA5H
+0D7A E8D306       CALL    1450H
+0D7D BA0403       MOV     DX,304H
+0D80 86CE         XCHG    CL,DH
+0D82 20CE         AND     DH,CL
+0D84 750A         JNZ     0D90H
+0D86 84E4         TEST    AH,AH
+0D88 7405         JZ      0D8FH
+0D8A E806FC       CALL    993H
+0D8D 7201         JC      0D90H
+0D8F 49           DEC     CX
+0D90 A0B724       MOV     AL,[24B7H]
+0D93 84C0         TEST    AL,AL
+0D95 7406         JZ      0D9DH
+0D97 B102         MOV     CL,2
+0D99 48           DEC     AX
+0D9A 7401         JZ      0D9DH
+0D9C 41           INC     CX
+0D9D E9C800       JMP     0E68H
+0DA0 B001         MOV     AL,1
+0DA2 E9ACFD       JMP     0B51H
+0DA5 E81E01       CALL    0EC6H
+0DA8 73C2         JNC     0D6CH
+0DAA 88C6         MOV     DH,AL
+0DAC 3C10         CMP     AL,10H
+0DAE 9F           LAHF
+0DAF 3C08         CMP     AL,8
+0DB1 18C0         SBB     AL,AL
+0DB3 0402         ADD     AL,2
+0DB5 A2B724       MOV     [24B7H],AL
+0DB8 9E           SAHF
+0DB9 18C0         SBB     AL,AL
+0DBB 0402         ADD     AL,2
+0DBD 80E607       AND     DH,7
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         32
+
+0DC0 88C2         MOV     DL,AL
+0DC2 E9A300       JMP     0E68H
+0DC5 46           INC     SI
+0DC6 E867FF       CALL    0D30H
+0DC9 31D2         XOR     DX,DX
+0DCB 30C9         XOR     CL,CL
+0DCD E869FB       CALL    939H
+0DD0 7460         JZ      0E32H
+0DD2 3C5D         CMP     AL,5DH
+0DD4 7461         JZ      0E37H
+0DD6 3C2B         CMP     AL,2BH
+0DD8 741B         JZ      0DF5H
+0DDA 3C2D         CMP     AL,2DH
+0DDC 7414         JZ      0DF2H
+0DDE E85301       CALL    0F34H
+0DE1 7418         JZ      0DFBH
+0DE3 52           PUSH    DX
+0DE4 B224         MOV     DL,24H
+0DE6 E8B2FD       CALL    0B9BH
+0DE9 5A           POP     DX
+0DEA 72B4         JC      0DA0H
+0DEC 0106C124     ADD     [24C1H],AX
+0DF0 EBDB         JMP     SHORT 0DCDH
+0DF2 80F180       XOR     CL,0FF80H
+0DF5 80E1BF       AND     CL,0FFBFH
+0DF8 46           INC     SI
+0DF9 EBD2         JMP     SHORT 0DCDH
+0DFB B201         MOV     DL,1
+0DFD 3C0B         CMP     AL,0BH
+0DFF 7421         JZ      0E22H
+0E01 3C0D         CMP     AL,0DH
+0E03 741B         JZ      0E20H
+0E05 3C0E         CMP     AL,0EH
+0E07 7413         JZ      0E1CH
+0E09 3C0F         CMP     AL,0FH
+0E0B 7411         JZ      0E1EH
+0E0D E8B600       CALL    0EC6H
+0E10 73BB         JNC     0DCDH
+0E12 B00D         MOV     AL,0DH
+0E14 E93AFD       JMP     0B51H
+0E17 B002         MOV     AL,2
+0E19 E935FD       JMP     0B51H
+0E1C D0E2         SHL     DL,1
+0E1E D0E2         SHL     DL,1
+0E20 D0E2         SHL     DL,1
+0E22 84D6         TEST    DL,DH
+0E24 75F1         JNZ     0E17H
+0E26 F6C180       ROR     CL,0FF80H
+0E29 75EC         JNZ     0E17H
+0E2B 08D6         OR      DH,DL
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         33
+
+0E2D 80C940       OR      CL,40H
+0E30 EB9B         JMP     SHORT 0DCDH
+0E32 B008         MOV     AL,8
+0E34 E91AFD       JMP     0B51H
+0E37 F6C140       ROR     CL,40H
+0E3A 74F6         JZ      0E32H
+0E3C 46           INC     SI
+0E3D 88F0         MOV     AL,DH
+0E3F BB061A       MOV     BX,1A06H
+0E42 D7           XLATB
+0E43 3CFF         CMP     AL,0FFFFH
+0E45 74CB         JZ      0E12H
+0E47 B203         MOV     DL,3
+0E49 88C6         MOV     DH,AL
+0E4B 3C0E         CMP     AL,0EH
+0E4D 7417         JZ      0E66H
+0E4F 20D1         AND     CL,DL
+0E51 7513         JNZ     0E66H
+0E53 A1C124       MOV     AX,[24C1H]
+0E56 85C0         TEST    AX,AX
+0E58 7505         JNZ     0E5FH
+0E5A 80FE06       CMP     DH,6
+0E5D 7509         JNZ     0E68H
+0E5F B108         MOV     CL,8
+0E61 E82FFB       CALL    993H
+0E64 7302         JNC     0E68H
+0E66 B10C         MOV     CL,0CH
+0E68 080EBD24     OR      [24BDH],CL
+0E6C A1B724       MOV     AX,[24B7H]
+0E6F B104         MOV     CL,4
+0E71 F606B9240F   ROR     BYTE PTR [24B9H],0FH
+0E76 7404         JZ      0E7CH
+0E78 D3C0         ROL     AX,CL
+0E7A D3C2         ROL     DX,CL
+0E7C 0906BB24     OR      [24BBH],AX
+0E80 0916B924     OR      [24B9H],DX
+0E84 E8B2FA       CALL    939H
+0E87 7508         JNZ     0E91H
+0E89 A1B924       MOV     AX,[24B9H]
+0E8C 8A2EBB24     MOV     CH,[24BBH]
+0E90 C3           RET
+0E91 46           INC     SI
+0E92 3C3A         CMP     AL,3AH
+0E94 740C         JZ      0EA2H
+0E96 3C2C         CMP     AL,2CH
+0E98 7527         JNZ     0EC1H
+0E9A E89CFA       CALL    939H
+0E9D 7493         JZ      0E32H
+0E9F E9C2FE       JMP     0D64H
+0EA2 A0B924       MOV     AL,[24B9H]
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         34
+
+0EA5 3C04         CMP     AL,4
+0EA7 7518         JNZ     0EC1H
+0EA9 A1C324       MOV     AX,[24C3H]
+0EAC 8706C124     XCHG    AX,[24C1H]
+0EB0 A3C324       MOV     [24C3H],AX
+0EB3 E89A05       CALL    1450H
+0EB6 BA0403       MOV     DX,304H
+0EB9 20CE         AND     DH,CL
+0EBB B002         MOV     AL,2
+0EBD B10F         MOV     CL,0FH
+0EBF EBA7         JMP     SHORT 0E68H
+0EC1 B001         MOV     AL,1
+0EC3 E98BFC       JMP     0B51H
+0EC6 3C10         CMP     AL,10H
+0EC8 7258         JC      0F22H
+0ECA 86E0         XCHG    AH,AL
+0ECC E86AFA       CALL    939H
+0ECF 86E0         XCHG    AH,AL
+0ED1 744F         JZ      0F22H
+0ED3 80FC3A       CMP     AH,3AH
+0ED6 754A         JNZ     0F22H
+0ED8 2403         AND     AL,3
+0EDA D0E0         SHL     AL,1
+0EDC D0E0         SHL     AL,1
+0EDE D0E0         SHL     AL,1
+0EE0 0C26         OR      AL,26H
+0EE2 46           INC     SI
+0EE3 A2BE24       MOV     [24BEH],AL
+0EE6 A0BD24       MOV     AL,[24BDH]
+0EE9 A840         TEST    AL,40H
+0EEB 75D4         JNZ     0EC1H
+0EED 0C40         OR      AL,40H
+0EEF A2BD24       MOV     [24BDH],AL
+0EF2 F8           CLC
+0EF3 C3           RET
+0EF4 50           PUSH    AX
+0EF5 51           PUSH    CX
+0EF6 56           PUSH    SI
+0EF7 B105         MOV     CL,5
+0EF9 3C30         CMP     AL,30H
+0EFB 7222         JC      0F1FH
+0EFD 3C3A         CMP     AL,3AH
+0EFF 731E         JNC     0F1FH
+0F01 8D38         LEA     DI,[BX+SI]
+0F03 4B           DEC     BX
+0F04 8A00         MOV     AL,[BX+SI]
+0F06 3C42         CMP     AL,42H
+0F08 741A         JZ      0F24H
+0F0A 3C48         CMP     AL,48H
+0F0C 7419         JZ      0F27H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         35
+
+0F0E 3C4F         CMP     AL,4FH
+0F10 7414         JZ      0F26H
+0F12 3C51         CMP     AL,51H
+0F14 7410         JZ      0F26H
+0F16 43           INC     BX
+0F17 3C30         CMP     AL,30H
+0F19 7204         JC      0F1FH
+0F1B 3C3A         CMP     AL,3AH
+0F1D 7209         JC      0F28H
+0F1F 5E           POP     SI
+0F20 59           POP     CX
+0F21 58           POP     AX
+0F22 F9           STC
+0F23 C3           RET
+0F24 49           DEC     CX
+0F25 49           DEC     CX
+0F26 49           DEC     CX
+0F27 49           DEC     CX
+0F28 E8BEFA       CALL    9E9H
+0F2B 75F2         JNZ     0F1FH
+0F2D 5E           POP     SI
+0F2E 89FE         MOV     SI,DI
+0F30 59           POP     CX
+0F31 58           POP     AX
+0F32 F8           CLC
+0F33 C3           RET
+0F34 51           PUSH    CX
+0F35 83FB02       CMP     BX,2
+0F38 7515         JNZ     0F4FH
+0F3A 8B04         MOV     AX,[SI]
+0F3C BF161A       MOV     DI,1A16H
+0F3F B91400       MOV     CX,14H
+0F42 FC           CLD
+0F43 F2           REPNZ
+0F44 AF           SCASW
+0F45 7508         JNZ     0F4FH
+0F47 01DE         ADD     SI,BX
+0F49 B013         MOV     AL,13H
+0F4B 28C8         SUB     AL,CL
+0F4D 31DB         XOR     BX,BX
+0F4F 59           POP     CX
+0F50 C3           RET
+0F51 51           PUSH    CX
+0F52 52           PUSH    DX
+0F53 53           PUSH    BX
+0F54 56           PUSH    SI
+0F55 BF2E1D       MOV     DI,1D2EH
+0F58 E843FA       CALL    99EH
+0F5B 5E           POP     SI
+0F5C 5B           POP     BX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         36
+
+0F5D 5A           POP     DX
+0F5E 59           POP     CX
+0F5F 7505         JNZ     0F66H
+0F61 80FC05       CMP     AH,5
+0F64 7402         JZ      0F68H
+0F66 8B04         MOV     AX,[SI]
+0F68 C3           RET
+0F69 8036BD2420   XOR     BYTE PTR [24BDH],20H
+0F6E 52           PUSH    DX
+0F6F E82CFA       CALL    99EH
+0F72 5F           POP     DI
+0F73 75F3         JNZ     0F68H
+0F75 8606BF24     XCHG    AL,[24BFH]
+0F79 86E0         XCHG    AH,AL
+0F7B D1E0         SHL     AX,1
+0F7D 01C7         ADD     DI,AX
+0F7F FF15         CALL    [DI]
+0F81 E8B5F9       CALL    939H
+0F84 74E2         JZ      0F68H
+0F86 B009         MOV     AL,9
+0F88 E9C6FB       JMP     0B51H
+0F8B 50           PUSH    AX
+0F8C 51           PUSH    CX
+0F8D 24F0         AND     AL,0FFF0H
+0F8F 88EC         MOV     AH,CH
+0F91 86E8         XCHG    CH,AL
+0F93 D2EC         SHR     AH,CL
+0F95 250F0F       AND     AX,0F0FH
+0F98 7422         JZ      0FBCH
+0F9A 84C0         TEST    AL,AL
+0F9C 7417         JZ      0FB5H
+0F9E 84E4         TEST    AH,AH
+0FA0 7415         JZ      0FB7H
+0FA2 38E0         CMP     AL,AH
+0FA4 7411         JZ      0FB7H
+0FA6 80FD40       CMP     CH,40H
+0FA9 740C         JZ      0FB7H
+0FAB B006         MOV     AL,6
+0FAD E9A1FB       JMP     0B51H
+0FB0 30C0         XOR     AL,AL
+0FB2 E99CFB       JMP     0B51H
+0FB5 88E0         MOV     AL,AH
+0FB7 3C03         CMP     AL,3
+0FB9 73F5         JNC     0FB0H
+0FBB 48           DEC     AX
+0FBC A2B724       MOV     [24B7H],AL
+0FBF F606BD2402   ROR     BYTE PTR [24BDH],2
+0FC4 740E         JZ      0FD4H
+0FC6 84C0         TEST    AL,AL
+0FC8 740D         JZ      0FD7H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         37
+
+0FCA 80FC01       CMP     AH,1
+0FCD 7408         JZ      0FD7H
+0FCF 800EBD2401   OR      BYTE PTR [24BDH],1
+0FD4 59           POP     CX
+0FD5 58           POP     AX
+0FD6 C3           RET
+0FD7 8026BD24FE   AND     BYTE PTR [24BDH],0FFFEH
+0FDC F606A72401   ROR     BYTE PTR [24A7H],1
+0FE1 75F1         JNZ     0FD4H
+0FE3 A1C324       MOV     AX,[24C3H]
+0FE6 84E4         TEST    AH,AH
+0FE8 74EA         JZ      0FD4H
+0FEA E8A6F9       CALL    993H
+0FED 73E5         JNC     0FD4H
+0FEF B007         MOV     AL,7
+0FF1 E95DFB       JMP     0B51H
+0FF4 800EBD2410   OR      BYTE PTR [24BDH],10H
+0FF9 A1B924       MOV     AX,[24B9H]
+0FFC B104         MOV     CL,4
+0FFE 3C11         CMP     AL,11H
+1000 745C         JZ      105EH
+1002 3C12         CMP     AL,12H
+1004 7456         JZ      105CH
+1006 3C13         CMP     AL,13H
+1008 742E         JZ      1038H
+100A 3C21         CMP     AL,21H
+100C 7450         JZ      105EH
+100E 3C23         CMP     AL,23H
+1010 7426         JZ      1038H
+1012 3C31         CMP     AL,31H
+1014 7420         JZ      1036H
+1016 3C32         CMP     AL,32H
+1018 741C         JZ      1036H
+101A 250F0F       AND     AX,0F0FH
+101D 3C01         CMP     AL,1
+101F 743D         JZ      105EH
+1021 3C03         CMP     AL,3
+1023 7413         JZ      1038H
+1025 A1B924       MOV     AX,[24B9H]
+1028 D3C8         ROR     AX,CL
+102A 250F0F       AND     AX,0F0FH
+102D 3C01         CMP     AL,1
+102F 742D         JZ      105EH
+1031 3C03         CMP     AL,3
+1033 7403         JZ      1038H
+1035 C3           RET
+1036 D2CC         ROR     AH,CL
+1038 88E0         MOV     AL,AH
+103A 50           PUSH    AX
+103B 250770       AND     AX,7007H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         38
+
+103E D0CC         ROR     AH,1
+1040 08E0         OR      AL,AH
+1042 0806C024     OR      [24C0H],AL
+1046 58           POP     AX
+1047 2408         AND     AL,8
+1049 7522         JNZ     106DH
+104B A0BD24       MOV     AL,[24BDH]
+104E 240C         AND     AL,0CH
+1050 741B         JZ      106DH
+1052 B440         MOV     AH,40H
+1054 2404         AND     AL,4
+1056 7411         JZ      1069H
+1058 D0E4         SHL     AH,1
+105A EB0D         JMP     SHORT 1069H
+105C D2CC         ROR     AH,CL
+105E 88E0         MOV     AL,AH
+1060 D0CC         ROR     AH,1
+1062 250738       AND     AX,3807H
+1065 0CC0         OR      AL,0FFC0H
+1067 08C4         OR      AH,AL
+1069 0826C024     OR      [24C0H],AH
+106D C3           RET
+106E E8F3FC       CALL    0D64H
+1071 50           PUSH    AX
+1072 250F0F       AND     AX,0F0FH
+1075 A3B924       MOV     [24B9H],AX
+1078 B0D0         MOV     AL,0FFD0H
+107A 8606BF24     XCHG    AL,[24BFH]
+107E A2C024       MOV     [24C0H],AL
+1081 88E8         MOV     AL,CH
+1083 240F         AND     AL,0FH
+1085 7407         JZ      108EH
+1087 48           DEC     AX
+1088 7404         JZ      108EH
+108A 0806BF24     OR      [24BFH],AL
+108E 58           POP     AX
+108F 25F0F0       AND     AX,0F0F0H
+1092 741B         JZ      10AFH
+1094 3D1010       CMP     AX,1010H
+1097 7411         JZ      10AAH
+1099 3C40         CMP     AL,40H
+109B 7508         JNZ     10A5H
+109D A1C324       MOV     AX,[24C3H]
+10A0 3D0100       CMP     AX,1
+10A3 740A         JZ      10AFH
+10A5 B001         MOV     AL,1
+10A7 E9A7FA       JMP     0B51H
+10AA 800EBF2402   OR      BYTE PTR [24BFH],2
+10AF 8026BD24FC   AND     BYTE PTR [24BDH],0FFFCH
+10B4 E93DFF       JMP     0FF4H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         39
+
+10B7 E8AAFC       CALL    0D64H
+10BA E8CEFE       CALL    0F8BH
+10BD B504         MOV     CH,4
+10BF 80E40F       AND     AH,0FH
+10C2 3D4100       CMP     AX,41H
+10C5 7448         JZ      110FH
+10C7 3C11         CMP     AL,11H
+10C9 743A         JZ      1105H
+10CB 3C13         CMP     AL,13H
+10CD 7436         JZ      1105H
+10CF 3C31         CMP     AL,31H
+10D1 742D         JZ      1100H
+10D3 3C41         CMP     AL,41H
+10D5 7404         JZ      10DBH
+10D7 3C43         CMP     AL,43H
+10D9 753E         JNZ     1119H
+10DB B080         MOV     AL,0FF80H
+10DD 8606BF24     XCHG    AL,[24BFH]
+10E1 0806C024     OR      [24C0H],AL
+10E5 A1C324       MOV     AX,[24C3H]
+10E8 E8A8F8       CALL    993H
+10EB 7218         JC      1105H
+10ED A0BB24       MOV     AL,[24BBH]
+10F0 3C22         CMP     AL,22H
+10F2 7411         JZ      1105H
+10F4 8026BD24FE   AND     BYTE PTR [24BDH],0FFFEH
+10F9 F606B724FF   ROR     BYTE PTR [24B7H],0FFFFH
+10FE 7405         JZ      1105H
+1100 800EBF2402   OR      BYTE PTR [24BFH],2
+1105 A0B724       MOV     AL,[24B7H]
+1108 0806BF24     OR      [24BFH],AL
+110C E9E5FE       JMP     0FF4H
+110F A0B724       MOV     AL,[24B7H]
+1112 08E8         OR      AL,CH
+1114 0806BF24     OR      [24BFH],AL
+1118 C3           RET
+1119 B000         MOV     AL,0
+111B E933FA       JMP     0B51H
+111E E843FC       CALL    0D64H
+1121 E867FE       CALL    0F8BH
+1124 B5A8         MOV     CH,0FFA8H
+1126 80E40F       AND     AH,0FH
+1129 3D4100       CMP     AX,41H
+112C 74E1         JZ      110FH
+112E B5F6         MOV     CH,0FFF6H
+1130 3C01         CMP     AL,1
+1132 741A         JZ      114EH
+1134 3C03         CMP     AL,3
+1136 7416         JZ      114EH
+1138 3C41         CMP     AL,41H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         40
+
+113A 7412         JZ      114EH
+113C 3C43         CMP     AL,43H
+113E 740E         JZ      114EH
+1140 B584         MOV     CH,0FF84H
+1142 3C11         CMP     AL,11H
+1144 7408         JZ      114EH
+1146 3C13         CMP     AL,13H
+1148 7404         JZ      114EH
+114A 3C31         CMP     AL,31H
+114C 75CB         JNZ     1119H
+114E A0B724       MOV     AL,[24B7H]
+1151 08E8         OR      AL,CH
+1153 8606BF24     XCHG    AL,[24BFH]
+1157 0806C024     OR      [24C0H],AL
+115B E996FE       JMP     0FF4H
+115E E803FC       CALL    0D64H
+1161 E827FE       CALL    0F8BH
+1164 3C02         CMP     AL,2
+1166 7438         JZ      11A0H
+1168 3C03         CMP     AL,3
+116A 7416         JZ      1182H
+116C 3C01         CMP     AL,1
+116E 75A9         JNZ     1119H
+1170 80FD02       CMP     CH,2
+1173 720D         JC      1182H
+1175 A0BF24       MOV     AL,[24BFH]
+1178 2418         AND     AL,18H
+117A 0C40         OR      AL,40H
+117C 08E0         OR      AL,AH
+117E A2BF24       MOV     [24BFH],AL
+1181 C3           RET
+1182 A0BF24       MOV     AL,[24BFH]
+1185 3C38         CMP     AL,38H
+1187 B88F00       MOV     AX,8FH
+118A 740E         JZ      119AH
+118C A0B724       MOV     AL,[24B7H]
+118F 84ED         TEST    CH,CH
+1191 7501         JNZ     1194H
+1193 40           INC     AX
+1194 0CFE         OR      AL,0FFFEH
+1196 8A26BF24     MOV     AH,[24BFH]
+119A A3BF24       MOV     [24BFH],AX
+119D E954FE       JMP     0FF4H
+11A0 49           DEC     CX
+11A1 D2E4         SHL     AH,CL
+11A3 A0BF24       MOV     AL,[24BFH]
+11A6 D2E8         SHR     AL,CL
+11A8 2401         AND     AL,1
+11AA 08E0         OR      AL,AH
+11AC 0C06         OR      AL,6
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         41
+
+11AE A2BF24       MOV     [24BFH],AL
+11B1 C3           RET
+11B2 E8AFFB       CALL    0D64H
+11B5 3C01         CMP     AL,1
+11B7 740C         JZ      11C5H
+11B9 3C04         CMP     AL,4
+11BB 743B         JZ      11F8H
+11BD 3C44         CMP     AL,44H
+11BF 744A         JZ      120BH
+11C1 3C03         CMP     AL,3
+11C3 756E         JNZ     1233H
+11C5 A0BC24       MOV     AL,[24BCH]
+11C8 3C08         CMP     AL,8
+11CA 7467         JZ      1233H
+11CC 3C09         CMP     AL,9
+11CE 7417         JZ      11E7H
+11D0 3C0A         CMP     AL,0AH
+11D2 740E         JZ      11E2H
+11D4 88E8         MOV     AL,CH
+11D6 3C00         CMP     AL,0
+11D8 740D         JZ      11E7H
+11DA 3C02         CMP     AL,2
+11DC 7409         JZ      11E7H
+11DE 3C03         CMP     AL,3
+11E0 7551         JNZ     1233H
+11E2 800EC02408   OR      BYTE PTR [24C0H],8
+11E7 B1FF         MOV     CL,0FFFFH
+11E9 860EBF24     XCHG    CL,[24BFH]
+11ED B010         MOV     AL,10H
+11EF D2E0         SHL     AL,CL
+11F1 0806C024     OR      [24C0H],AL
+11F5 E9FCFD       JMP     0FF4H
+11F8 A0BC24       MOV     AL,[24BCH]
+11FB 3C00         CMP     AL,0
+11FD 7439         JZ      1238H
+11FF 3C08         CMP     AL,8
+1201 7426         JZ      1229H
+1203 3C09         CMP     AL,9
+1205 7431         JZ      1238H
+1207 3C0A         CMP     AL,0AH
+1209 7528         JNZ     1233H
+120B A1C324       MOV     AX,[24C3H]
+120E 8706C124     XCHG    AX,[24C1H]
+1212 A3C324       MOV     [24C3H],AX
+1215 800EBD240F   OR      BYTE PTR [24BDH],0FH
+121A B8EA9A       MOV     AX,9AEAH
+121D 8626BF24     XCHG    AH,[24BFH]
+1221 84E4         TEST    AH,AH
+1223 7403         JZ      1228H
+1225 A2BF24       MOV     [24BFH],AL
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         42
+
+1228 C3           RET
+1229 B0EB         MOV     AL,0FFEBH
+122B 8606BF24     XCHG    AL,[24BFH]
+122F 84C0         TEST    AL,AL
+1231 7524         JNZ     1257H
+1233 B000         MOV     AL,0
+1235 E919F9       JMP     0B51H
+1238 A1C324       MOV     AX,[24C3H]
+123B 2B06AD24     SUB     AX,[24ADH]
+123F 2B06B124     SUB     AX,[24B1H]
+1243 2D0300       SUB     AX,3
+1246 A3C324       MOV     [24C3H],AX
+1249 800EBD2403   OR      BYTE PTR [24BDH],3
+124E 800EBF24E8   OR      BYTE PTR [24BFH],0FFE8H
+1253 C3           RET
+1254 E80DFB       CALL    0D64H
+1257 8026BD24FE   AND     BYTE PTR [24BDH],0FFFEH
+125C A1C324       MOV     AX,[24C3H]
+125F 2B06AD24     SUB     AX,[24ADH]
+1263 2B06B124     SUB     AX,[24B1H]
+1267 2D0200       SUB     AX,2
+126A A3C324       MOV     [24C3H],AX
+126D F606A72402   ROR     BYTE PTR [24A7H],2
+1272 74B4         JZ      1228H
+1274 E81CF7       CALL    993H
+1277 73AF         JNC     1228H
+1279 B005         MOV     AL,5
+127B E9D3F8       JMP     0B51H
+127E E8E3FA       CALL    0D64H
+1281 3C31         CMP     AL,31H
+1283 75AE         JNZ     1233H
+1285 E96CFD       JMP     0FF4H
+1288 E8D9FA       CALL    0D64H
+128B E8FDFC       CALL    0F8BH
+128E 30ED         XOR     CH,CH
+1290 3D31E0       CMP     AX,0E031H
+1293 7437         JZ      12CCH
+1295 3D130E       CMP     AX,0E13H
+1298 7430         JZ      12CAH
+129A 3C11         CMP     AL,11H
+129C 7458         JZ      12F6H
+129E 3C13         CMP     AL,13H
+12A0 7454         JZ      12F6H
+12A2 3C21         CMP     AL,21H
+12A4 7444         JZ      12EAH
+12A6 3C23         CMP     AL,23H
+12A8 7440         JZ      12EAH
+12AA 3C43         CMP     AL,43H
+12AC 7443         JZ      12F1H
+12AE B502         MOV     CH,2
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         43
+
+12B0 3C12         CMP     AL,12H
+12B2 7436         JZ      12EAH
+12B4 3C31         CMP     AL,31H
+12B6 743E         JZ      12F6H
+12B8 3C32         CMP     AL,32H
+12BA 742E         JZ      12EAH
+12BC B5B0         MOV     CH,0FFB0H
+12BE 3C41         CMP     AL,41H
+12C0 7569         JNZ     132BH
+12C2 A0B724       MOV     AL,[24B7H]
+12C5 49           DEC     CX
+12C6 D2E0         SHL     AL,CL
+12C8 EB18         JMP     SHORT 12E2H
+12CA B502         MOV     CH,2
+12CC A1C124       MOV     AX,[24C1H]
+12CF A3C324       MOV     [24C3H],AX
+12D2 A0BD24       MOV     AL,[24BDH]
+12D5 25E300       AND     AX,0E3H
+12D8 0C03         OR      AL,3
+12DA A2BD24       MOV     [24BDH],AL
+12DD A0B724       MOV     AL,[24B7H]
+12E0 0CA0         OR      AL,0FFA0H
+12E2 08E0         OR      AL,AH
+12E4 08E8         OR      AL,CH
+12E6 A2BF24       MOV     [24BFH],AL
+12E9 C3           RET
+12EA B08C         MOV     AL,0FF8CH
+12EC A2BF24       MOV     [24BFH],AL
+12EF EB08         JMP     SHORT 12F9H
+12F1 B0C6         MOV     AL,0FFC6H
+12F3 A2BF24       MOV     [24BFH],AL
+12F6 A0B724       MOV     AL,[24B7H]
+12F9 08E8         OR      AL,CH
+12FB 0806BF24     OR      [24BFH],AL
+12FF E9F2FC       JMP     0FF4H
+1302 E85FFA       CALL    0D64H
+1305 3C14         CMP     AL,14H
+1307 7404         JZ      130DH
+1309 3C34         CMP     AL,34H
+130B 751E         JNZ     132BH
+130D A1C324       MOV     AX,[24C3H]
+1310 3D3F00       CMP     AX,3FH
+1313 7733         JA      1348H
+1315 88C4         MOV     AH,AL
+1317 49           DEC     CX
+1318 D2C8         ROR     AL,CL
+131A 250707       AND     AX,707H
+131D D2C4         ROL     AH,CL
+131F 0906BF24     OR      [24BFH],AX
+1323 8026BD24FC   AND     BYTE PTR [24BDH],0FFFCH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         44
+
+1328 E9C9FC       JMP     0FF4H
+132B B000         MOV     AL,0
+132D E921F8       JMP     0B51H
+1330 E806F6       CALL    939H
+1333 750C         JNZ     1341H
+1335 B80A00       MOV     AX,0AH
+1338 A3C324       MOV     [24C3H],AX
+133B 800EBD2402   OR      BYTE PTR [24BDH],2
+1340 C3           RET
+1341 E80C01       CALL    1450H
+1344 84E4         TEST    AH,AH
+1346 74F3         JZ      133BH
+1348 B007         MOV     AL,7
+134A E904F8       JMP     0B51H
+134D E818F8       CALL    0B68H
+1350 3D0300       CMP     AX,3
+1353 740A         JZ      135FH
+1355 84E4         TEST    AH,AH
+1357 75EF         JNZ     1348H
+1359 800EBD2402   OR      BYTE PTR [24BDH],2
+135E C3           RET
+135F FE0EBF24     DEC     BYTE PTR [24BFH]
+1363 C3           RET
+1364 E8FDF9       CALL    0D64H
+1367 8026BD24FE   AND     BYTE PTR [24BDH],0FFFEH
+136C 3C41         CMP     AL,41H
+136E 7415         JZ      1385H
+1370 3C14         CMP     AL,14H
+1372 740F         JZ      1383H
+1374 800EBF2408   OR      BYTE PTR [24BFH],8
+1379 3D1120       CMP     AX,2011H
+137C 7407         JZ      1385H
+137E 3D1102       CMP     AX,211H
+1381 75A8         JNZ     132BH
+1383 D2ED         SHR     CH,CL
+1385 88E8         MOV     AL,CH
+1387 240F         AND     AL,0FH
+1389 3C02         CMP     AL,2
+138B 7204         JC      1391H
+138D FE06BF24     INC     BYTE PTR [24BFH]
+1391 C3           RET
+1392 E8CFF9       CALL    0D64H
+1395 E8F3FB       CALL    0F8BH
+1398 3C13         CMP     AL,13H
+139A 7419         JZ      13B5H
+139C 3C31         CMP     AL,31H
+139E 7415         JZ      13B5H
+13A0 3C11         CMP     AL,11H
+13A2 7587         JNZ     132BH
+13A4 A0B724       MOV     AL,[24B7H]
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         45
+
+13A7 A8FF         TEST    AL,0FFFFH
+13A9 740A         JZ      13B5H
+13AB 88E0         MOV     AL,AH
+13AD A80F         TEST    AL,0FH
+13AF 740F         JZ      13C0H
+13B1 A8F0         TEST    AL,0FFF0H
+13B3 740D         JZ      13C2H
+13B5 A0B724       MOV     AL,[24B7H]
+13B8 0C86         OR      AL,0FF86H
+13BA A2BF24       MOV     [24BFH],AL
+13BD E934FC       JMP     0FF4H
+13C0 D2E8         SHR     AL,CL
+13C2 0C90         OR      AL,0FF90H
+13C4 A2BF24       MOV     [24BFH],AL
+13C7 E86FF5       CALL    939H
+13CA 7420         JZ      13ECH
+13CC E895F9       CALL    0D64H
+13CF 3C04         CMP     AL,4
+13D1 7509         JNZ     13DCH
+13D3 800EBD2403   OR      BYTE PTR [24BDH],3
+13D8 FE0EBF24     DEC     BYTE PTR [24BFH]
+13DC A0BC24       MOV     AL,[24BCH]
+13DF 3C09         CMP     AL,9
+13E1 7409         JZ      13ECH
+13E3 3C0A         CMP     AL,0AH
+13E5 7505         JNZ     13ECH
+13E7 800EBF2408   OR      BYTE PTR [24BFH],8
+13EC C3           RET
+13ED A1AD24       MOV     AX,[24ADH]
+13F0 D0E8         SHR     AL,1
+13F2 18C0         SBB     AL,AL
+13F4 2420         AND     AL,20H
+13F6 A2BD24       MOV     [24BDH],AL
+13F9 31C9         XOR     CX,CX
+13FB C3           RET
+13FC E83AF5       CALL    939H
+13FF 3C3A         CMP     AL,3AH
+1401 7403         JZ      1406H
+1403 E950F8       JMP     0C56H
+1406 B03E         MOV     AL,3EH
+1408 E8D7FA       CALL    0EE2H
+140B 31C9         XOR     CX,CX
+140D E9BDF8       JMP     0CCDH
+1410 8B3E2F24     MOV     DI,[242FH]
+1414 E822F5       CALL    939H
+1417 7448         JZ      1461H
+1419 3C27         CMP     AL,27H
+141B 7421         JZ      143EH
+141D 3C22         CMP     AL,22H
+141F 741D         JZ      143EH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         46
+
+1421 3C2C         CMP     AL,2CH
+1423 7424         JZ      1449H
+1425 FF36B524     PUSH    WORD PTR [24B5H]
+1429 57           PUSH    DI
+142A E81F00       CALL    144CH
+142D 5F           POP     DI
+142E 8F06B524     POP     [24B5H]
+1432 722D         JC      1461H
+1434 56           PUSH    SI
+1435 B90A00       MOV     CX,0AH
+1438 E8DDF5       CALL    0A18H
+143B 5E           POP     SI
+143C EBD6         JMP     SHORT 1414H
+143E 46           INC     SI
+143F 83EB02       SUB     BX,2
+1442 761D         JNB     1461H
+1444 FC           CLD
+1445 89D9         MOV     CX,BX
+1447 F3           REPZ
+1448 A4           MOVSB
+1449 46           INC     SI
+144A EBC8         JMP     SHORT 1414H
+144C 8926B524     MOV     [24B5H],SP
+1450 B224         MOV     DL,24H
+1452 E913F7       JMP     0B68H
+1455 31D2         XOR     DX,DX
+1457 E8DFF4       CALL    939H
+145A 7405         JZ      1461H
+145C E8F1FF       CALL    1450H
+145F 89C2         MOV     DX,AX
+1461 E9EAF6       JMP     0B4EH
+1464 FC           CLD
+1465 56           PUSH    SI
+1466 AC           LODSB
+1467 30E4         XOR     AH,AH
+1469 A2BF24       MOV     [24BFH],AL
+146C 89C3         MOV     BX,AX
+146E 2401         AND     AL,1
+1470 D0E0         SHL     AL,1
+1472 D0E0         SHL     AL,1
+1474 D0E0         SHL     AL,1
+1476 D0E0         SHL     AL,1
+1478 A3B724       MOV     [24B7H],AX
+147B 8A87DE18     MOV     AL,[BX+18DEH]
+147F 89C1         MOV     CX,AX
+1481 8A87DE17     MOV     AL,[BX+17DEH]
+1485 89C3         MOV     BX,AX
+1487 80F97F       CMP     CL,7FH
+148A 7309         JNC     1495H
+148C BA401A       MOV     DX,1A40H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         47
+
+148F E82500       CALL    14B7H
+1492 B009         MOV     AL,9
+1494 AA           STOSB
+1495 D1E3         SHL     BX,1
+1497 FF979E17     CALL    [BX+179EH]
+149B B80D0A       MOV     AX,0A0DH
+149E AB           STOSW
+149F 89F1         MOV     CX,SI
+14A1 5E           POP     SI
+14A2 29F1         SUB     CX,SI
+14A4 890EC524     MOV     [24C5H],CX
+14A8 010EAD24     ADD     [24ADH],CX
+14AC 89F8         MOV     AX,DI
+14AE 2B06A924     SUB     AX,[24A9H]
+14B2 A3C724       MOV     [24C7H],AX
+14B5 F8           CLC
+14B6 C3           RET
+14B7 FC           CLD
+14B8 56           PUSH    SI
+14B9 89D6         MOV     SI,DX
+14BB 30ED         XOR     CH,CH
+14BD E308         JCXZ    14C7H
+14BF AC           LODSB
+14C0 84C0         TEST    AL,AL
+14C2 75FB         JNZ     14BFH
+14C4 AD           LODSW
+14C5 E2F8         LOOP    14BFH
+14C7 AC           LODSB
+14C8 AA           STOSB
+14C9 84C0         TEST    AL,AL
+14CB 75FA         JNZ     14C7H
+14CD 4F           DEC     DI
+14CE 5E           POP     SI
+14CF C3           RET
+14D0 803EBF24EB   CMP     BYTE PTR [24BFH],0FFEBH
+14D5 750B         JNZ     14E2H
+14D7 B114         MOV     CL,14H
+14D9 BA301D       MOV     DX,1D30H
+14DC E8D8FF       CALL    14B7H
+14DF B020         MOV     AL,20H
+14E1 AA           STOSB
+14E2 AC           LODSB
+14E3 98           CBW
+14E4 050200       ADD     AX,2
+14E7 0306AD24     ADD     AX,[24ADH]
+14EB 0306B124     ADD     AX,[24B1H]
+14EF EB0A         JMP     SHORT 14FBH
+14F1 85C0         TEST    AX,AX
+14F3 7906         JNS     14FBH
+14F5 F7D8         NEG     AX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         48
+
+14F7 C6052D       MOV     BYTE PTR [DI],2DH
+14FA 47           INC     DI
+14FB 56           PUSH    SI
+14FC 50           PUSH    AX
+14FD B91000       MOV     CX,10H
+1500 E815F5       CALL    0A18H
+1503 58           POP     AX
+1504 5E           POP     SI
+1505 3D0900       CMP     AX,9
+1508 7603         JNB     150DH
+150A B048         MOV     AL,48H
+150C AA           STOSB
+150D C3           RET
+150E B006         MOV     AL,6
+1510 EB01         JMP     SHORT 1513H
+1512 AC           LODSB
+1513 50           PUSH    AX
+1514 E83400       CALL    154BH
+1517 B02C         MOV     AL,2CH
+1519 AA           STOSB
+151A 58           POP     AX
+151B FC           CLD
+151C 56           PUSH    SI
+151D 89C6         MOV     SI,AX
+151F D1EE         SHR     SI,1
+1521 D1EE         SHR     SI,1
+1523 83E60E       AND     SI,0EH
+1526 EB2F         JMP     SHORT 1557H
+1528 AC           LODSB
+1529 3CC0         CMP     AL,0FFC0H
+152B 731E         JNC     154BH
+152D BA301D       MOV     DX,1D30H
+1530 50           PUSH    AX
+1531 B116         MOV     CL,16H
+1533 F606B724FF   ROR     BYTE PTR [24B7H],0FFFFH
+1538 7502         JNZ     153CH
+153A 30C9         XOR     CL,CL
+153C E878FF       CALL    14B7H
+153F B020         MOV     AL,20H
+1541 AA           STOSB
+1542 B113         MOV     CL,13H
+1544 E870FF       CALL    14B7H
+1547 B020         MOV     AL,20H
+1549 AA           STOSB
+154A 58           POP     AX
+154B 56           PUSH    SI
+154C 89C6         MOV     SI,AX
+154E 83E607       AND     SI,7
+1551 3CC0         CMP     AL,0FFC0H
+1553 720D         JC      1562H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         49
+
+1555 D1E6         SHL     SI,1
+1557 81C6161A     ADD     SI,1A16H
+155B 0336B724     ADD     SI,[24B7H]
+155F A5           MOVSW
+1560 5E           POP     SI
+1561 C3           RET
+1562 50           PUSH    AX
+1563 B05B         MOV     AL,5BH
+1565 AA           STOSB
+1566 58           POP     AX
+1567 24C7         AND     AL,0FFC7H
+1569 3C06         CMP     AL,6
+156B 7509         JNZ     1576H
+156D 5E           POP     SI
+156E AD           LODSW
+156F E889FF       CALL    14FBH
+1572 B05D         MOV     AL,5DH
+1574 AA           STOSB
+1575 C3           RET
+1576 50           PUSH    AX
+1577 81C6FE19     ADD     SI,19FEH
+157B 8A14         MOV     DL,[SI]
+157D B02B         MOV     AL,2BH
+157F B104         MOV     CL,4
+1581 89D6         MOV     SI,DX
+1583 83E60F       AND     SI,0FH
+1586 81C6261A     ADD     SI,1A26H
+158A A5           MOVSW
+158B AA           STOSB
+158C D2EA         SHR     DL,CL
+158E 75F1         JNZ     1581H
+1590 58           POP     AX
+1591 5E           POP     SI
+1592 3C80         CMP     AL,0FF80H
+1594 7203         JC      1599H
+1596 AD           LODSW
+1597 EB06         JMP     SHORT 159FH
+1599 3C40         CMP     AL,40H
+159B 7210         JC      15ADH
+159D AC           LODSB
+159E 98           CBW
+159F 85C0         TEST    AX,AX
+15A1 740A         JZ      15ADH
+15A3 7901         JNS     15A6H
+15A5 4F           DEC     DI
+15A6 E848FF       CALL    14F1H
+15A9 B05D         MOV     AL,5DH
+15AB AA           STOSB
+15AC C3           RET
+15AD 4F           DEC     DI
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         50
+
+15AE B05D         MOV     AL,5DH
+15B0 AA           STOSB
+15B1 C3           RET
+15B2 4F           DEC     DI
+15B3 C3           RET
+15B4 E80C00       CALL    15C3H
+15B7 B03A         MOV     AL,3AH
+15B9 AA           STOSB
+15BA C3           RET
+15BB 30C0         XOR     AL,AL
+15BD E85BFF       CALL    151BH
+15C0 E95801       JMP     171BH
+15C3 A0BF24       MOV     AL,[24BFH]
+15C6 D0E8         SHR     AL,1
+15C8 D0E8         SHR     AL,1
+15CA 250600       AND     AX,6
+15CD 05361A       ADD     AX,1A36H
+15D0 96           XCHG    AX,SI
+15D1 FC           CLD
+15D2 A5           MOVSW
+15D3 96           XCHG    AX,SI
+15D4 C3           RET
+15D5 B010         MOV     AL,10H
+15D7 A2B724       MOV     [24B7H],AL
+15DA AC           LODSB
+15DB 50           PUSH    AX
+15DC E86CFF       CALL    154BH
+15DF B02C         MOV     AL,2CH
+15E1 AA           STOSB
+15E2 58           POP     AX
+15E3 E9E0FF       JMP     15C6H
+15E6 B010         MOV     AL,10H
+15E8 A2B724       MOV     [24B7H],AL
+15EB AC           LODSB
+15EC 50           PUSH    AX
+15ED E8D6FF       CALL    15C6H
+15F0 B02C         MOV     AL,2CH
+15F2 AA           STOSB
+15F3 58           POP     AX
+15F4 E954FF       JMP     154BH
+15F7 A1261A       MOV     AX,[1A26H]
+15FA AB           STOSW
+15FB B02C         MOV     AL,2CH
+15FD AA           STOSB
+15FE B010         MOV     AL,10H
+1600 A2B724       MOV     [24B7H],AL
+1603 A0BF24       MOV     AL,[24BFH]
+1606 0CC0         OR      AL,0FFC0H
+1608 E940FF       JMP     154BH
+160B A0BF24       MOV     AL,[24BFH]
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         51
+
+160E 56           PUSH    SI
+160F 250F00       AND     AX,0FH
+1612 D0E0         SHL     AL,1
+1614 50           PUSH    AX
+1615 05161A       ADD     AX,1A16H
+1618 89C6         MOV     SI,AX
+161A A5           MOVSW
+161B 58           POP     AX
+161C 2410         AND     AL,10H
+161E 5E           POP     SI
+161F A2B724       MOV     [24B7H],AL
+1622 E9F600       JMP     171BH
+1625 AD           LODSW
+1626 050300       ADD     AX,3
+1629 0306AD24     ADD     AX,[24ADH]
+162D 0306B124     ADD     AX,[24B1H]
+1631 E9C7FE       JMP     14FBH
+1634 AC           LODSB
+1635 3C0A         CMP     AL,0AH
+1637 7405         JZ      163EH
+1639 30E4         XOR     AH,AH
+163B E8BDFE       CALL    14FBH
+163E C3           RET
+163F A0BF24       MOV     AL,[24BFH]
+1642 8A24         MOV     AH,[SI]
+1644 B103         MOV     CL,3
+1646 D2CC         ROR     AH,CL
+1648 250707       AND     AX,707H
+164B D2C0         ROL     AL,CL
+164D 08E0         OR      AL,AH
+164F 30E4         XOR     AH,AH
+1651 E8A7FE       CALL    14FBH
+1654 B02C         MOV     AL,2CH
+1656 AA           STOSB
+1657 AC           LODSB
+1658 E9F0FE       JMP     154BH
+165B AC           LODSB
+165C 30E4         XOR     AH,AH
+165E E99AFE       JMP     14FBH
+1661 B033         MOV     AL,33H
+1663 AA           STOSB
+1664 C3           RET
+1665 B10A         MOV     CL,0AH
+1667 BA301D       MOV     DX,1D30H
+166A E84AFE       CALL    14B7H
+166D F606BF2401   ROR     BYTE PTR [24BFH],1
+1672 7402         JZ      1676H
+1674 4F           DEC     DI
+1675 C3           RET
+1676 AD           LODSW
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         52
+
+1677 E981FE       JMP     14FBH
+167A A1B724       MOV     AX,[24B7H]
+167D 05161A       ADD     AX,1A16H
+1680 56           PUSH    SI
+1681 89C6         MOV     SI,AX
+1683 AD           LODSW
+1684 5E           POP     SI
+1685 BA4458       MOV     DX,5844H
+1688 F606BF2402   ROR     BYTE PTR [24BFH],2
+168D 7401         JZ      1690H
+168F 92           XCHG    AX,DX
+1690 AB           STOSW
+1691 B02C         MOV     AL,2CH
+1693 AA           STOSB
+1694 92           XCHG    AX,DX
+1695 AB           STOSW
+1696 C3           RET
+1697 AC           LODSB
+1698 30E4         XOR     AH,AH
+169A E85EFE       CALL    14FBH
+169D B02C         MOV     AL,2CH
+169F AA           STOSB
+16A0 B0C0         MOV     AL,0FFC0H
+16A2 E9A6FE       JMP     154BH
+16A5 AD           LODSW
+16A6 50           PUSH    AX
+16A7 AD           LODSW
+16A8 E850FE       CALL    14FBH
+16AB B03A         MOV     AL,3AH
+16AD AA           STOSB
+16AE 58           POP     AX
+16AF E949FE       JMP     14FBH
+16B2 56           PUSH    SI
+16B3 AC           LODSB
+16B4 D0E8         SHR     AL,1
+16B6 D0E8         SHR     AL,1
+16B8 D0E8         SHR     AL,1
+16BA 250700       AND     AX,7
+16BD 50           PUSH    AX
+16BE 89C6         MOV     SI,AX
+16C0 01CE         ADD     SI,CX
+16C2 8A0C         MOV     CL,[SI]
+16C4 BA401A       MOV     DX,1A40H
+16C7 E8EDFD       CALL    14B7H
+16CA B009         MOV     AL,9
+16CC AA           STOSB
+16CD 58           POP     AX
+16CE 5E           POP     SI
+16CF C3           RET
+16D0 B006         MOV     AL,6
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         53
+
+16D2 EB06         JMP     SHORT 16DAH
+16D4 C606B72410   MOV     BYTE PTR [24B7H],10H
+16D9 AC           LODSB
+16DA 50           PUSH    AX
+16DB E83DFE       CALL    151BH
+16DE B02C         MOV     AL,2CH
+16E0 AA           STOSB
+16E1 58           POP     AX
+16E2 E966FE       JMP     154BH
+16E5 B9E619       MOV     CX,19E6H
+16E8 E8C7FF       CALL    16B2H
+16EB E83AFE       CALL    1528H
+16EE B02C         MOV     AL,2CH
+16F0 AA           STOSB
+16F1 F606BF2402   ROR     BYTE PTR [24BFH],2
+16F6 7405         JZ      16FDH
+16F8 A1181A       MOV     AX,[1A18H]
+16FB AB           STOSW
+16FC C3           RET
+16FD B031         MOV     AL,31H
+16FF AA           STOSB
+1700 C3           RET
+1701 B9EE19       MOV     CX,19EEH
+1704 E8ABFF       CALL    16B2H
+1707 FF34         PUSH    WORD PTR [SI]
+1709 E81CFE       CALL    1528H
+170C 58           POP     AX
+170D A830         TEST    AL,30H
+170F 740A         JZ      171BH
+1711 C3           RET
+1712 B9DE19       MOV     CX,19DEH
+1715 E89AFF       CALL    16B2H
+1718 E80DFE       CALL    1528H
+171B B02C         MOV     AL,2CH
+171D AA           STOSB
+171E AD           LODSW
+171F F606B724FF   ROR     BYTE PTR [24B7H],0FFFFH
+1724 7407         JZ      172DH
+1726 803EBF2483   CMP     BYTE PTR [24BFH],0FF83H
+172B 7502         JNZ     172FH
+172D 98           CBW
+172E 4E           DEC     SI
+172F E9C9FD       JMP     14FBH
+1732 B9F619       MOV     CX,19F6H
+1735 E87AFF       CALL    16B2H
+1738 3C07         CMP     AL,7
+173A 741F         JZ      175BH
+173C 3C05         CMP     AL,5
+173E 740F         JZ      174FH
+1740 3C04         CMP     AL,4
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         54
+
+1742 7413         JZ      1757H
+1744 3C03         CMP     AL,3
+1746 7407         JZ      174FH
+1748 3C02         CMP     AL,2
+174A 740B         JZ      1757H
+174C E9D9FD       JMP     1528H
+174F B10A         MOV     CL,0AH
+1751 BA301D       MOV     DX,1D30H
+1754 E860FD       CALL    14B7H
+1757 AC           LODSB
+1758 E9F0FD       JMP     154BH
+175B B84442       MOV     AX,4244H
+175E AB           STOSW
+175F B80900       MOV     AX,9
+1762 AA           STOSB
+1763 A0BF24       MOV     AL,[24BFH]
+1766 E992FD       JMP     14FBH
+1769 90           NOP
+176A EC           IN      AL,DX
+176B 13B7106E     ADC     SI,[BX+6E10H]
+176F 101E115E     ADC     [5E11H],BL
+1773 115412       ADC     [SI+12H],DX
+1776 B211         MOV     DL,11H
+1778 3013         XOR     [BP+DI],DL
+177A 7E12         JNG     178EH
+177C 8812         MOV     [BP+SI],DL
+177E CD0C         INT     0CH
+1780 C7134D13     MOV     WORD PTR [BP+DI],134DH
+1784 64           DB      64H
+1785 1302         ADC     AX,[BP+SI]
+1787 139213ED     ADC     DX,[BP+SI-12EDH]
+178B 13630C       ADC     SP,[BP+DI+0CH]
+178E 4E           DEC     SI
+178F 0B4E0C       OR      CX,[BP+0CH]
+1792 A4           MOVSB
+1793 0A17         OR      DL,[BX]
+1795 0DFC13       OR      AX,13FCH
+1798 2D0B10       SUB     AX,100BH
+179B 1455         ADC     AL,55H
+179D 1412         ADC     AL,12H
+179F 15D916       ADC     AX,16D9H
+17A2 BB15C3       MOV     BX,0C315H
+17A5 15B415       ADC     AX,15B4H
+17A8 B215         MOV     DL,15H
+17AA FE15         CALL    [DI]
+17AC 5B           POP     BX
+17AD 17           POP     SS
+17AE D014         RCL     BYTE PTR [SI],1
+17B0 1217         ADC     DL,[BX]
+17B2 0117         ADD     [BX],DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         55
+
+17B4 3217         XOR     DL,[BX]
+17B6 D515         AAD     15H
+17B8 E615         OUT     15H,AL
+17BA 57           PUSH    DI
+17BB 17           POP     SS
+17BC F715         NOT     WORD PTR [DI]
+17BE A5           MOVSW
+17BF 16           PUSH    SS
+17C0 D0160E15     RCL     BYTE PTR [150EH],1
+17C4 0B167616     OR      DX,[1676H]
+17C8 D416         AAM     16H
+17CA 1817         SBB     [BX],DL
+17CC 65           DB      65H
+17CD 16           PUSH    SS
+17CE 61           DB      61H
+17CF 16           PUSH    SS
+17D0 5B           POP     BX
+17D1 16           PUSH    SS
+17D2 E51634       IN      AX,3416H
+17D5 16           PUSH    SS
+17D6 3F           AAS
+17D7 16           PUSH    SS
+17D8 97           XCHG    AX,DI
+17D9 16           PUSH    SS
+17DA 25167A       AND     AX,7A16H
+17DD 16           PUSH    SS
+17DE 0000         ADD     [BX+SI],AL
+17E0 0101         ADD     [BX+DI],AX
+17E2 0202         ADD     AL,[BP+SI]
+17E4 0303         ADD     AX,[BP+DI]
+17E6 0000         ADD     [BX+SI],AL
+17E8 0101         ADD     [BX+DI],AX
+17EA 0202         ADD     AL,[BP+SI]
+17EC 0303         ADD     AX,[BP+DI]
+17EE 0000         ADD     [BX+SI],AL
+17F0 0101         ADD     [BX+DI],AX
+17F2 0202         ADD     AL,[BP+SI]
+17F4 0303         ADD     AX,[BP+DI]
+17F6 0000         ADD     [BX+SI],AL
+17F8 0101         ADD     [BX+DI],AX
+17FA 0202         ADD     AL,[BP+SI]
+17FC 0303         ADD     AX,[BP+DI]
+17FE 0000         ADD     [BX+SI],AL
+1800 0101         ADD     [BX+DI],AX
+1802 0202         ADD     AL,[BP+SI]
+1804 0405         ADD     AL,5
+1806 0000         ADD     [BX+SI],AL
+1808 0101         ADD     [BX+DI],AX
+180A 0202         ADD     AL,[BP+SI]
+180C 0405         ADD     AL,5
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         56
+
+180E 0000         ADD     [BX+SI],AL
+1810 0101         ADD     [BX+DI],AX
+1812 0202         ADD     AL,[BP+SI]
+1814 0405         ADD     AL,5
+1816 0000         ADD     [BX+SI],AL
+1818 0101         ADD     [BX+DI],AX
+181A 0202         ADD     AL,[BP+SI]
+181C 0405         ADD     AL,5
+181E 06           PUSH    ES
+181F 06           PUSH    ES
+1820 06           PUSH    ES
+1821 06           PUSH    ES
+1822 06           PUSH    ES
+1823 06           PUSH    ES
+1824 06           PUSH    ES
+1825 06           PUSH    ES
+1826 06           PUSH    ES
+1827 06           PUSH    ES
+1828 06           PUSH    ES
+1829 06           PUSH    ES
+182A 06           PUSH    ES
+182B 06           PUSH    ES
+182C 06           PUSH    ES
+182D 06           PUSH    ES
+182E 06           PUSH    ES
+182F 06           PUSH    ES
+1830 06           PUSH    ES
+1831 06           PUSH    ES
+1832 06           PUSH    ES
+1833 06           PUSH    ES
+1834 06           PUSH    ES
+1835 06           PUSH    ES
+1836 06           PUSH    ES
+1837 06           PUSH    ES
+1838 06           PUSH    ES
+1839 06           PUSH    ES
+183A 06           PUSH    ES
+183B 06           PUSH    ES
+183C 06           PUSH    ES
+183D 06           PUSH    ES
+183E 07           POP     ES
+183F 07           POP     ES
+1840 07           POP     ES
+1841 07           POP     ES
+1842 07           POP     ES
+1843 07           POP     ES
+1844 07           POP     ES
+1845 07           POP     ES
+1846 07           POP     ES
+1847 07           POP     ES
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         57
+
+1848 07           POP     ES
+1849 07           POP     ES
+184A 07           POP     ES
+184B 07           POP     ES
+184C 07           POP     ES
+184D 07           POP     ES
+184E 0808         OR      [BX+SI],CL
+1850 0808         OR      [BX+SI],CL
+1852 0808         OR      [BX+SI],CL
+1854 0808         OR      [BX+SI],CL
+1856 0808         OR      [BX+SI],CL
+1858 0808         OR      [BX+SI],CL
+185A 0808         OR      [BX+SI],CL
+185C 0808         OR      [BX+SI],CL
+185E 0909         OR      [BX+DI],CX
+1860 0909         OR      [BX+DI],CX
+1862 0101         ADD     [BX+DI],AX
+1864 0101         ADD     [BX+DI],AX
+1866 0000         ADD     [BX+SI],AL
+1868 0101         ADD     [BX+DI],AX
+186A 0C01         OR      AL,1
+186C 0D0E05       OR      AX,50EH
+186F 0F           POP     CS
+1870 0F           POP     CS
+1871 0F           POP     CS
+1872 0F           POP     CS
+1873 0F           POP     CS
+1874 0F           POP     CS
+1875 0F           POP     CS
+1876 050510       ADD     AX,1005H
+1879 050505       ADD     AX,505H
+187C 050511       ADD     AX,1105H
+187F 1112         ADC     [BP+SI],DX
+1881 1205         ADC     AL,[DI]
+1883 050505       ADD     AX,505H
+1886 0202         ADD     AL,[BP+SI]
+1888 050505       ADD     AX,505H
+188B 050505       ADD     AX,505H
+188E 1313         ADC     DX,[BP+DI]
+1890 1313         ADC     DX,[BP+DI]
+1892 1313         ADC     DX,[BP+DI]
+1894 1313         ADC     DX,[BP+DI]
+1896 1313         ADC     DX,[BP+DI]
+1898 1313         ADC     DX,[BP+DI]
+189A 1313         ADC     DX,[BP+DI]
+189C 1313         ADC     DX,[BP+DI]
+189E 07           POP     ES
+189F 07           POP     ES
+18A0 1405         ADC     AL,5
+18A2 150116       ADC     AX,1601H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         58
+
+18A5 16           PUSH    SS
+18A6 07           POP     ES
+18A7 07           POP     ES
+18A8 17           POP     SS
+18A9 17           POP     SS
+18AA 1819         SBB     [BX+DI],BL
+18AC 05051A       ADD     AX,1A05H
+18AF 1A1A         SBB     BL,[BP+SI]
+18B1 1A1B         SBB     BL,[BP+DI]
+18B3 1B05         SBB     AX,[DI]
+18B5 051C1C       ADD     AX,1C1CH
+18B8 1C1C         SBB     AL,1CH
+18BA 1C1C         SBB     AL,1CH
+18BC 1C1C         SBB     AL,1CH
+18BE 0808         OR      [BX+SI],CL
+18C0 0808         OR      [BX+SI],CL
+18C2 0202         ADD     AL,[BP+SI]
+18C4 1D1D1E       SBB     AX,1E1DH
+18C7 1E           PUSH    DS
+18C8 1008         ADC     [BX+SI],CL
+18CA 1F           POP     DS
+18CB 1F           POP     DS
+18CC 1F           POP     DS
+18CD 1F           POP     DS
+18CE 050705       ADD     AX,507H
+18D1 050505       ADD     AX,505H
+18D4 0A0A         OR      CL,[BP+SI]
+18D6 050505       ADD     AX,505H
+18D9 050505       ADD     AX,505H
+18DC 0B0B         OR      CX,[BP+DI]
+18DE 050505       ADD     AX,505H
+18E1 050505       ADD     AX,505H
+18E4 55           PUSH    BP
+18E5 53           PUSH    BX
+18E6 51           PUSH    CX
+18E7 51           PUSH    CX
+18E8 51           PUSH    CX
+18E9 51           PUSH    CX
+18EA 51           PUSH    CX
+18EB 51           PUSH    CX
+18EC 55           PUSH    BP
+18ED 53           PUSH    BX
+18EE 0404         ADD     AL,4
+18F0 0404         ADD     AL,4
+18F2 0404         ADD     AL,4
+18F4 55           PUSH    BP
+18F5 53           PUSH    BX
+18F6 65           DB      65H
+18F7 65           DB      65H
+18F8 65           DB      65H
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         59
+
+18F9 65           DB      65H
+18FA 65           DB      65H
+18FB 65           DB      65H
+18FC 55           PUSH    BP
+18FD 53           PUSH    BX
+18FE 06           PUSH    ES
+18FF 06           PUSH    ES
+1900 06           PUSH    ES
+1901 06           PUSH    ES
+1902 06           PUSH    ES
+1903 06           PUSH    ES
+1904 7F11         JG      1917H
+1906 6F           DB      6FH
+1907 6F           DB      6FH
+1908 6F           DB      6FH
+1909 6F           DB      6FH
+190A 6F           DB      6FH
+190B 6F           DB      6FH
+190C 7F12         JG      1920H
+190E 7474         JZ      1984H
+1910 7474         JZ      1986H
+1912 7474         JZ      1988H
+1914 7F00         JG      1916H
+1916 0D0D0D       OR      AX,0D0DH
+1919 0D0D0D       OR      AX,0D0DH
+191C 7F03         JG      1921H
+191E 1A1A         SBB     BL,[BP+SI]
+1920 1A1A         SBB     BL,[BP+SI]
+1922 1A1A         SBB     BL,[BP+SI]
+1924 1A1A         SBB     BL,[BP+SI]
+1926 1313         ADC     DX,[BP+DI]
+1928 1313         ADC     DX,[BP+DI]
+192A 1313         ADC     DX,[BP+DI]
+192C 1313         ADC     DX,[BP+DI]
+192E 55           PUSH    BP
+192F 55           PUSH    BP
+1930 55           PUSH    BP
+1931 55           PUSH    BP
+1932 55           PUSH    BP
+1933 55           PUSH    BP
+1934 55           PUSH    BP
+1935 55           PUSH    BP
+1936 53           PUSH    BX
+1937 53           PUSH    BX
+1938 53           PUSH    BX
+1939 53           PUSH    BX
+193A 53           PUSH    BX
+193B 53           PUSH    BX
+193C 53           PUSH    BX
+193D 53           PUSH    BX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         60
+
+193E 7F7F         JG      19BFH
+1940 7F7F         JG      19C1H
+1942 7F7F         JG      19C3H
+1944 7F7F         JG      19C5H
+1946 7F7F         JG      19C7H
+1948 7F7F         JG      19C9H
+194A 7F7F         JG      19CBH
+194C 7F7F         JG      19CDH
+194E 3834         CMP     [SI],DH
+1950 222E3D37     AND     CH,[373DH]
+1954 2C1E         SUB     AL,1EH
+1956 3C36         CMP     AL,36H
+1958 3935         CMP     [DI],SI
+195A 27           DAA
+195B 3230         XOR     DH,[BX+SI]
+195D 257F7F       AND     AX,7F7FH
+1960 7F7F         JG      19E1H
+1962 7070         JO      19D4H
+1964 7272         JC      19D8H
+1966 4A           DEC     DX
+1967 4A           DEC     DX
+1968 4A           DEC     DX
+1969 4A           DEC     DX
+196A 4A           DEC     DX
+196B 40           INC     AX
+196C 4A           DEC     DX
+196D 53           PUSH    BX
+196E 4F           DEC     DI
+196F 7272         JC      19E3H
+1971 7272         JC      19E5H
+1973 7272         JC      19E7H
+1975 7208         JC      197FH
+1977 1007         ADC     [BX],AL
+1979 7156         JNO     19D1H
+197B 54           PUSH    SP
+197C 61           DB      61H
+197D 3E           DS:
+197E 4A           DEC     DX
+197F 4A           DEC     DX
+1980 4A           DEC     DX
+1981 4A           DEC     DX
+1982 4B           DEC     BX
+1983 4C           DEC     SP
+1984 0E           PUSH    CS
+1985 0F           POP     CS
+1986 7070         JO      19F8H
+1988 6D           DB      6DH
+1989 6E           DB      6EH
+198A 43           INC     BX
+198B 44           INC     SP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         61
+
+198C 66           DB      66H
+198D 67           DB      67H
+198E 4A           DEC     DX
+198F 4A           DEC     DX
+1990 4A           DEC     DX
+1991 4A           DEC     DX
+1992 4A           DEC     DX
+1993 4A           DEC     DX
+1994 4A           DEC     DX
+1995 4A           DEC     DX
+1996 4A           DEC     DX
+1997 4A           DEC     DX
+1998 4A           DEC     DX
+1999 4A           DEC     DX
+199A 4A           DEC     DX
+199B 4A           DEC     DX
+199C 4A           DEC     DX
+199D 4A           DEC     DX
+199E 7F7F         JG      1A1FH
+19A0 5E           POP     SI
+19A1 5E           POP     SI
+19A2 41           INC     CX
+19A3 3F           AAS
+19A4 4A           DEC     DX
+19A5 4A           DEC     DX
+19A6 7F7F         JG      1A27H
+19A8 5E           POP     SI
+19A9 5E           POP     SI
+19AA 1B1B         SBB     BX,[BP+DI]
+19AC 1C1D         SBB     AL,1DH
+19AE 7F7F         JG      1A2FH
+19B0 7F7F         JG      1A31H
+19B2 0201         ADD     AL,[BX+DI]
+19B4 63           DB      63H
+19B5 7315         JNC     19CCH
+19B7 151515       ADC     AX,1515H
+19BA 151515       ADC     AX,1515H
+19BD 154849       ADC     AX,4948H
+19C0 45           INC     BP
+19C1 2319         AND     BX,[BX+DI]
+19C3 195252       SBB     [BP+SI+52H],DX
+19C6 07           POP     ES
+19C7 2929         SUB     [BX+DI],BP
+19C9 2919         SUB     [BX+DI],BX
+19CB 195252       SBB     [BP+SI+52H],DX
+19CE 42           INC     DX
+19CF 7F5C         JG      1A2DH
+19D1 5D           POP     BP
+19D2 16           PUSH    SS
+19D3 0C7F         OR      AL,7FH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         62
+
+19D5 7F09         JG      19E0H
+19D7 6A           DB      6AH
+19D8 0B6B0A       OR      BP,[BP+DI+0AH]
+19DB 6C           DB      6CH
+19DC 7F7F         JG      1A5DH
+19DE 055104       ADD     AX,451H
+19E1 65           DB      65H
+19E2 06           PUSH    ES
+19E3 6F           DB      6FH
+19E4 740D         JZ      19F3H
+19E6 5F           POP     DI
+19E7 60           DB      60H
+19E8 57           PUSH    DI
+19E9 58           POP     AX
+19EA 68           DB      68H
+19EB 69           DB      69H
+19EC 62           DB      62H
+19ED 64           DB      64H
+19EE 60           DB      60H
+19EF 60           DB      60H
+19F0 50           PUSH    AX
+19F1 4E           DEC     SI
+19F2 4F           DEC     DI
+19F3 1814         SBB     [SI],DL
+19F5 17           POP     SS
+19F6 1A13         SBB     DL,[BP+DI]
+19F8 07           POP     ES
+19F9 07           POP     ES
+19FA 2929         SUB     [BX+DI],BP
+19FC 55           PUSH    BP
+19FD 7FC6         JG      19C5H
+19FF E6CA         OUT     0CAH,AL
+1A01 EA0C0E0A06   JMP     60AH:0E0CH
+1A06 0E           PUSH    CS
+1A07 07           POP     ES
+1A08 06           PUSH    ES
+1A09 FF05         INC     WORD PTR [DI]
+1A0B 0103         ADD     [BP+DI],AX
+1A0D FF04         INC     WORD PTR [SI]
+1A0F 0002         ADD     [BP+SI],AL
+1A11 FF           EVEN    DB      0FFH
+1A12 FF           EVEN    DB      0FFH
+1A13 FF           EVEN    DB      0FFH
+1A14 FF           EVEN    DB      0FFH
+1A15 FF414C       INC     WORD PTR [BX+DI+4CH]
+1A18 43           INC     BX
+1A19 4C           DEC     SP
+1A1A 44           INC     SP
+1A1B 4C           DEC     SP
+1A1C 42           INC     DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         63
+
+1A1D 4C           DEC     SP
+1A1E 41           INC     CX
+1A1F 48           DEC     AX
+1A20 43           INC     BX
+1A21 48           DEC     AX
+1A22 44           INC     SP
+1A23 48           DEC     AX
+1A24 42           INC     DX
+1A25 48           DEC     AX
+1A26 41           INC     CX
+1A27 58           POP     AX
+1A28 43           INC     BX
+1A29 58           POP     AX
+1A2A 44           INC     SP
+1A2B 58           POP     AX
+1A2C 42           INC     DX
+1A2D 58           POP     AX
+1A2E 53           PUSH    BX
+1A2F 50           PUSH    AX
+1A30 42           INC     DX
+1A31 50           PUSH    AX
+1A32 53           PUSH    BX
+1A33 49           DEC     CX
+1A34 44           INC     SP
+1A35 49           DEC     CX
+1A36 45           INC     BP
+1A37 53           PUSH    BX
+1A38 43           INC     BX
+1A39 53           PUSH    BX
+1A3A 53           PUSH    BX
+1A3B 53           PUSH    BX
+1A3C 44           INC     SP
+1A3D 53           PUSH    BX
+1A3E 7500         JNZ     1A40H
+1A40 41           INC     CX
+1A41 41           INC     CX
+1A42 41           INC     CX
+1A43 0037         ADD     [BX],DH
+1A45 004141       ADD     [BX+DI+41H],AL
+1A48 44           INC     SP
+1A49 00D5         ADD     CH,DL
+1A4B 07           POP     ES
+1A4C 41           INC     CX
+1A4D 41           INC     CX
+1A4E 4D           DEC     BP
+1A4F 00D4         ADD     AH,DL
+1A51 07           POP     ES
+1A52 41           INC     CX
+1A53 41           INC     CX
+1A54 53           PUSH    BX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         64
+
+1A55 003F         ADD     [BX],BH
+1A57 004144       ADD     [BX+DI+44H],AL
+1A5A 43           INC     BX
+1A5B 0010         ADD     [BX+SI],DL
+1A5D 014144       ADD     [BX+DI+44H],AX
+1A60 44           INC     SP
+1A61 0000         ADD     [BX+SI],AL
+1A63 01414E       ADD     [BX+DI+4EH],AX
+1A66 44           INC     SP
+1A67 0020         ADD     [BX+SI],AH
+1A69 014341       ADD     [BP+DI+41H],AX
+1A6C 4C           DEC     SP
+1A6D 4C           DEC     SP
+1A6E 0000         ADD     [BX+SI],AL
+1A70 06           PUSH    ES
+1A71 43           INC     BX
+1A72 42           INC     DX
+1A73 57           PUSH    DI
+1A74 00980043     ADD     [BX+SI+4300H],BL
+1A78 4C           DEC     SP
+1A79 43           INC     BX
+1A7A 00F8         ADD     AL,BH
+1A7C 00434C       ADD     [BP+DI+4CH],AL
+1A7F 44           INC     SP
+1A80 00FC         ADD     AH,BH
+1A82 00434C       ADD     [BP+DI+4CH],AL
+1A85 49           DEC     CX
+1A86 00FA         ADD     DL,BH
+1A88 00434D       ADD     [BP+DI+4DH],AL
+1A8B 43           INC     BX
+1A8C 00F5         ADD     CH,DH
+1A8E 00434D       ADD     [BP+DI+4DH],AL
+1A91 50           PUSH    AX
+1A92 0038         ADD     [BX+SI],BH
+1A94 01434D       ADD     [BP+DI+4DH],AX
+1A97 50           PUSH    AX
+1A98 53           PUSH    BX
+1A99 42           INC     DX
+1A9A 00A60043     ADD     [BP+4300H],AH
+1A9E 4D           DEC     BP
+1A9F 50           PUSH    AX
+1AA0 53           PUSH    BX
+1AA1 57           PUSH    DI
+1AA2 00A70043     ADD     [BX+4300H],AH
+1AA6 57           PUSH    DI
+1AA7 44           INC     SP
+1AA8 00990044     ADD     [BX+DI+4400H],BL
+1AAC 41           INC     CX
+1AAD 41           INC     CX
+1AAE 0027         ADD     [BX],AH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         65
+
+1AB0 004441       ADD     [SI+41H],AL
+1AB3 53           PUSH    BX
+1AB4 002F         ADD     [BX],CH
+1AB6 004445       ADD     [SI+45H],AL
+1AB9 43           INC     BX
+1ABA 0008         ADD     [BX+SI],CL
+1ABC 0444         ADD     AL,44H
+1ABE 49           DEC     CX
+1ABF 56           PUSH    SI
+1AC0 0030         ADD     [BX+SI],DH
+1AC2 034553       ADD     AX,[DI+53H]
+1AC5 43           INC     BX
+1AC6 00D8         ADD     AL,BL
+1AC8 0E           PUSH    CS
+1AC9 48           DEC     AX
+1ACA 4C           DEC     SP
+1ACB 54           PUSH    SP
+1ACC 00F4         ADD     AH,DH
+1ACE 004944       ADD     [BX+DI+44H],CL
+1AD1 49           DEC     CX
+1AD2 56           PUSH    SI
+1AD3 0038         ADD     [BX+SI],BH
+1AD5 03494D       ADD     CX,[BX+DI+4DH]
+1AD8 55           PUSH    BP
+1AD9 4C           DEC     SP
+1ADA 0028         ADD     [BX+SI],CH
+1ADC 03494E       ADD     CX,[BX+DI+4EH]
+1ADF 00E4         ADD     AH,AH
+1AE1 0D494E       OR      AX,4E49H
+1AE4 43           INC     BX
+1AE5 0000         ADD     [BX+SI],AL
+1AE7 0449         ADD     AL,49H
+1AE9 4E           DEC     SI
+1AEA 54           PUSH    SP
+1AEB 00CD         ADD     CH,CL
+1AED 0C49         OR      AL,49H
+1AEF 4E           DEC     SI
+1AF0 54           PUSH    SP
+1AF1 4F           DEC     DI
+1AF2 00CE         ADD     DH,CL
+1AF4 004952       ADD     [BX+DI+52H],CL
+1AF7 45           INC     BP
+1AF8 54           PUSH    SP
+1AF9 00CF         ADD     BH,CL
+1AFB 004A41       ADD     [BP+SI+41H],CL
+1AFE 007705       ADD     [BX+5],DH
+1B01 4A           DEC     DX
+1B02 41           INC     CX
+1B03 45           INC     BP
+1B04 007305       ADD     [BP+DI+5],DH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         66
+
+1B07 4A           DEC     DX
+1B08 42           INC     DX
+1B09 007205       ADD     [BP+SI+5],DH
+1B0C 4A           DEC     DX
+1B0D 42           INC     DX
+1B0E 45           INC     BP
+1B0F 007605       ADD     [BP+5],DH
+1B12 4A           DEC     DX
+1B13 43           INC     BX
+1B14 007205       ADD     [BP+SI+5],DH
+1B17 4A           DEC     DX
+1B18 43           INC     BX
+1B19 58           POP     AX
+1B1A 5A           POP     DX
+1B1B 00E3         ADD     BL,AH
+1B1D 054A45       ADD     AX,454AH
+1B20 007405       ADD     [SI+5],DH
+1B23 4A           DEC     DX
+1B24 47           INC     DI
+1B25 007F05       ADD     [BX+5],BH
+1B28 4A           DEC     DX
+1B29 47           INC     DI
+1B2A 45           INC     BP
+1B2B 007D05       ADD     [DI+5],BH
+1B2E 4A           DEC     DX
+1B2F 4C           DEC     SP
+1B30 007C05       ADD     [SI+5],BH
+1B33 4A           DEC     DX
+1B34 4C           DEC     SP
+1B35 45           INC     BP
+1B36 007E05       ADD     [BP+5],BH
+1B39 4A           DEC     DX
+1B3A 4D           DEC     BP
+1B3B 50           PUSH    AX
+1B3C 0001         ADD     [BX+DI],AL
+1B3E 06           PUSH    ES
+1B3F 4A           DEC     DX
+1B40 4E           DEC     SI
+1B41 41           INC     CX
+1B42 007605       ADD     [BP+5],DH
+1B45 4A           DEC     DX
+1B46 4E           DEC     SI
+1B47 41           INC     CX
+1B48 45           INC     BP
+1B49 007205       ADD     [BP+SI+5],DH
+1B4C 4A           DEC     DX
+1B4D 4E           DEC     SI
+1B4E 42           INC     DX
+1B4F 007305       ADD     [BP+DI+5],DH
+1B52 4A           DEC     DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         67
+
+1B53 4E           DEC     SI
+1B54 42           INC     DX
+1B55 45           INC     BP
+1B56 007705       ADD     [BX+5],DH
+1B59 4A           DEC     DX
+1B5A 4E           DEC     SI
+1B5B 43           INC     BX
+1B5C 007305       ADD     [BP+DI+5],DH
+1B5F 4A           DEC     DX
+1B60 4E           DEC     SI
+1B61 45           INC     BP
+1B62 007505       ADD     [DI+5],DH
+1B65 4A           DEC     DX
+1B66 4E           DEC     SI
+1B67 47           INC     DI
+1B68 007E05       ADD     [BP+5],BH
+1B6B 4A           DEC     DX
+1B6C 4E           DEC     SI
+1B6D 47           INC     DI
+1B6E 45           INC     BP
+1B6F 007C05       ADD     [SI+5],BH
+1B72 4A           DEC     DX
+1B73 4E           DEC     SI
+1B74 4C           DEC     SP
+1B75 007D05       ADD     [DI+5],BH
+1B78 4A           DEC     DX
+1B79 4E           DEC     SI
+1B7A 4C           DEC     SP
+1B7B 45           INC     BP
+1B7C 007F05       ADD     [BX+5],BH
+1B7F 4A           DEC     DX
+1B80 4E           DEC     SI
+1B81 4F           DEC     DI
+1B82 007105       ADD     [BX+DI+5],DH
+1B85 4A           DEC     DX
+1B86 4E           DEC     SI
+1B87 50           PUSH    AX
+1B88 007B05       ADD     [BP+DI+5],BH
+1B8B 4A           DEC     DX
+1B8C 4E           DEC     SI
+1B8D 53           PUSH    BX
+1B8E 007905       ADD     [BX+DI+5],BH
+1B91 4A           DEC     DX
+1B92 4E           DEC     SI
+1B93 5A           POP     DX
+1B94 007505       ADD     [DI+5],DH
+1B97 4A           DEC     DX
+1B98 4F           DEC     DI
+1B99 007005       ADD     [BX+SI+5],DH
+1B9C 4A           DEC     DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         68
+
+1B9D 50           PUSH    AX
+1B9E 007A05       ADD     [BP+SI+5],BH
+1BA1 4A           DEC     DX
+1BA2 50           PUSH    AX
+1BA3 45           INC     BP
+1BA4 007A05       ADD     [BP+SI+5],BH
+1BA7 4A           DEC     DX
+1BA8 50           PUSH    AX
+1BA9 4F           DEC     DI
+1BAA 007B05       ADD     [BP+DI+5],BH
+1BAD 4A           DEC     DX
+1BAE 53           PUSH    BX
+1BAF 007805       ADD     [BX+SI+5],BH
+1BB2 4A           DEC     DX
+1BB3 5A           POP     DX
+1BB4 007405       ADD     [SI+5],DH
+1BB7 4C           DEC     SP
+1BB8 41           INC     CX
+1BB9 48           DEC     AX
+1BBA 46           INC     SI
+1BBB 009F004C     ADD     [BX+4C00H],BL
+1BBF 44           INC     SP
+1BC0 53           PUSH    BX
+1BC1 00C5         ADD     CH,AL
+1BC3 084C45       OR      [SI+45H],CL
+1BC6 41           INC     CX
+1BC7 008D084C     ADD     [DI+4C08H],CL
+1BCB 45           INC     BP
+1BCC 53           PUSH    BX
+1BCD 00C4         ADD     AH,AL
+1BCF 084C4F       OR      [SI+4FH],CL
+1BD2 43           INC     BX
+1BD3 4B           DEC     BX
+1BD4 00F0         ADD     AL,DH
+1BD6 0A4C4F       OR      CL,[SI+4FH]
+1BD9 44           INC     SP
+1BDA 53           PUSH    BX
+1BDB 42           INC     DX
+1BDC 00AC004C     ADD     [SI+4C00H],CH
+1BE0 4F           DEC     DI
+1BE1 44           INC     SP
+1BE2 53           PUSH    BX
+1BE3 57           PUSH    DI
+1BE4 00AD004C     ADD     [DI+4C00H],CH
+1BE8 4F           DEC     DI
+1BE9 4F           DEC     DI
+1BEA 50           PUSH    AX
+1BEB 00E2         ADD     DL,AH
+1BED 054C4F       ADD     AX,4F4CH
+1BF0 4F           DEC     DI
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         69
+
+1BF1 50           PUSH    AX
+1BF2 45           INC     BP
+1BF3 00E1         ADD     CL,AH
+1BF5 054C4F       ADD     AX,4F4CH
+1BF8 4F           DEC     DI
+1BF9 50           PUSH    AX
+1BFA 4E           DEC     SI
+1BFB 45           INC     BP
+1BFC 00E0         ADD     AL,AH
+1BFE 054C4F       ADD     AX,4F4CH
+1C01 4F           DEC     DI
+1C02 50           PUSH    AX
+1C03 4E           DEC     SI
+1C04 5A           POP     DX
+1C05 00E0         ADD     AL,AH
+1C07 054C4F       ADD     AX,4F4CH
+1C0A 4F           DEC     DI
+1C0B 50           PUSH    AX
+1C0C 5A           POP     DX
+1C0D 00E1         ADD     CL,AH
+1C0F 054D4F       ADD     AX,4F4DH
+1C12 56           PUSH    SI
+1C13 0088094D     ADD     [BX+SI+4D09H],CL
+1C17 4F           DEC     DI
+1C18 56           PUSH    SI
+1C19 53           PUSH    BX
+1C1A 42           INC     DX
+1C1B 00A4004D     ADD     [SI+4D00H],AH
+1C1F 4F           DEC     DI
+1C20 56           PUSH    SI
+1C21 53           PUSH    BX
+1C22 57           PUSH    DI
+1C23 00A5004D     ADD     [DI+4D00H],AH
+1C27 55           PUSH    BP
+1C28 4C           DEC     SP
+1C29 0020         ADD     [BX+SI],AH
+1C2B 034E45       ADD     CX,[BP+45H]
+1C2E 47           INC     DI
+1C2F 0018         ADD     [BX+SI],BL
+1C31 034E4F       ADD     CX,[BP+4FH]
+1C34 50           PUSH    AX
+1C35 0090004E     ADD     [BX+SI+4E00H],DL
+1C39 4F           DEC     DI
+1C3A 54           PUSH    SP
+1C3B 0010         ADD     [BX+SI],DL
+1C3D 034F52       ADD     CX,[BX+52H]
+1C40 0008         ADD     [BX+SI],CL
+1C42 014F55       ADD     [BX+55H],CX
+1C45 54           PUSH    SP
+1C46 00E6         ADD     DH,AH
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         70
+
+1C48 0D504F       OR      AX,4F50H
+1C4B 50           PUSH    AX
+1C4C 0038         ADD     [BX+SI],BH
+1C4E 0450         ADD     AL,50H
+1C50 4F           DEC     DI
+1C51 50           PUSH    AX
+1C52 46           INC     SI
+1C53 009D0050     ADD     [DI+5000H],BL
+1C57 55           PUSH    BP
+1C58 53           PUSH    BX
+1C59 48           DEC     AX
+1C5A 0030         ADD     [BX+SI],DH
+1C5C 0450         ADD     AL,50H
+1C5E 55           PUSH    BP
+1C5F 53           PUSH    BX
+1C60 48           DEC     AX
+1C61 46           INC     SI
+1C62 009C0052     ADD     [SI+5200H],BL
+1C66 43           INC     BX
+1C67 4C           DEC     SP
+1C68 0010         ADD     [BX+SI],DL
+1C6A 025243       ADD     DL,[BP+SI+43H]
+1C6D 52           PUSH    DX
+1C6E 0018         ADD     [BX+SI],BL
+1C70 025245       ADD     DL,[BP+SI+45H]
+1C73 50           PUSH    AX
+1C74 00F3         ADD     BL,DH
+1C76 0A5245       OR      DL,[BP+SI+45H]
+1C79 50           PUSH    AX
+1C7A 45           INC     BP
+1C7B 00F3         ADD     BL,DH
+1C7D 0A5245       OR      DL,[BP+SI+45H]
+1C80 50           PUSH    AX
+1C81 4E           DEC     SI
+1C82 45           INC     BP
+1C83 00F2         ADD     DL,DH
+1C85 0A5245       OR      DL,[BP+SI+45H]
+1C88 50           PUSH    AX
+1C89 4E           DEC     SI
+1C8A 5A           POP     DX
+1C8B 00F2         ADD     DL,DH
+1C8D 0A5245       OR      DL,[BP+SI+45H]
+1C90 50           PUSH    AX
+1C91 5A           POP     DX
+1C92 00F3         ADD     BL,DH
+1C94 0A5245       OR      DL,[BP+SI+45H]
+1C97 54           PUSH    SP
+1C98 00C3         ADD     BL,AL
+1C9A 0B524F       OR      DX,[BP+SI+4FH]
+1C9D 4C           DEC     SP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         71
+
+1C9E 0000         ADD     [BX+SI],AL
+1CA0 02524F       ADD     DL,[BP+SI+4FH]
+1CA3 52           PUSH    DX
+1CA4 0008         ADD     [BX+SI],CL
+1CA6 025341       ADD     DL,[BP+DI+41H]
+1CA9 48           DEC     AX
+1CAA 46           INC     SI
+1CAB 009E0053     ADD     [BP+5300H],BL
+1CAF 41           INC     CX
+1CB0 4C           DEC     SP
+1CB1 0030         ADD     [BX+SI],DH
+1CB3 025341       ADD     DL,[BP+DI+41H]
+1CB6 4C           DEC     SP
+1CB7 43           INC     BX
+1CB8 00D6         ADD     DH,DL
+1CBA 005341       ADD     [BP+DI+41H],DL
+1CBD 52           PUSH    DX
+1CBE 0038         ADD     [BX+SI],BH
+1CC0 025342       ADD     DL,[BP+DI+42H]
+1CC3 42           INC     DX
+1CC4 0018         ADD     [BX+SI],BL
+1CC6 015343       ADD     [BP+DI+43H],DX
+1CC9 41           INC     CX
+1CCA 53           PUSH    BX
+1CCB 42           INC     DX
+1CCC 00AE0053     ADD     [BP+5300H],CH
+1CD0 43           INC     BX
+1CD1 41           INC     CX
+1CD2 53           PUSH    BX
+1CD3 57           PUSH    DI
+1CD4 00AF0053     ADD     [BX+5300H],CH
+1CD8 48           DEC     AX
+1CD9 4C           DEC     SP
+1CDA 0020         ADD     [BX+SI],AH
+1CDC 025348       ADD     DL,[BP+DI+48H]
+1CDF 52           PUSH    DX
+1CE0 0028         ADD     [BX+SI],CH
+1CE2 025354       ADD     DL,[BP+DI+54H]
+1CE5 43           INC     BX
+1CE6 00F9         ADD     CL,BH
+1CE8 005354       ADD     [BP+DI+54H],DL
+1CEB 44           INC     SP
+1CEC 00FD         ADD     CH,BH
+1CEE 005354       ADD     [BP+DI+54H],DL
+1CF1 49           DEC     CX
+1CF2 00FB         ADD     BL,BH
+1CF4 005354       ADD     [BP+DI+54H],DL
+1CF7 4F           DEC     DI
+1CF8 53           PUSH    BX
+1CF9 42           INC     DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         72
+
+1CFA 00AA0053     ADD     [BP+SI+5300H],CH
+1CFE 54           PUSH    SP
+1CFF 4F           DEC     DI
+1D00 53           PUSH    BX
+1D01 57           PUSH    DI
+1D02 00AB0053     ADD     [BP+DI+5300H],CH
+1D06 55           PUSH    BP
+1D07 42           INC     DX
+1D08 0028         ADD     [BX+SI],CH
+1D0A 015445       ADD     [SI+45H],DX
+1D0D 53           PUSH    BX
+1D0E 54           PUSH    SP
+1D0F 0000         ADD     [BX+SI],AL
+1D11 035741       ADD     DX,[BX+41H]
+1D14 49           DEC     CX
+1D15 54           PUSH    SP
+1D16 009B0058     ADD     [BP+DI+5800H],BL
+1D1A 43           INC     BX
+1D1B 48           DEC     AX
+1D1C 47           INC     DI
+1D1D 00860F58     ADD     [BP+580FH],AL
+1D21 4C           DEC     SP
+1D22 41           INC     CX
+1D23 54           PUSH    SP
+1D24 42           INC     DX
+1D25 00D7         ADD     BH,DL
+1D27 00584F       ADD     [BX+SI+4FH],BL
+1D2A 52           PUSH    DX
+1D2B 0030         ADD     [BX+SI],DH
+1D2D 0117         ADD     [BX],DX
+1D2F 004259       ADD     [BP+SI+59H],AL
+1D32 54           PUSH    SP
+1D33 45           INC     BP
+1D34 0001         ADD     [BX+DI],AL
+1D36 054442       ADD     AX,4244H
+1D39 0001         ADD     [BX+DI],AL
+1D3B 0444         ADD     AL,44H
+1D3D 44           INC     SP
+1D3E 0004         ADD     [SI],AL
+1D40 0444         ADD     AL,44H
+1D42 53           PUSH    BX
+1D43 0000         ADD     [BX+SI],AL
+1D45 06           PUSH    ES
+1D46 44           INC     SP
+1D47 57           PUSH    DI
+1D48 0002         ADD     [BP+SI],AL
+1D4A 0444         ADD     AL,44H
+1D4C 57           PUSH    DI
+1D4D 4F           DEC     DI
+1D4E 52           PUSH    DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         73
+
+1D4F 44           INC     SP
+1D50 0003         ADD     [BP+DI],AL
+1D52 054543       ADD     AX,4345H
+1D55 48           DEC     AX
+1D56 4F           DEC     DI
+1D57 00FC         ADD     AH,BH
+1D59 08454E       OR      [DI+4EH],AL
+1D5C 44           INC     SP
+1D5D 00FF         ADD     BH,BH
+1D5F 024551       ADD     AL,[DI+51H]
+1D62 55           PUSH    BP
+1D63 0000         ADD     [BX+SI],AL
+1D65 014556       ADD     [DI+56H],AX
+1D68 45           INC     BP
+1D69 4E           DEC     SI
+1D6A 00900046     ADD     [BX+SI+4600H],DL
+1D6E 41           INC     CX
+1D6F 52           PUSH    DX
+1D70 000A         ADD     [BP+SI],CL
+1D72 05494E       ADD     AX,4E49H
+1D75 43           INC     BX
+1D76 42           INC     DX
+1D77 49           DEC     CX
+1D78 4E           DEC     SI
+1D79 00FD         ADD     CH,BH
+1D7B 07           POP     ES
+1D7C 49           DEC     CX
+1D7D 4E           DEC     SI
+1D7E 43           INC     BX
+1D7F 4C           DEC     SP
+1D80 55           PUSH    BP
+1D81 44           INC     SP
+1D82 45           INC     BP
+1D83 00FE         ADD     DH,BH
+1D85 07           POP     ES
+1D86 48           DEC     AX
+1D87 49           DEC     CX
+1D88 47           INC     DI
+1D89 48           DEC     AX
+1D8A 0013         ADD     [BP+DI],DL
+1D8C 054C4F       ADD     AX,4F4CH
+1D8F 57           PUSH    DI
+1D90 0012         ADD     [BP+SI],DL
+1D92 054E45       ADD     AX,454EH
+1D95 41           INC     CX
+1D96 52           PUSH    DX
+1D97 0009         ADD     [BX+DI],CL
+1D99 054F46       ADD     AX,464FH
+1D9C 46           INC     SI
+1D9D 53           PUSH    BX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         74
+
+1D9E 45           INC     BP
+1D9F 54           PUSH    SP
+1DA0 0011         ADD     [BX+DI],DL
+1DA2 054F52       ADD     AX,524FH
+1DA5 47           INC     DI
+1DA6 0000         ADD     [BX+SI],AL
+1DA8 035041       ADD     DX,[BX+SI+41H]
+1DAB 47           INC     DI
+1DAC 45           INC     BP
+1DAD 00FA         ADD     DL,BH
+1DAF 095054       OR      [BX+SI+54H],DX
+1DB2 52           PUSH    DX
+1DB3 0010         ADD     [BX+SI],DL
+1DB5 055348       ADD     AX,4853H
+1DB8 4F           DEC     DI
+1DB9 52           PUSH    DX
+1DBA 54           PUSH    SP
+1DBB 0008         ADD     [BX+SI],CL
+1DBD 055449       ADD     AX,4954H
+1DC0 54           PUSH    SP
+1DC1 4C           DEC     SP
+1DC2 45           INC     BP
+1DC3 00FB         ADD     BL,BH
+1DC5 07           POP     ES
+1DC6 57           PUSH    DI
+1DC7 4F           DEC     DI
+1DC8 52           PUSH    DX
+1DC9 44           INC     SP
+1DCA 0002         ADD     [BP+SI],AL
+1DCC 050001       ADD     AX,100H
+1DCF 3200         XOR     AL,[BX+SI]
+1DD1 BF07C9       MOV     DI,0C907H
+1DD4 07           POP     ES
+1DD5 0D0812       OR      AX,1208H
+1DD8 081F         OR      [BX],BL
+1DDA 08494E       OR      [BX+DI+4EH],CL
+1DDD 56           PUSH    SI
+1DDE 41           INC     CX
+1DDF 4C           DEC     SP
+1DE0 49           DEC     CX
+1DE1 44           INC     SP
+1DE2 204F50       AND     [BX+50H],CL
+1DE5 45           INC     BP
+1DE6 52           PUSH    DX
+1DE7 41           INC     CX
+1DE8 4E           DEC     SI
+1DE9 44           INC     SP
+1DEA 005359       ADD     [BP+DI+59H],DL
+1DED 4E           DEC     SI
+1DEE 54           PUSH    SP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         75
+
+1DEF 41           INC     CX
+1DF0 58           POP     AX
+1DF1 204552       AND     [DI+52H],AL
+1DF4 52           PUSH    DX
+1DF5 4F           DEC     DI
+1DF6 52           PUSH    DX
+1DF7 00494E       ADD     [BX+DI+4EH],CL
+1DFA 56           PUSH    SI
+1DFB 41           INC     CX
+1DFC 4C           DEC     SP
+1DFD 49           DEC     CX
+1DFE 44           INC     SP
+1DFF 204144       AND     [BX+DI+44H],AL
+1E02 44           INC     SP
+1E03 52           PUSH    DX
+1E04 45           INC     BP
+1E05 53           PUSH    BX
+1E06 53           PUSH    BX
+1E07 49           DEC     CX
+1E08 4E           DEC     SI
+1E09 47           INC     DI
+1E0A 00494E       ADD     [BX+DI+4EH],CL
+1E0D 56           PUSH    SI
+1E0E 41           INC     CX
+1E0F 4C           DEC     SP
+1E10 49           DEC     CX
+1E11 44           INC     SP
+1E12 20494E       AND     [BX+DI+4EH],CL
+1E15 53           PUSH    BX
+1E16 54           PUSH    SP
+1E17 52           PUSH    DX
+1E18 55           PUSH    BP
+1E19 43           INC     BX
+1E1A 54           PUSH    SP
+1E1B 49           DEC     CX
+1E1C 4F           DEC     DI
+1E1D 4E           DEC     SI
+1E1E 00554E       ADD     [DI+4EH],DL
+1E21 44           INC     SP
+1E22 45           INC     BP
+1E23 46           INC     SI
+1E24 49           DEC     CX
+1E25 4E           DEC     SI
+1E26 45           INC     BP
+1E27 44           INC     SP
+1E28 205359       AND     [BP+DI+59H],DL
+1E2B 4D           DEC     BP
+1E2C 42           INC     DX
+1E2D 4F           DEC     DI
+1E2E 4C           DEC     SP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         76
+
+1E2F 0020         ADD     [BX+SI],AH
+1E31 42           INC     DX
+1E32 59           POP     CX
+1E33 54           PUSH    SP
+1E34 45           INC     BP
+1E35 285329       SUB     [BP+DI+29H],DL
+1E38 204F55       AND     [BX+55H],CL
+1E3B 54           PUSH    SP
+1E3C 204F46       AND     [BX+46H],CL
+1E3F 205241       AND     [BP+SI+41H],DL
+1E42 4E           DEC     SI
+1E43 47           INC     DI
+1E44 45           INC     BP
+1E45 004F50       ADD     [BX+50H],CL
+1E48 45           INC     BP
+1E49 52           PUSH    DX
+1E4A 41           INC     CX
+1E4B 4E           DEC     SI
+1E4C 44           INC     SP
+1E4D 205349       AND     [BP+DI+49H],DL
+1E50 5A           POP     DX
+1E51 45           INC     BP
+1E52 204D49       AND     [DI+49H],CL
+1E55 53           PUSH    BX
+1E56 4D           DEC     BP
+1E57 41           INC     CX
+1E58 54           PUSH    SP
+1E59 43           INC     BX
+1E5A 48           DEC     AX
+1E5B 00434F       ADD     [BP+DI+4FH],AL
+1E5E 4E           DEC     SI
+1E5F 53           PUSH    BX
+1E60 54           PUSH    SP
+1E61 41           INC     CX
+1E62 4E           DEC     SI
+1E63 54           PUSH    SP
+1E64 20544F       AND     [SI+4FH],DL
+1E67 4F           DEC     DI
+1E68 204C41       AND     [SI+41H],CL
+1E6B 52           PUSH    DX
+1E6C 47           INC     DI
+1E6D 45           INC     BP
+1E6E 004D49       ADD     [DI+49H],CL
+1E71 53           PUSH    BX
+1E72 53           PUSH    BX
+1E73 49           DEC     CX
+1E74 4E           DEC     SI
+1E75 47           INC     DI
+1E76 204F50       AND     [BX+50H],CL
+1E79 45           INC     BP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         77
+
+1E7A 52           PUSH    DX
+1E7B 41           INC     CX
+1E7C 4E           DEC     SI
+1E7D 44           INC     SP
+1E7E 004741       ADD     [BX+41H],AL
+1E81 52           PUSH    DX
+1E82 42           INC     DX
+1E83 41           INC     CX
+1E84 47           INC     DI
+1E85 45           INC     BP
+1E86 205041       AND     [BX+SI+41H],DL
+1E89 53           PUSH    BX
+1E8A 54           PUSH    SP
+1E8B 20454E       AND     [DI+4EH],AL
+1E8E 44           INC     SP
+1E8F 004455       ADD     [SI+55H],AL
+1E92 50           PUSH    AX
+1E93 4C           DEC     SP
+1E94 49           DEC     CX
+1E95 43           INC     BX
+1E96 41           INC     CX
+1E97 54           PUSH    SP
+1E98 45           INC     BP
+1E99 205359       AND     [BP+DI+59H],DL
+1E9C 4D           DEC     BP
+1E9D 42           INC     DX
+1E9E 4F           DEC     DI
+1E9F 4C           DEC     SP
+1EA0 0020         ADD     [BX+SI],AH
+1EA2 4E           DEC     SI
+1EA3 4F           DEC     DI
+1EA4 54           PUSH    SP
+1EA5 204143       AND     [BX+DI+43H],AL
+1EA8 43           INC     BX
+1EA9 45           INC     BP
+1EAA 53           PUSH    BX
+1EAB 53           PUSH    BX
+1EAC 49           DEC     CX
+1EAD 42           INC     DX
+1EAE 4C           DEC     SP
+1EAF 45           INC     BP
+1EB0 005245       ADD     [BP+SI+45H],DL
+1EB3 53           PUSH    BX
+1EB4 45           INC     BP
+1EB5 52           PUSH    DX
+1EB6 56           PUSH    SI
+1EB7 45           INC     BP
+1EB8 44           INC     SP
+1EB9 20574F       AND     [BX+4FH],DL
+1EBC 52           PUSH    DX
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         78
+
+1EBD 44           INC     SP
+1EBE 204D49       AND     [DI+49H],CL
+1EC1 53           PUSH    BX
+1EC2 55           PUSH    BP
+1EC3 53           PUSH    BX
+1EC4 45           INC     BP
+1EC5 00494E       ADD     [BX+DI+4EH],CL
+1EC8 56           PUSH    SI
+1EC9 41           INC     CX
+1ECA 4C           DEC     SP
+1ECB 49           DEC     CX
+1ECC 44           INC     SP
+1ECD 205245       AND     [BP+SI+45H],DL
+1ED0 47           INC     DI
+1ED1 49           DEC     CX
+1ED2 53           PUSH    BX
+1ED3 54           PUSH    SP
+1ED4 45           INC     BP
+1ED5 52           PUSH    DX
+1ED6 004C49       ADD     [SI+49H],CL
+1ED9 4E           DEC     SI
+1EDA 45           INC     BP
+1EDB 20544F       AND     [SI+4FH],DL
+1EDE 4F           DEC     DI
+1EDF 204C4F       AND     [SI+4FH],CL
+1EE2 4E           DEC     SI
+1EE3 47           INC     DI
+1EE4 0020         ADD     [BX+SI],AH
+1EE6 46           INC     SI
+1EE7 49           DEC     CX
+1EE8 4C           DEC     SP
+1EE9 45           INC     BP
+1EEA 20492F       AND     [BX+DI+2FH],CL
+1EED 4F           DEC     DI
+1EEE 204552       AND     [DI+52H],AL
+1EF1 52           PUSH    DX
+1EF2 4F           DEC     DI
+1EF3 52           PUSH    DX
+1EF4 004153       ADD     [BX+DI+53H],AL
+1EF7 4D           DEC     BP
+1EF8 00434F       ADD     [BP+DI+4FH],AL
+1EFB 4D           DEC     BP
+1EFC 004C53       ADD     [SI+53H],CL
+1EFF 54           PUSH    SP
+1F00 005041       ADD     [BX+SI+41H],DL
+1F03 53           PUSH    BX
+1F04 53           PUSH    BX
+1F05 2000         AND     [BX+SI],AL
+1F07 49           DEC     CX
+1F08 4E           DEC     SI
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         79
+
+1F09 3A20         CMP     AH,[BX+SI]
+1F0B 004F55       ADD     [BX+55H],CL
+1F0E 54           PUSH    SP
+1F0F 3A20         CMP     AH,[BX+SI]
+1F11 005043       ADD     [BX+SI+43H],DL
+1F14 2D3732       SUB     AX,3237H
+1F17 204153       AND     [BX+DI+53H],AL
+1F1A 53           PUSH    BX
+1F1B 45           INC     BP
+1F1C 4D           DEC     BP
+1F1D 42           INC     DX
+1F1E 4C           DEC     SP
+1F1F 45           INC     BP
+1F20 52           PUSH    DX
+1F21 205645       AND     [BP+45H],DL
+1F24 52           PUSH    DX
+1F25 53           PUSH    BX
+1F26 49           DEC     CX
+1F27 4F           DEC     DI
+1F28 4E           DEC     SI
+1F29 2031         AND     [BX+DI],DH
+1F2B 2E           CS:
+1F2C 3035         XOR     [DI],DH
+1F2E 0D0A24       OR      AX,240AH
+1F31 42           INC     DX
+1F32 41           INC     CX
+1F33 44           INC     SP
+1F34 20444F       AND     [SI+4FH],AL
+1F37 53           PUSH    BX
+1F38 205645       AND     [BP+45H],DL
+1F3B 52           PUSH    DX
+1F3C 53           PUSH    BX
+1F3D 49           DEC     CX
+1F3E 4F           DEC     DI
+1F3F 4E           DEC     SI
+1F40 0D0A24       OR      AX,240AH
+1F43 4D           DEC     BP
+1F44 49           DEC     CX
+1F45 53           PUSH    BX
+1F46 53           PUSH    BX
+1F47 49           DEC     CX
+1F48 4E           DEC     SI
+1F49 47           INC     DI
+1F4A 205041       AND     [BX+SI+41H],DL
+1F4D 52           PUSH    DX
+1F4E 41           INC     CX
+1F4F 4D           DEC     BP
+1F50 45           INC     BP
+1F51 54           PUSH    SP
+1F52 45           INC     BP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         80
+
+1F53 52           PUSH    DX
+1F54 0D0A24       OR      AX,240AH
+1F57 41           INC     CX
+1F58 37           AAA
+1F59 3220         XOR     AH,[BX+SI]
+1F5B 49           DEC     CX
+1F5C 4E           DEC     SI
+1F5D 205B2F       AND     [BP+DI+2FH],BL
+1F60 53           PUSH    BX
+1F61 57           PUSH    DI
+1F62 49           DEC     CX
+1F63 54           PUSH    SP
+1F64 43           INC     BX
+1F65 48           DEC     AX
+1F66 205B4F       AND     [BP+DI+4FH],BL
+1F69 55           PUSH    BP
+1F6A 54           PUSH    SP
+1F6B 5D           POP     BP
+1F6C 205B2F       AND     [BP+DI+2FH],BL
+1F6F 53           PUSH    BX
+1F70 57           PUSH    DI
+1F71 49           DEC     CX
+1F72 54           PUSH    SP
+1F73 43           INC     BX
+1F74 48           DEC     AX
+1F75 205B4F       AND     [BP+DI+4FH],BL
+1F78 55           PUSH    BP
+1F79 54           PUSH    SP
+1F7A 5D           POP     BP
+1F7B 5D           POP     BP
+1F7C 202E2E2E     AND     [2E2EH],CH
+1F80 5D           POP     BP
+1F81 0D0A2F       OR      AX,2F0AH
+1F84 41           INC     CX
+1F85 205B4F       AND     [BP+DI+4FH],BL
+1F88 55           PUSH    BP
+1F89 54           PUSH    SP
+1F8A 5B           POP     BX
+1F8B 2E           CS:
+1F8C 43           INC     BX
+1F8D 4F           DEC     DI
+1F8E 4D           DEC     BP
+1F8F 5D           POP     BP
+1F90 5D           POP     BP
+1F91 094153       OR      [BX+DI+53H],AX
+1F94 53           PUSH    BX
+1F95 45           INC     BP
+1F96 4D           DEC     BP
+1F97 42           INC     DX
+1F98 4C           DEC     SP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         81
+
+1F99 45           INC     BP
+1F9A 20544F       AND     [SI+4FH],DL
+1F9D 204249       AND     [BP+SI+49H],AL
+1FA0 4E           DEC     SI
+1FA1 41           INC     CX
+1FA2 52           PUSH    DX
+1FA3 59           POP     CX
+1FA4 0D0A2F       OR      AX,2F0AH
+1FA7 44           INC     SP
+1FA8 205B4F       AND     [BP+DI+4FH],BL
+1FAB 55           PUSH    BP
+1FAC 54           PUSH    SP
+1FAD 5B           POP     BX
+1FAE 2E           CS:
+1FAF 41           INC     CX
+1FB0 53           PUSH    BX
+1FB1 4D           DEC     BP
+1FB2 5D           POP     BP
+1FB3 5D           POP     BP
+1FB4 094449       OR      [SI+49H],AX
+1FB7 53           PUSH    BX
+1FB8 41           INC     CX
+1FB9 53           PUSH    BX
+1FBA 53           PUSH    BX
+1FBB 45           INC     BP
+1FBC 4D           DEC     BP
+1FBD 42           INC     DX
+1FBE 4C           DEC     SP
+1FBF 45           INC     BP
+1FC0 205749       AND     [BX+49H],DL
+1FC3 54           PUSH    SP
+1FC4 48           DEC     AX
+1FC5 204845       AND     [BX+SI+45H],CL
+1FC8 58           POP     AX
+1FC9 0D0A2F       OR      AX,2F0AH
+1FCC 4C           DEC     SP
+1FCD 205B4F       AND     [BP+DI+4FH],BL
+1FD0 55           PUSH    BP
+1FD1 54           PUSH    SP
+1FD2 5B           POP     BX
+1FD3 2E           CS:
+1FD4 4C           DEC     SP
+1FD5 53           PUSH    BX
+1FD6 54           PUSH    SP
+1FD7 5D           POP     BP
+1FD8 5D           POP     BP
+1FD9 094153       OR      [BX+DI+53H],AX
+1FDC 53           PUSH    BX
+1FDD 45           INC     BP
+1FDE 4D           DEC     BP
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         82
+
+1FDF 42           INC     DX
+1FE0 4C           DEC     SP
+1FE1 45           INC     BP
+1FE2 20544F       AND     [SI+4FH],DL
+1FE5 204C49       AND     [SI+49H],CL
+1FE8 53           PUSH    BX
+1FE9 54           PUSH    SP
+1FEA 49           DEC     CX
+1FEB 4E           DEC     SI
+1FEC 47           INC     DI
+1FED 0D0A2F       OR      AX,2F0AH
+1FF0 4F           DEC     DI
+1FF1 2031         AND     [BX+DI],DH
+1FF3 3030         XOR     [BX+SI],DH
+1FF5 48           DEC     AX
+1FF6 0909         OR      [BX+DI],CX
+1FF8 53           PUSH    BX
+1FF9 45           INC     BP
+1FFA 54           PUSH    SP
+1FFB 204F52       AND     [BX+52H],CL
+1FFE 49           DEC     CX
+1FFF 47           INC     DI
+2000 49           DEC     CX
+2001 4E           DEC     SI
+2002 0D0A2F       OR      AX,2F0AH
+2005 55           PUSH    BP
+2006 205B4F       AND     [BP+DI+4FH],BL
+2009 55           PUSH    BP
+200A 54           PUSH    SP
+200B 5B           POP     BX
+200C 2E           CS:
+200D 41           INC     CX
+200E 53           PUSH    BX
+200F 4D           DEC     BP
+2010 5D           POP     BP
+2011 5D           POP     BP
+2012 094449       OR      [SI+49H],AX
+2015 53           PUSH    BX
+2016 41           INC     CX
+2017 53           PUSH    BX
+2018 53           PUSH    BX
+2019 45           INC     BP
+201A 4D           DEC     BP
+201B 42           INC     DX
+201C 4C           DEC     SP
+201D 45           INC     BP
+201E 20504C       AND     [BX+SI+4CH],DL
+2021 41           INC     CX
+2022 49           DEC     CX
+2023 4E           DEC     SI
+PC-72 ASSEMBLER VERSION 1.05        A72.COM         83
+
+2024 0D0A24       OR      AX,240AH
