@@ -1,9 +1,38 @@
+;
+; a72.nasm: A72 assembler 1.05 ported to NASM
+; by pt@fazekas.hu at Fri Mar 29 23:27:03 CET 2024
+;
+; Compile with:   nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72n.com a72.nasm
+; Bootstrap with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72n.com a72.nasm && kvikdos a72n.com a72.asm /a a72np1.com && cmp a72.com a72np1.com && echo OK
+;
+; It is not a goal of this port to be a72n.com bitwise identical to a72.com.
+; The goal is to make them equivalent.
+;
+
+bits 16
+cpu 8086
+
+; Make A72 sources compatible with NASM syntax.
+%macro PAGE 1
+%endm
+%macro DS 1
+  resb %1
+%endm
+%define PTR
+%define MM0  $MM0   ; NASM reserved word.
+%define INVD $INVD  ; NASM reserved word.
+%macro EVEN 0
+  align 2
+%endm
+
+; --- A copy of A72 1.05 a72.asm follows. Only lines containing ;; were changed.
 	PAGE	64
 	ORG	100H
 LSTWID	EQU	6
 MAXLEN	EQU	100H
 DEFORG	EQU	100H
 DEFPAG	EQU	50
+%macro vars 0  ;; ; For NASM, it must come after right side has been defined.
 PGMVAR	EQU	BUF5
 USER	EQU	BUF5+80H
 FUNC	EQU	USER
@@ -37,6 +66,7 @@ INFN	EQU	BUF4
 OUTFN	EQU	BUF4+40H
 LSTFN	EQU	BUF4+80H
 DEFFN	EQU	BUF4+0C0H
+%endm
 START:	MOV	AH,9
 	MOV	DX,AMSG
 	INT	21H
@@ -3055,6 +3085,8 @@ USAGE:	DB	"A72 IN [/SWITCH [OUT]"
 	DB	"/U [OUT[.ASM]]",9
 	DB	"DISASSEMBLE PLAIN"
 	DB	13,10,36
+	absolute $  ;; ; Only for NASM, to mark the start of uninitialized data.
+	alignb 2  ;; ; Faster access if uninitialized data is word-aligned.
 BUF1:	DS	MAXLEN
 BUF2:	DS	100H
 BUF3:	DS	100H
@@ -3063,4 +3095,5 @@ BUF5:	DS	100H
 BUF6:	DS	100H
 BUF7:	DS	100H
 INCBUF:	DS	100H
+	vars  ;; ; Define local variables for NASM.
 SYMBS:
