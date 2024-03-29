@@ -1235,9 +1235,9 @@ LBL2:	ADD	SI,BX
 	CALL	CC
 	JZ	ERR3
 	CMP	AL,3AH
-	JNZ	$+3
+	JNZ	LBL2S  ;; It was a size-dependent-local jump.
 	INC	SI
-	RET
+LBL2S:	RET  ;; Added label for local jump target.
 LBL3:	ADD	DI,CX
 	INC	DI
 	MOV	AL,2
