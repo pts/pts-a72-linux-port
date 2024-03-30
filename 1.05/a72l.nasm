@@ -1199,10 +1199,9 @@ SYMLS0:	CLD
 	XOR	DX,DX
 	MOV	AX,EA32_VAR_PLUS(PAGLEN,0)
 	MOV	EA32_VAR_PLUS(LSTLIN,0),AX
-	;!!JCXZ	SYMLS8  ; This shouldn't make a difference.
-	test cx, cx
-	jnz cxnz
-	JMP	SYMLS8
+	;JCXZ	SYMLS8  ; The caller ignores the flags, so we can TEST below.
+	TEST	CX, CX
+	JZ	SYMLS8
 cxnz:	PUSHW	CX
 	PUSHW	SI
 SYMLS1: FIX_CX_AT_LOOP_TARGET
