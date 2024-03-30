@@ -248,8 +248,6 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
   pop eax
 %endm
 
-; --- !! We don't have to be this smart, the bug is somewhere else.
-
 %macro PUSHW 1
   push %1
 %endm
@@ -257,6 +255,8 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
 %macro POPR 1
   pop %1
 %endm
+
+; --- We make call and ret use a word on the stack. Without that some code which pops a word will and and does break.
 
 callw_helper:  ; It must not change flags.
 	push bx  ; Make room on the stack.
@@ -1208,7 +1208,7 @@ P6:	TEST	DX,DX
 P6S:	MOV	EA32_VAR_PLUS(PAGLEN,0),DX
 	CLC
 	RETW
-SYMLST:	TEST	BYTE EA32_VAR_PLUS(FUNC,0),40H
+SYMLST:	TEST	BYTE EA32_VAR_PLUS(FUNC,0),40H  ; This code is part of /d (disassembly).
 	JNZ	SYMLS0
 	RETW
 SYMLS0:	CLD
@@ -1566,10 +1566,10 @@ LBL1:	MOV	BP,DI
 LBL2:	ADD	SI,BX
 	CALLW	CC
 	JZ	ERR3
-	CMP	AL,3AH
-	JNZ	LBL3S  ; !! Finally fixed the bug.
+	CMP	AL,3AH  ; ':' after the label.
+	JNZ	LBL2S  ; !! Finally fixed the bug.
 	INC	SI
-LBL3S:	RETW
+LBL2S:	RETW
 LBL3:	ADD	DI,CX
 	INC	DI
 	MOV	AL,2
