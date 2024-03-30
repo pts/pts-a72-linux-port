@@ -3394,9 +3394,8 @@ BUF5:	DS	100H
 BUF6:	DS	100H
 BUF7:	DS	100H
 INCBUF:	DS	100H
-FUNC:	DS 4  ; !! This doesn't fix the EQU.
 SYMBS:
-	DS 10000H  ; !! Temporary area.
+	DS 10000H-($-$$)-1  ; Temporary area in .bss for symbols. TODO(pts): Add bounds check. TODO(pts): Make it larger (for that we'd need 32-bit address registers).
 	vars  ; For NASM.
 
 mem_end:
