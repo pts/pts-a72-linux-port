@@ -30,16 +30,15 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 
 	; Concatenate argv[1:] to CMDLINE_ADDR.
 	;
-	mov edi, $$
-	mov ebx, edi
+	%define CMDLINE_ADDR BUF2
+	mov edi, CMDLINE_ADDR
 	pop esi  ; Discard argv[0].
-	CMDLINE_ADDR equ 0
 .cmdline_end:  ; Last valid byte that can be overwritten with the concatenated cmdline.
 .arg:	pop esi
 	test esi, esi
 	jz .end_of_argv
 	mov al, ' '
-	stosb  ; TODO(pts): Check for overflow. We have it until cmdline_end (about 90 bytes). !! It should be at least 127 bytes, just like DOS.
+	stosb  ; TODO(pts): Check for overflow. We have it until cmdline_end (about 90 bytes).
 .char:	lodsb
 	cmp al, 0
 	je .arg
@@ -56,7 +55,7 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 	; arrangement will make all of these work: string instructions (e.g.
 	; LODSB), EA_DI_PLUS(x), EA_SI_PLUS(x), EA_BP_DI_PLUS(x),
 	; EA_BX_DI_PLUS(x), EA_BX_SI_PLUS(x).
-	mov edi, ebx  ; $$. 
+	mov edi, $$
 	mov esi, edi
 	xor eax, eax
 	xor ebx, ebx
