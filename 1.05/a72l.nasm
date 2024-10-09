@@ -63,12 +63,15 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 	xor edx, edx
 	xor ebp, ebp
 %define EA_BX_PLUS_VAR(name) [name+ebx]
+%define EA_BX_BX_PLUS_VAR(name) [name+ebx+ebx]
 %define EA_DI_PLUS(x) [edi+(x)]
 %define EA_SI_PLUS(x) [esi+(x)]
 %define EA_BP_DI_PLUS(x) [ebp+edi+(x)]
 %define EA_BX_DI_PLUS(x) [ebx+edi+(x)]
 %define EA_BX_SI_PLUS(x) [ebx+esi+(x)]
+%define EA_DI_AX_AX  [edi+2*eax]
 %define EA32_VAR_PLUS(name, x) [name+(x)]
+%define EA32_VAR_AX_AX(name) [name+eax+eax]
 
 	jmp START
 
@@ -272,6 +275,11 @@ callww_helper:
 %macro CALLWW 1  ; Call a 2-byte entry of a function call table.
   push dword %1  ; The high word doesn't matter, callww_helper will replace it with program_base>>16.
   call callww_helper
+%endm
+
+%macro CALLWW_DI 1  ; Like `CALLWW %1', but it is allowed to ruin DI.
+  mov di, %1
+  call edi  ; High dword of EDI is already correct (program_base>>16).
 %endm
 
 %macro RETW 0
@@ -540,12 +548,9 @@ PROCF4:	TEST	AL,AL
 	DEC	AX
 	JNZ	PROCF5
 	CALLW	WLST
-PROCF5:	PUSHW	AX
-	MOV	DI,FUNCT_ADIR
-	SHL	AX,1
-	ADD	DI,AX
-	CALLWW	EA_DI_PLUS(0)  ; DI = FUNCT_ADIR+2*AX.
-	POPR	CX
+PROCF5:	push eax
+	CALLWW_DI EA32_VAR_AX_AX(FUNCT_ADIR)
+	pop ecx  ; CX := old value of AX.
 	JC	PROCF6
 	;JCXZ	PROCF1
 	TEST	CX,CX
@@ -2015,7 +2020,7 @@ FUNC_GSPR:	CMP	AL,10H
 	CMP	AH,3AH
 	JNZ	GSPR0
 	AND	AL,3
-	SHL	AL,1
+	SHL	AL,1  ; TODO(pts): Size optimizatio `SHL AL, 3', also elsewhere.
 	SHL	AL,1
 	SHL	AL,1
 	OR	AL,26H
@@ -2107,9 +2112,7 @@ FUNC_ASMCMD:	XOR	BYTE EA32_VAR_PLUS(FLAGS,0),20H
 	JNZ	SW2
 	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
 	XCHG	AL,AH
-	SHL	AX,1
-	ADD	DI,AX
-	CALLWW	EA_DI_PLUS(0)  ; DI == FUNCT_HDL+2*AX or FUNCT_AHDL+2*AX.
+	CALLWW_DI EA_DI_AX_AX  ; May ruin AX.  ; This won't work if code for FUNCT_IHDL or FUNCT_AHDL isn't in the program_base 64KiB.
 	CALLW	CC
 	JZ	SW2
 	MOV	AL,9
@@ -2650,8 +2653,8 @@ DISASM:	CLD
 	CALLW	WMN
 	MOV	AL,9
 	STOSB
-DISAS1:	SHL	BX,1
-	CALLWW	EA_BX_PLUS_VAR(FUNCT_DHDL)  ; BX == FUNCT_DHDL+2*OLD_BX.
+DISAS1:	; We mustn't ruin SI or DI, because functions in FUNCT_DHDL rely on its previous value. But the value of BX doesn't matter.
+	CALLWW	EA_BX_BX_PLUS_VAR(FUNCT_DHDL)
 	MOV	AX,0A0DH
 	STOSW
 	MOV	CX,SI
