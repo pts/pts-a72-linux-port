@@ -247,7 +247,7 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
   pop eax
 %endm
 
-%macro PUSHW 1
+%macro PUSHW 1  ; It doesn't work if %1 is an immediate, but there are no such uses anyway.
   push %1
 %endm
 
@@ -255,87 +255,27 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
   pop %1
 %endm
 
-; --- We make call and ret use a word on the stack. Without that some code (LBL) which pops a word will and and does break.
-
-%ifndef USE_CANARY
-  %define USE_CANARY 1  ; Enabled by default, override it with `nasm -DUSE_CANARY=0'.
-%endif
-
-canary_value equ 0xfacebeef  ; Any random value with high bytes.
-
-callw_helper:  ; It must not change flags.
-	push bx  ; Make room on the stack.
-	push ebx  ; Save.
-	push ecx  ; Save.
-	mov ebx, [esp+10]
-	mov cx, [ebx+1]  ; The word argument of the retn in CALLW.
-	lea ebx, [ebx+3]
-	mov [esp+12], bx
-	mov word [esp+10], program_base>>16
-	mov word [esp+8], cx
-	pop ecx  ; Restore.
-	pop ebx  ; Restore.
-	ret
-
 %macro CALLW 1
-  %if USE_CANARY
-    push dword canary_value
-  %endif
-  call callw_helper
-  retn FUNC_%1  ; This won't be executed, callw_helper will skip over it.
-  %if USE_CANARY  ; Check and pop canary value.
-    pushfd
-    cmp dword [esp+4], canary_value
-    je %%canary_ok
-    hlt  ; Canary value overwritten.
-    %%canary_ok:
-    popfd
-    lea esp, [esp+4]  ; Pop canary value without changing EFLAGS. Don't check it.
-  %endif
+  call FUNC_%1
 %endm
 
 callww_helper:
+	mov word [esp+6], program_base>>16
+	; Swap dword [esp+4] and [esp+8].
 	push ecx  ; Save.
 	mov ecx, [esp+4]
-	xchg [esp+8], cx
+	xchg ecx, [esp+8]
 	mov [esp+4], ecx
 	pop ecx  ; Restore.
-	ret
+	ret  ; Jump to function call table entry.
 
-%macro CALLWW 1
-  %if USE_CANARY
-    push dword canary_value
-  %endif
-  push word %1
+%macro CALLWW 1  ; Call a 2-byte entry of a function call table.
+  push dword %1  ; The high word doesn't matter, callww_helper will replace it with program_base>>16.
   call callww_helper
-  %if USE_CANARY  ; Check and pop canary value.
-    pushfd
-    cmp dword [esp+4], canary_value
-    je %%canary_ok
-    hlt  ; Canary value overwritten.
-    %%canary_ok:
-    popfd
-    lea esp, [esp+4]  ; Pop canary value without changing EFLAGS. Don't check it.
-  %endif
-%endm
-
-%macro CHECK_CANARY 0
-  %if USE_CANARY
-    ; Check canary value at [esp+2]. `word [esp]' is the lower 16 bits of the function return address.
-    pushfd
-    cmp dword [esp+2+4], canary_value
-    je %%canary_ok
-    hlt  ; Canary value overwritten with something else.
-    %%canary_ok:
-    popfd
-  %endif
 %endm
 
 %macro RETW 0
-  CHECK_CANARY
-  push word [esp]
-  mov word [esp+2], program_base>>16
-  ret
+  ret  ; All returns are 4-byte.
 %endm
 
 %macro FIX_CX_AT_LOOP_TARGET 0
@@ -1798,36 +1738,29 @@ SETEQ0:	CLC
 
 ;	INCLUDE	8086.ASM
 FUNC_ASM:
-	CHECK_CANARY
 	MOV EA32_VAR_PLUS(STK,0), ESP
 	XOR	AX,AX
 	MOV	EA32_VAR_PLUS(BINLEN,0),AX
 	MOV	SI,EA32_VAR_PLUS(TXTBUF,0)
 	MOV	AL,EA32_VAR_PLUS(FUNC,0)
-	CHECK_CANARY
 	TEST	AL,AL
 	JNS	ASMLIN
 	XOR	AX,AX
 	MOV	EA32_VAR_PLUS(TXTLEN,0),AX
 	MOV	SI,EA32_VAR_PLUS(BINBUF,0)
 	MOV	DI,EA32_VAR_PLUS(TXTBUF,0)
-	CHECK_CANARY
 	JMP	DISASM
 ASMLBL:
-	CHECK_CANARY
-	CALLW	LBL  ; !! (Is is still true?) This call breaks if we start using 4 bytes for the function return address.
+	CALLW	LBL
 	; Fall through.
 ASMLIN:
-	CHECK_CANARY
 	MOV ESP, EA32_VAR_PLUS(STK,0)
-	CHECK_CANARY
 	XOR	AX,AX
 	MOV	DI,WADJ
 	MOV	CX,7
 	CLD
 	REP STOSW
 	CALLW	CC
-	CHECK_CANARY
 	JZ	WROUT_ASMEND  ; Reuse tail of another function.
 	MOV	DI,I8086
 	MOV	DX,FUNCT_IHDL
@@ -1843,11 +1776,9 @@ ASMLIN:
 	JC	FUNC_D5  ; Tail call.
 	; Fall through.
 FUNC_G0AH:  ; Reimplemented, because previous implementation (`MOV AX, ASMLIN', `PUSH AX') didn't add the canary when calling FUNC_WROUT.
-	CHECK_CANARY
 	CALLW	WROUT
 	JMP	ASMLIN
 FUNC_WROUT:
-	CHECK_CANARY
 	XOR	DL,DL
 	XCHG	DL,EA32_VAR_PLUS(FLAGS,0)
 	SHL	DL,1
