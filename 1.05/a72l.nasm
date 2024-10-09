@@ -1792,10 +1792,9 @@ ASMLIN:
 	CALLW	GSPR
 	JC	FUNC_D5  ; Tail call.
 	; Fall through.
-FUNC_G0AH:
-	MOV	AX,ASMLIN
-	PUSHW	AX
-	; Fall through.
+FUNC_G0AH:  ; Reimplemented, because previous implementation (`MOV AX, ASMLIN', `PUSH AX') didn't add the canary when calling FUNC_WROUT.
+	CALLW	WROUT
+	JMP	ASMLIN
 FUNC_WROUT:
 	XOR	DL,DL
 	XCHG	DL,EA32_VAR_PLUS(FLAGS,0)
