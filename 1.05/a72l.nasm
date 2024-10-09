@@ -257,6 +257,12 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
 
 ; --- We make call and ret use a word on the stack. Without that some code (LBL) which pops a word will and and does break.
 
+%ifndef USE_CANARY
+  %define USE_CANARY 0  ; Disabled by default, override it with `nasm -DUSE_CANARY=1'.
+%endif
+
+canary_value equ 0xfacebeef  ; Any random value with high bytes.
+
 callw_helper:  ; It must not change flags.
 	push bx  ; Make room on the stack.
 	push ebx  ; Save.
@@ -272,8 +278,20 @@ callw_helper:  ; It must not change flags.
 	ret
 
 %macro CALLW 1
+  %if USE_CANARY
+    push dword canary_value
+  %endif
   call callw_helper
   retn FUNC_%1  ; This won't be executed, callw_helper will skip over it.
+  %if USE_CANARY  ; Check and pop canary value.
+    pushfd
+    cmp dword [esp+4], canary_value
+    je %%canary_ok
+    hlt  ; Canary value overwritten.
+    %%canary_ok:
+    popfd
+    lea esp, [esp+4]  ; Pop canary value without changing EFLAGS. Don't check it.
+  %endif
 %endm
 
 callww_helper:
@@ -285,12 +303,32 @@ callww_helper:
 	ret
 
 %macro CALLWW 1
+  %if USE_CANARY
+    push dword canary_value
+  %endif
   push word %1
   call callww_helper
+  %if USE_CANARY  ; Check and pop canary value.
+    pushfd
+    cmp dword [esp+4], canary_value
+    je %%canary_ok
+    hlt  ; Canary value overwritten.
+    %%canary_ok:
+    popfd
+    lea esp, [esp+4]  ; Pop canary value without changing EFLAGS. Don't check it.
+  %endif
 %endm
 
 %macro CHECK_CANARY 0
-  ; TODO(pts): Add proper implementation.
+  %if USE_CANARY
+    ; Check canary value at [esp+2]. `word [esp]' is the lower 16 bits of the function return address.
+    pushfd
+    cmp dword [esp+2+4], canary_value
+    je %%canary_ok
+    hlt  ; Canary value overwritten with something else.
+    %%canary_ok:
+    popfd
+  %endif
 %endm
 
 %macro RETW 0
