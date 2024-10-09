@@ -258,7 +258,7 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
 ; --- We make call and ret use a word on the stack. Without that some code (LBL) which pops a word will and and does break.
 
 %ifndef USE_CANARY
-  %define USE_CANARY 0  ; Disabled by default, override it with `nasm -DUSE_CANARY=1'.
+  %define USE_CANARY 1  ; Enabled by default, override it with `nasm -DUSE_CANARY=0'.
 %endif
 
 canary_value equ 0xfacebeef  ; Any random value with high bytes.
