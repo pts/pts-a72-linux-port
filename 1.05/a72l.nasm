@@ -262,7 +262,8 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
   call FUNC_%1
 %endm
 
-callww_helper:
+%if 0  ; Not needed.
+  callww_helper:
 	mov word [esp+6], program_base>>16
 	; Swap dword [esp+4] and [esp+8].
 	push ecx  ; Save.
@@ -272,9 +273,18 @@ callww_helper:
 	pop ecx  ; Restore.
 	ret  ; Jump to function call table entry.
 
-%macro CALLWW 1  ; Call a 2-byte entry of a function call table.
-  push dword %1  ; The high word doesn't matter, callww_helper will replace it with program_base>>16.
-  call callww_helper
+  %macro CALLWW 1  ; Call a 2-byte entry of a function call table.
+    push dword %1  ; The high word doesn't matter, callww_helper will replace it with program_base>>16.
+    call callww_helper
+  %endm
+%endif
+
+%macro CALLWWJ 1  ; Like `CALLWW %1', but shorter if only used once (and CALLWW 0 times).
+  push dword %%ret  ; The function %1 will return to %%ret.
+  push dword %1  ; The high word doesn't matter, we replace it below with program_base>>16.
+  mov word [esp+2], program_base>>16
+  ret
+  %%ret:
 %endm
 
 %macro CALLWW_DI 1  ; Like `CALLWW %1', but it is allowed to ruin DI.
@@ -2654,7 +2664,7 @@ DISASM:	CLD
 	MOV	AL,9
 	STOSB
 DISAS1:	; We mustn't ruin SI or DI, because functions in FUNCT_DHDL rely on its previous value. But the value of BX doesn't matter.
-	CALLWW	EA_BX_BX_PLUS_VAR(FUNCT_DHDL)
+	CALLWWJ	EA_BX_BX_PLUS_VAR(FUNCT_DHDL)
 	MOV	AX,0A0DH
 	STOSW
 	MOV	CX,SI
