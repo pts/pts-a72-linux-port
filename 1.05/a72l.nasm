@@ -110,7 +110,7 @@ dossys_fatal:  ; Write 4 bytes at [esp] to stderr, and exit(1).
 	int 80h  ; Linux i386 syscall.
 	mov al, 1  ; EXIT_FAILURE.
 	; Fall through to dossys_exit.
-	
+
 dossys_exit:
 	movzx ebx, al
 	xor eax, eax
@@ -3404,7 +3404,7 @@ BUF6:	DS	100H
 BUF7:	DS	100H
 INCBUF:	DS	100H
 SYMBS:
-	DS 10000H-($-$$)-1  ; Temporary area in .bss for symbols. TODO(pts): Add bounds check. TODO(pts): Make it larger (for that we'd need 32-bit address registers).
+	DS 10000H-($-$$)-1  ; Temporary area in .bss for symbols. TODO(pts): Add bounds check. TODO(pts): Move the code (but not data) 12 KiB earlier to make it larger. TODO(pts): Make it larger (for that we'd need 32-bit address registers).
 	vars  ; For NASM.
 
 mem_end:
