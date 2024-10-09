@@ -289,7 +289,12 @@ callww_helper:
   call callww_helper
 %endm
 
+%macro CHECK_CANARY 0
+  ; TODO(pts): Add proper implementation.
+%endm
+
 %macro RETW 0
+  CHECK_CANARY
   push word [esp]
   mov word [esp+2], program_base>>16
   ret
@@ -1755,29 +1760,36 @@ SETEQ0:	CLC
 
 ;	INCLUDE	8086.ASM
 FUNC_ASM:
+	CHECK_CANARY
 	MOV EA32_VAR_PLUS(STK,0), ESP
 	XOR	AX,AX
 	MOV	EA32_VAR_PLUS(BINLEN,0),AX
 	MOV	SI,EA32_VAR_PLUS(TXTBUF,0)
 	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	CHECK_CANARY
 	TEST	AL,AL
 	JNS	ASMLIN
 	XOR	AX,AX
 	MOV	EA32_VAR_PLUS(TXTLEN,0),AX
 	MOV	SI,EA32_VAR_PLUS(BINBUF,0)
 	MOV	DI,EA32_VAR_PLUS(TXTBUF,0)
+	CHECK_CANARY
 	JMP	DISASM
 ASMLBL:
+	CHECK_CANARY
 	CALLW	LBL  ; !! (Is is still true?) This call breaks if we start using 4 bytes for the function return address.
 	; Fall through.
 ASMLIN:
+	CHECK_CANARY
 	MOV ESP, EA32_VAR_PLUS(STK,0)
+	CHECK_CANARY
 	XOR	AX,AX
 	MOV	DI,WADJ
 	MOV	CX,7
 	CLD
 	REP STOSW
 	CALLW	CC
+	CHECK_CANARY
 	JZ	WROUT_ASMEND  ; Reuse tail of another function.
 	MOV	DI,I8086
 	MOV	DX,FUNCT_IHDL
@@ -1793,9 +1805,11 @@ ASMLIN:
 	JC	FUNC_D5  ; Tail call.
 	; Fall through.
 FUNC_G0AH:  ; Reimplemented, because previous implementation (`MOV AX, ASMLIN', `PUSH AX') didn't add the canary when calling FUNC_WROUT.
+	CHECK_CANARY
 	CALLW	WROUT
 	JMP	ASMLIN
 FUNC_WROUT:
+	CHECK_CANARY
 	XOR	DL,DL
 	XCHG	DL,EA32_VAR_PLUS(FLAGS,0)
 	SHL	DL,1
