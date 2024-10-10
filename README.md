@@ -67,6 +67,8 @@ Compatibility notes between the original DOS A72 1.05 and the Linux port:
   (depends on the filesystem, it can be hundreds or thousands of bytes).
 * Maximum command-line size is 126 bytes for the original, and 254 bytes
   for the Linux port. (This also limits the filename and pathnames.)
+* The original crashes the system if the symbol table overflows, the
+  Linux port produces a segmentation fault (SIGSEGV).
 
 In addition to the Linux i386 port with NASM syntax (`1.05/a72l.nasm`)
 above, pts-a72-linux-port also contains a source port from A72 to NASM

@@ -8,6 +8,7 @@
 ; TODO(pts): Implement buffered reads and writes for speed. How much is the speed gain? Isn't it already buffered? Currently it does an lseek(2) syscall per line.
 ; TODO(pts): Make the code smaller, especially call and ret, and then push and pop, and then inc and dec.
 ; TODO(pts): Make the code shorter by replacing e.g. `test cx, cx' with `test ecx, ecx'.
+; TODO(pts): Check for symbol table overflow (now it reliably fails with SIGSEGV): perl -e 'for(1..20000){print"T$_:\n"}' >labels.asm
 ;
 
 bits 32
