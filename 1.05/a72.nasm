@@ -1323,7 +1323,7 @@ SETINC:	CALL	CC
 SETIN1:	INC	SI
 	SUB	BX,2
 	JBE	ERR8
-	RET
+	JMP	SETEND  ;; RETW  ; Bugfix: make `include "filename"' work. Surprisingly it works with comments as well.
 SETIN2:	XOR	BX,BX
 SETIN3:	INC	BX
 	MOV	AL,[BX+SI]
