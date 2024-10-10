@@ -1,0 +1,3454 @@
+;
+; a72l.nasm: A72 assembler 1.05 ported to Linux i386, using NASM 0.98.39
+; by pt@fazekas.hu at Thu Mar 28 20:29:04 CET 2024
+;
+; Compile with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72 a72l.nasm && chmod +x a72
+; Bootstrap with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72 a72l.nasm && chmod +x a72 && ./a72l /a a72tp1.com && cmp a72.com a72tp1.com && echo OK
+;
+; TODO(pts): Implement buffered reads and writes for speed. How much is the speed gain? Isn't it already buffered? Currently it does an lseek(2) syscall per line.
+; TODO(pts): Make the code smaller, especially call and ret, and then push and pop, and then inc and dec.
+; TODO(pts): Make the code shorter by replacing e.g. `test cx, cx' with `test ecx, ecx'.
+;
+
+bits 32
+cpu 386
+program_base equ 600000h  ; Must be divisible by 10000h, i.e. low word must be 0.
+org program_base
+
+file_header:
+Elf32_Ehdr:
+	OSABI_Linux equ 3
+	db 7Fh,'ELF',1,1,1,OSABI_Linux,0,0,0,0,0,0,0,0,2,0,3,0
+	dd 1,_start,Elf32_Phdr-file_header,0,0
+	dw Elf32_Phdr-file_header,20h,1,0,0,0
+Elf32_Phdr:
+	dd 1,0,program_base,0,prebss-program_base,mem_end-program_base,7,1000h
+
+_start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[0], argv[1] etc., then NULL, then envp[0], envp[1] etc., then NULL, then ELF aux table.
+	pop eax  ; argc.
+	; Now ESP points to argv[0].
+
+	; Concatenate argv[1:] to CMDLINE_ADDR.
+	;
+	mov edi, $$
+	mov ebx, edi
+	pop esi  ; Discard argv[0].
+	CMDLINE_ADDR equ 0
+.cmdline_end:  ; Last valid byte that can be overwritten with the concatenated cmdline.
+.arg:	pop esi
+	test esi, esi
+	jz .end_of_argv
+	mov al, ' '
+	stosb  ; TODO(pts): Check for overflow. We have it until cmdline_end (about 90 bytes). !! It should be at least 127 bytes, just like DOS.
+.char:	lodsb
+	cmp al, 0
+	je .arg
+	stosb  ; TODO(pts): Check for overflow.
+	jmp .char
+.end_of_argv:
+	mov al, 0DH  ; '\r'. Terminator of DOS cmdline.
+	stosb  ; TODO(pts): Check for overflow.
+
+	; Set final value of high words of all registers except for ESP.
+	;
+	; EDI and ESI will have their high word same as program_base; EAX,
+	; EBX, ECX, EDX and EBP will have their high word set to 0. This
+	; arrangement will make all of these work: string instructions (e.g.
+	; LODSB), EA_DI_PLUS(x), EA_SI_PLUS(x), EA_BP_DI_PLUS(x),
+	; EA_BX_DI_PLUS(x), EA_BX_SI_PLUS(x).
+	mov edi, ebx  ; $$. 
+	mov esi, edi
+	xor eax, eax
+	xor ebx, ebx
+	xor ecx, ecx
+	xor edx, edx
+	xor ebp, ebp
+%define EA_BX_PLUS_VAR(name) [name+ebx]
+%define EA_DI_PLUS(x) [edi+(x)]
+%define EA_SI_PLUS(x) [esi+(x)]
+%define EA_BP_DI_PLUS(x) [ebp+edi+(x)]
+%define EA_BX_DI_PLUS(x) [ebx+edi+(x)]
+%define EA_BX_SI_PLUS(x) [ebx+esi+(x)]
+%define EA32_VAR_PLUS(name, x) [name+(x)]
+
+	jmp START
+
+; The dossys* functoins emulate the DOS `int 21h' syscall. The syscall
+; number is in AH. Based on https://stanislavs.org/helppc/idx_interrupt.html
+%if 0
+dossys:
+	cmp ah, 4ch  ; Exit.
+	je dossys_exit
+	cmp ah, 9
+	je dossys_printmsg
+	cmp ah, 3ch
+	je dossys_create
+	cmp ah, 3dh
+	je dossys_open
+	cmp ah, 3eh
+	je dossys_close
+	cmp ah, 3fh
+	je dossys_read
+	cmp ah, 40h
+	je dossys_write
+	cmp ah, 42h
+	je dossys_seek
+	push dword '!UN'|10<<24
+	; Fall through to dossys_fatal.
+%endif
+
+dossys_fatal:  ; Write 4 bytes at [esp] to stderr, and exit(1).
+	push byte 4  ; SYS_write.
+	pop eax
+	xor ebx, ebx
+	inc ebx
+	inc ebx  ; STDERR_FILENO.
+	mov ecx, esp
+	mov edx, eax  ; Number of bytes to write: 4.
+	int 80h  ; Linux i386 syscall.
+	mov al, 1  ; EXIT_FAILURE.
+	; Fall through to dossys_exit.
+	
+dossys_exit:
+	movzx ebx, al
+	xor eax, eax
+	inc eax  ; SYS_exit.
+	int 80h  ; Linux i386 syscall.
+	; Not reached.
+
+dossys_printmsg:  ; Print message at DX terminated by '$' to stdout.
+	pushad
+	pushf
+	push byte 4  ; SYS_write.
+	pop eax
+	xor ebx, ebx
+	inc ebx  ; STDOUT_FILENO.
+	mov ecx, esi  ; Just for the high word.
+	mov cx, dx
+	or edx, -1
+.next:	inc edx
+	cmp byte [ecx+edx], '$'
+	jne .next
+	int 80h  ; Linux i386 syscall.
+	popf
+	popad
+	ret
+
+; Linux constants.
+O_RDWR equ 2
+O_CREAT equ 100o
+O_TRUNC equ 1000o
+
+badret:	popf
+	popad
+	stc
+	ret
+
+dossys_create:   ; Create file. CX is file attribute (ignored), DX points to the filename. Returns: CF indicating failure; AX (if CF=0) is the filehandle. We don't set the error code in AX.
+	pushad
+	pushf
+	mov eax, 666o
+	mov ecx, O_RDWR|O_CREAT|O_TRUNC
+.both:	mov ebx, esi  ; Just for the high word.
+	mov bx, dx
+	xchg eax, edx  ; EDX := EAX; EAX := junk.
+	push byte 5  ; SYS_open.
+.cax:	pop eax
+	int 80h  ; Linux i386 syscall.
+	test eax, eax
+	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
+	popf
+	mov [esp+4*7], ax  ; So that `popad' will keep this in AX.
+goodret:
+	popad
+	clc
+	ret  ; This function doesn't work if open(...) returns file descriptor values larger than 0ffffh. That would be very rare.
+
+dossys_open:   ; Open file. AL is access mode (0, 1 or 2). DX points to the filename. Returns: CF indicating failure; AX (if CF=0) is the filehandle. We don't set the error code in AX.
+	pushad
+	pushf
+	mov ecx, eax
+	and ecx, 3
+	jmp dossys_create.both
+	; Not reached.
+
+dossys_close:  ; Close file. BX is the file descriptor to close. Returns: CF indicating failure. We don't set the error code in AX.
+	pushad
+	pushf
+	push byte 6  ; SYS_close.
+	pop eax
+	int 80h  ; Linux i386 syscall.
+	test eax, eax
+	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
+	popf
+	jmp goodret
+
+dossys_read:   ; Read from file. BX is the file descriptor. CX is the number of bytes to read. DX is the data pointer. Returns: CF indicating failure; AX (if CF=0) is the number of bytes read. We don't set the error code in AX.
+	pushad
+	pushf
+	push byte 3  ; SYS_read.
+.do:	xchg edx, ecx
+	or ecx, $$  ; Just for the high word.
+	jmp dossys_create.cax
+	; Not reached.
+
+dossys_write:  ; Write to file. BX is the file descriptor. CX is the number of bytes to write. DX is the data pointer. Returns: CF indicating failure; AX (if CF=0) is the number of bytes written. We don't set the error code in AX. We don't support truncation on CX=0.
+	jcxz .truncate
+.write:	pushad
+	pushf
+	push byte 4  ; SYS_write.
+	jmp dossys_read.do
+	; Not reached.
+.truncate:
+	push dword '!TR'|10<<24  ; We don't implement truncation.
+	jmp dossys_fatal
+	; Not reached.
+
+dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SEEK_SET, 1 for SEEK_CUR, 2 for SEEK_END). CX is the high word of the offset. DX is the low word of the offset. Returns: CF indicating failure; AX (if CF=0) is the low word of the position; DX (if CF=0) is the high word of the position. We don't set the error code in AX. We don't support truncation on CX=0.
+	pushad
+	pushf
+	shl ecx, 16
+	mov cx, dx
+	movzx edx, al
+	push byte 19  ; SYS_lseek. (Only 32-bit offsets.)
+	pop eax
+	int 80h  ; Linux i386 syscall.
+	test eax, eax
+	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
+	popf
+	mov [esp+4*7], ax  ; So that `popad' will keep this in AX.
+	mov [esp+4*5], dx  ; So that `popad' will keep this in DX.
+	jmp goodret
+
+; For NASM.
+%define PTR
+%define MM0 $MM0  ; Reserved word in NASM.
+%define INVD $INVD  ; Reserved word in NASM.
+%macro DS 1
+  resb %1
+%endm
+%macro EVEN 0
+  align 2
+%endm
+%macro PAGE 1
+%endm
+%macro ORG 1
+%endm
+
+
+%macro XLATB 0
+  ;call check_regs
+  push eax
+  mov ah, 0
+  ;db 0d7h  ; Original XLATB instruction.
+  add ax, bx
+  or eax, program_base
+  mov al, [eax]
+  mov [esp], al
+  pop eax
+%endm
+
+; --- !! We don't have to be this smart, the bug is somewhere else.
+
+%macro PUSHW 1
+  push %1
+%endm
+
+%macro POPR 1
+  pop %1
+%endm
+
+callw_helper:  ; It must not change flags.
+	push bx  ; Make room on the stack.
+	push ebx  ; Save.
+	push ecx  ; Save.
+	mov ebx, [esp+10]
+	mov cx, [ebx+1]  ; The word argument of the retn in CALLW.
+	lea ebx, [ebx+3]
+	mov [esp+12], bx
+	mov word [esp+10], program_base>>16
+	mov word [esp+8], cx
+	pop ecx  ; Restore.
+	pop ebx  ; Restore.
+	ret
+
+%macro CALLW 1
+  call callw_helper
+  retn %1  ; This won't be executed, callw_helper will skip over it.
+%endm
+
+callww_helper:
+	push ecx  ; Save.
+	mov ecx, [esp+4]
+	xchg [esp+8], cx
+	mov [esp+4], ecx
+	pop ecx  ; Restore.
+	ret
+
+%macro CALLWW 1
+  push word %1
+  call callww_helper
+%endm
+
+
+%macro RETW 0
+  push word [esp]
+  mov word [esp+2], program_base>>16
+  ret
+%endm
+
+%macro FIX_CX 0
+  movzx ecx, cx  ; Convert 0ffffffffh to 0ffffh after a LOOP instruction.
+  ; !! This shouldn't make a difference, because we don't rely on the high bits of ECX being 0. Or do we, in dossys_*?
+%endm
+
+; --- Modified A72 source code follows.
+
+	PAGE	64
+	ORG	100H
+LSTWID	EQU	6
+MAXLEN	EQU	100H
+DEFORG	EQU	100H
+DEFPAG	EQU	50
+%macro vars 0  ; For NASM.
+PGMVAR	EQU	BUF5
+USER	EQU	BUF5+80H
+;FUNC	EQU	USER
+TXTBUF	EQU	USER+2
+BINBUF	EQU	USER+4
+PC	EQU	USER+6
+USIZE	EQU	USER+8
+VORG	EQU	USER+0AH
+SYM	EQU	USER+0CH
+;STK	EQU	USER+0EH  ; Old.
+WADJ	EQU	USER+10H
+ARGS	EQU	USER+12H
+FLAGS	EQU	USER+16H
+SEGPRE	EQU	USER+17H
+OPCODE	EQU	USER+18H
+MODRM	EQU	USER+19H
+DISP	EQU	USER+1AH
+IMM	EQU	USER+1CH
+BINLEN	EQU	USER+1EH
+TXTLEN	EQU	USER+20H
+STK	EQU	USER+22H
+STKH	EQU	USER+24H  ; High bits, for ESP.
+;FUNC	EQU	USER+26H
+;FUNCH	EQU	USER+28H  ; Ignored high bits, for stack push/pop.
+OUTHDL	EQU	PGMVAR
+LSTHDL	EQU	PGMVAR+2
+INCLEV	EQU	PGMVAR+4
+ERRORS	EQU	PGMVAR+6
+TEMP	EQU	PGMVAR+8
+PASS	EQU	PGMVAR+0AH
+OLDPC	EQU	PGMVAR+0CH
+PAGNUM	EQU	PGMVAR+0EH
+LSTLIN	EQU	PGMVAR+10H
+INFN	EQU	BUF4
+OUTFN	EQU	BUF4+40H
+LSTFN	EQU	BUF4+80H
+DEFFN	EQU	BUF4+0C0H
+%endm  ; For NASM.
+
+START:	MOV	AH,9  ; TODO(pts): Remove these constant-setting instructions, only if not needed.
+	MOV	DX,AMSG
+	call dossys_printmsg  ; Print message string.
+	jmp MAIN
+
+; ---
+ERROR:	MOV	AH,9
+	call dossys_printmsg  ; Print message string.
+	; TODO(pts): Why exit successfully here? Why not fail?
+XSUCC:	MOV	AX,4C00H
+	call dossys_exit  ; Exit successfully.
+BAH:	CALLW	CLOSE
+OVER:	MOV	AX,4C01H
+	call dossys_exit  ; Exit with failure.
+MAIN:	CALLW	INIT
+	MOV	SI,CMDLINE_ADDR
+	CALLW	PARAM
+	JC	ERROR
+	CALLW	OPEN
+	JC	OVER
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	SI,INM
+	CALLW	WRM
+	MOV	SI,INFN
+	CALLW	WRM
+	CALLW	PRUNT
+	PUSH	DWORD EA32_VAR_PLUS(FUNC,0)
+RUN:	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	SI,PASSM
+	CALLW	WRM
+	MOV	AX,EA32_VAR_PLUS(PASS,0)
+	MOV	CX,10
+	CALLW	WN
+	CALLW	PRUNT
+	INC	WORD EA32_VAR_PLUS(PASS,0)
+	CALLW	PROCF
+	JC	BAH
+	MOV	SI,SYMBS
+	CALLW	SYMLST
+	MOV	AX,EA32_VAR_PLUS(ERRORS,0)
+	TEST	AX,AX
+	JNZ	HUMBUG
+	MOV	AX,EA32_VAR_PLUS(FUNC,0)
+	XOR	AL,AL
+	XCHG	AL,AH
+	MOV	EA32_VAR_PLUS(FUNC,0),AX
+	TEST	AL,AL
+	JNZ	RUN
+	POP	DWORD EA32_VAR_PLUS(FUNC,0)
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	SI,OUTM
+	CALLW	WRM
+	MOV	AX,1010H
+	MOV	SI,OUTFN
+	CALLW	NOTHER
+	TEST	WORD EA32_VAR_PLUS(FUNC,0),8080H
+	JNZ	NOWLST
+	MOV	AX,4040H
+	MOV	SI,LSTFN
+	CALLW	NOTHER
+NOWLST:	CALLW	PRUNT
+	CALLW	CLOSE
+	MOV	AX,4C00H
+	call dossys_exit  ; Exit successfully.
+HUMBUG:	CALLW	CLOSE
+	MOV	AX,4C02H
+	call dossys_exit  ; Exit with failure.
+NOTHER:	TEST	EA32_VAR_PLUS(FUNC,0),AX
+	JZ	NOTH0
+	CALLW	WRM
+	MOV	AL,20H
+	STOSB
+NOTH0:	RETW
+PARAM:	CALLW	RFN
+	JC	PARASC
+	JNZ	PARAIN
+	JMP	PARAEN
+PARAIN:	MOV	DI,INFN
+	MOV	AL,EA_DI_PLUS(0)
+	TEST	AL,AL
+	JNZ	PARARG
+PARAWF:	MOV	DX,SI
+	CALLW	WFN
+	MOV	AL,EA32_VAR_PLUS(DEFFN,0)
+	TEST	AL,AL
+	JNZ	PARAM
+	PUSHW	SI
+	MOV	SI,DX
+	MOV	DI,DEFFN
+	CALLW	WFN
+	MOV	SI,DEFFN
+	STC
+	CALLW	ADDEX
+	POPR	SI
+	JMP	PARAM
+PARASC:	MOV	DI,LSTFN
+	MOV	DX,4201H
+	and al, 0dfh  ; Convert switch character to uppercase.
+	CMP	AL,4CH  ; L
+	JZ	PARAFN
+	MOV	DI,OUTFN
+	MOV	DX,0D0H
+	CMP	AL,44H  ; D
+	JZ	PARAFN
+	MOV	DX,90H
+	CMP	AL,55H ; U
+	JZ	PARAFN
+	MOV	DX,1201H
+	CMP	AL,41H  ; A
+	JZ	PARAFN
+	MOV	DI,ORIGIN
+	CMP	AL,4FH  ; O
+	JZ	PARARN
+PARARG:	MOV	DX,USAGE
+	STC
+	RETW
+PARAFN:	OR	EA32_VAR_PLUS(FUNC,0),DX
+	CALLW	RFN
+	JC	PARASC
+	JZ	PARAEN
+	JMP	PARAWF
+PARARN:	CALLW	CC
+	JZ	PARANO
+	CALLW	RNC
+	JC	PARANO
+	MOV	EA_DI_PLUS(0),DX
+	JMP	PARAM
+PARANO:	MOV	DX,NOPAR
+	STC
+	RETW
+PARAEN:	MOV	AL,EA32_VAR_PLUS(DEFFN,0)
+	TEST	AL,AL
+	JZ	PARANO
+	MOV	AX,EA32_VAR_PLUS(FUNC,0)
+	TEST	AX,AX
+	JNZ	PARAFS
+	MOV	AX,5201H
+	MOV	EA32_VAR_PLUS(FUNC,0),AX
+PARAFS:	MOV	BP,DOTCOM
+	MOV	DX,DOTASM
+	MOV	DI,INFN
+	TEST	AX,8080H
+	JZ	PARANS
+	XCHG	BP,DX
+PARANS:	MOV	SI,DEFFN
+	CALLW	RFN2
+	CALLW	PARAWN
+	MOV	DX,BP
+	MOV	DI,OUTFN
+	CALLW	PARAWN
+	MOV	DX,DOTLST
+	MOV	DI,LSTFN
+PARAWN:	PUSHW	BX
+	PUSHW	SI
+	PUSHW	DI
+	MOV	AX,EA_DI_PLUS(0)
+	TEST	AL,AL
+	JNZ	PARANX
+	CALLW	WFN
+PARANX:	POPR	SI
+	CALLW	RFN2
+	CLC
+	CALLW	ADDEX
+	POPR	SI
+	POPR	BX
+	CLC
+	RETW
+PROCF:	MOV	AX,EA32_VAR_PLUS(ORIGIN,0)
+	MOV	EA32_VAR_PLUS(VORG,0),AX
+	XOR	AX,AX
+	MOV	EA32_VAR_PLUS(PC,0),AX
+	MOV	EA32_VAR_PLUS(USIZE,0),AX
+	MOV	EA32_VAR_PLUS(ERRORS,0),AX
+	MOV	EA32_VAR_PLUS(LSTLIN,0),AX
+	MOV	EA32_VAR_PLUS(BUF7,0),AX
+	INC	AX
+	MOV	EA32_VAR_PLUS(PAGNUM,0),AX
+	CALLW	CALF
+	LODSW
+	MOV	BX,4200H
+	XCHG	AX,BX
+	XOR	CX,CX
+	XOR	DX,DX
+	MOV	EA_SI_PLUS(0),DX
+	call dossys_seek  ; Seek in file.
+PROCF1:	CALLW	READ
+	JBE	PROCF3
+	MOV	AX,EA32_VAR_PLUS(PC,0)
+	MOV	EA32_VAR_PLUS(OLDPC,0),AX
+	CALLW	ASM
+	JC	PROCF4
+	CALLW	WLST
+	JC	PROCF2
+	CALLW	WRITE
+	JNC	PROCF1
+PROCF2:	CALLW	DECF
+	JNC	PROCF2
+	RETW
+PROCF3:	CALLW	DECF
+	JNC	PROCF1
+	CLC
+	RETW
+PROCF4:	TEST	AL,AL
+	JNS	PROCF6
+	CBW
+	INC	AX
+	JZ	PROCF3
+	NEG	AX
+	DEC	AX
+	JNZ	PROCF5
+	CALLW	WLST
+PROCF5:	PUSHW	AX
+	MOV	DI,ADIR
+	SHL	AX,1
+	ADD	DI,AX
+	CALLWW	EA_DI_PLUS(0)
+	POPR	CX
+	JC	PROCF6
+	;JCXZ	PROCF1
+	TEST	CX,CX
+	JZ	PROCF1
+	CALLW	WLST
+	JMP	PROCF1
+PROCF6:	CALLW	WLST
+	CALLW	SCREAM
+	INC	WORD EA32_VAR_PLUS(ERRORS,0)
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,40H
+	JZ	PROCF1
+	MOV	AH,40H
+	MOV	BX,EA32_VAR_PLUS(LSTHDL,0)
+	call dossys_write  ; Write to file.
+	JMP	PROCF1
+WRM:	CLD
+WRML:	LODSB
+	STOSB
+	CMP	AL,20H
+	JNC	WRML
+	DEC	DI
+	RETW
+WFN:	CLD
+	PUSHW	BX
+WFN1:	LODSB
+	CMP	AL,61H
+	JC	WFN2
+	CMP	AL,7BH
+	JNC	WFN2
+	;AND	AL,0DFH  ; Don't convert to uppercase.
+WFN2:	STOSB
+	DEC	BX
+	JNZ	WFN1
+	XOR	AL,AL
+	STOSB
+	POPR	BX
+	RETW
+RFN:	CLD
+RFN1:	LODSB
+	TEST	AL,AL
+	JZ	RFN0
+	CMP	AL,0DH  ; End of cmdline.
+	JZ	RFN0
+	CMP	AL,21H
+	JC	RFN1
+	CMP	AL,2FH
+	JZ	RFN5
+	DEC	SI
+RFN2:	CLD
+	MOV	BX,SI
+RFN3:	LODSB
+	CMP	AL,2FH
+	JZ	RFN4
+	CMP	AL,21H
+	JNC	RFN3
+RFN4:	DEC	SI
+	SUB	SI,BX
+	XCHG	SI,BX
+	MOV	AL,EA_SI_PLUS(0)
+	TEST	BX,BX
+RFN0:	RETW
+RFN5:	LODSB
+	;AND	AL,0DFH  ; Don't convert to lowercase.
+	STC
+	RETW
+ADDEX:	LAHF
+	lea di, [bx+si]
+	MOV	AL,2EH
+	MOV	CX,BX
+	STD
+	FIX_CX
+	REPNE SCASB
+	FIX_CX
+	JNZ	ADDEX1
+	SAHF
+	JNC	ADDEX0
+	INC	DI
+	JMP	ADDEX3
+ADDEX1:	SAHF
+	JC	ADDEX0
+	lea di, [bx+si]
+	XCHG	SI,DX
+	CLD
+ADDEX2:	STOSB
+	LODSB
+	TEST	AL,AL
+	JNZ	ADDEX2
+	XCHG	SI,DX
+ADDEX3:	MOV	BX,DI
+	SUB	BX,SI
+ADDEX0:	lea di, [bx+si]
+	XOR	AL,AL
+	STOSB
+	RETW
+CALF:	MOV	AX,EA32_VAR_PLUS(INCLEV,0)
+	TEST	AX,AX
+	JZ	CALF0
+	CLD
+	DEC	AX
+	PUSHF
+	XCHG	AL,AH
+	SHR	AX,1
+	SHR	AX,1
+	MOV	SI,INCBUF
+	ADD	SI,AX
+	POPF
+	CLC
+	RETW
+INCF:	INC	WORD EA32_VAR_PLUS(INCLEV,0)
+	MOV	DI,SI
+	CALLW	CALF
+	JC	INCF0
+	XCHG	DI,SI
+	PUSHW	DI
+	CLD
+	XOR	AX,AX
+	STOSW
+	STOSW
+	MOV	DX,DI
+	CALLW	WFN
+	MOV	AX,3D00H
+	call dossys_open  ; Open file.
+	POPR	DI
+	JC	INCF0
+	STOSW
+	MOV	AX,EA32_VAR_PLUS(PAGLEN,0)
+	MOV	EA32_VAR_PLUS(LSTLIN,0),AX
+	RETW
+INCF0:	DEC	WORD EA32_VAR_PLUS(INCLEV,0)
+CALF0:	STC
+	RETW
+DECF:	CALLW	CALF
+	JBE	CALF0
+	MOV	AH,3EH
+	MOV	BX,EA_SI_PLUS(0)
+	call dossys_close  ; Close file.
+	DEC	WORD EA32_VAR_PLUS(INCLEV,0)
+	MOV	AX,EA32_VAR_PLUS(PAGLEN,0)
+	MOV	EA32_VAR_PLUS(LSTLIN,0),AX
+	CLC
+	RETW
+WLST:	MOV EA32_VAR_PLUS(STK,0), ESP
+	PUSHW	AX
+	PUSHW	DX
+	PUSHW	BX
+	PUSHW	SI
+	PUSHW	DI
+	MOV	SI,EA32_VAR_PLUS(BINBUF,0)
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	BX,EA32_VAR_PLUS(BINLEN,0)
+	MOV	DX,EA32_VAR_PLUS(OLDPC,0)
+	ADD	DX,EA32_VAR_PLUS(VORG,0)
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	MOV	BP,DI
+	TEST	AL,0C0H
+	JZ	WLSTE
+	TEST	AL,40H
+	JZ	WLSTT
+	CALLW	WLSTS
+	CALLW	WLSTI
+	MOV	BP,DI
+WLSTT:	PUSHW	BX
+	PUSHW	SI
+	MOV	SI,EA32_VAR_PLUS(TXTBUF,0)
+	MOV	BX,EA32_VAR_PLUS(TXTLEN,0)
+	TEST	BX,BX
+	JZ	WLSTM
+WLSTL:	LODSB
+	TEST	AL,AL
+	JZ	WLSTM
+	CMP	AL,0DH
+	JZ	WLSTM
+	CMP	AL,0AH
+	JZ	WLSTL
+	CMP	AL,9
+	JNZ	WLSTN
+	MOV	AX,DI
+	SUB	AX,BP
+	AND	AX,7
+	MOV	CX,8
+	SUB	CX,AX
+	MOV	AL,20H
+	FIX_CX
+	REP
+WLSTN:	STOSB
+	FIX_CX
+	DEC	BX
+	JNZ	WLSTL
+WLSTM:	POPR	SI
+	POPR	BX
+WLSTB:	MOV	AX,0A0DH
+	STOSW
+	PUSHW	DX
+	PUSHW	BX
+	PUSHW	SI
+	CALLW	WTITLE
+	MOV	DX,EA32_VAR_PLUS(TEMP,0)
+	MOV	AH,40H
+	MOV	BX,EA32_VAR_PLUS(LSTHDL,0)
+	MOV	CX,DI
+	SUB	CX,DX
+	call dossys_write  ; Write to file.
+	JC	WLSTF
+	POPR	SI
+	POPR	BX
+	POPR	DX
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,40H
+	JZ	WLSTE
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	CALLW	WLSTS
+	JNZ	WLSTB
+WLSTE:	POPR	DI
+	POPR	SI
+	POPR	BX
+	POPR	DX
+	POPR	AX
+	CLC
+	RETW
+WLSTS:	MOV	AL,DH
+	CALLW	HALX
+	MOV	AL,DL
+	CALLW	HALX
+	TEST	BX,BX
+	JZ	WLSTX
+	MOV	CX,BX
+	CMP	CX,LSTWID
+	JC	WLSTG
+	MOV	CX,LSTWID
+WLSTG:	SUB	BX,CX
+	JNC	WLSTR
+	XOR	BX,BX
+WLSTR:	ADD	DX,CX
+	MOV	AL,20H
+	CLD
+	STOSB
+WLSTP:	FIX_CX
+	LODSB
+	CALLW	HALX
+	FIX_CX
+	LOOP	WLSTP
+	TEST	AL,AL
+WLSTX:	RETW
+WLSTF:	MOV	DX,LSTFN
+	MOV	AL,0FH
+	JMP	SCREAM
+WLSTI:	PUSHW	DX
+	PUSHW	BX
+	PUSHW	SI
+	MOV	CX,EA32_VAR_PLUS(TEMP,0)
+	SUB	CX,DI
+	ADD	CX,LSTWID+LSTWID+6
+	MOV	AL,20H
+	FIX_CX
+	REP STOSB
+	FIX_CX
+	TEST	BYTE EA32_VAR_PLUS(FUNC,0),80H
+	JNZ	WLSTO
+	CALLW	CALF
+	JC	WLSTO
+	MOV	BP,DI
+	MOV	AX,EA_SI_PLUS(2)
+	MOV	CX,10
+	CALLW	WN
+	MOV	CX,BP
+	SUB	CX,DI
+	ADD	CX,6
+	MOV	AL,20H
+	FIX_CX
+	REP STOSB
+	FIX_CX
+WLSTO:	POPR	SI
+	POPR	BX
+	POPR	DX
+	RETW
+WTITLE:	CLD
+	PUSHW	DI
+	MOV	DI,BUF6
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,40H
+	JZ	WTITL5
+	MOV	AX,EA32_VAR_PLUS(LSTLIN,0)
+	TEST	AX,AX
+	JZ	WTITL1
+	CMP	AX,EA32_VAR_PLUS(PAGLEN,0)
+	JC	WTITL5
+	INC	WORD EA32_VAR_PLUS(PAGNUM,0)
+	MOV	WORD EA32_VAR_PLUS(LSTLIN,0),0
+	MOV	AL,0CH
+	STOSB
+WTITL1:	MOV	SI,AMSG
+	CALLW	WRM
+	MOV	AL,20H
+	MOV	CX,8
+	FIX_CX
+	REP STOSB
+	FIX_CX
+	CALLW	CALF
+	JC	WTITL3
+	PUSHW	DI
+	ADD	SI,4
+	CALLW	WRM
+	POPR	CX
+	SUB	CX,DI
+	ADD	CX,10H
+	JNS	WTITL2
+	MOV	CX,1
+WTITL2:	MOV	AL,20H
+	FIX_CX
+	REP STOSB
+	FIX_CX
+WTITL3:	MOV	AX,EA32_VAR_PLUS(PAGNUM,0)
+	MOV	CX,10
+	CALLW	WN
+	MOV	AX,0A0DH
+	STOSW
+	MOV	SI,BUF7
+	TEST	BYTE PTR EA_SI_PLUS(0),0FFH
+	JZ	WTITL4
+	CALLW	WRM
+	MOV	AX,0A0DH
+	STOSW
+WTITL4:	STOSW
+	MOV	DX,BUF6
+	MOV	CX,DI
+	SUB	CX,DX
+	MOV	BX,EA32_VAR_PLUS(LSTHDL,0)
+	MOV	AH,40H
+	call dossys_write  ; Write to file.
+WTITL5:	INC	WORD EA32_VAR_PLUS(LSTLIN,0)
+	POPR	DI
+	CLC
+	RETW
+READ:	MOV EA32_VAR_PLUS(STK,0), ESP
+	CALLW	CALF
+	JC	READ1
+	INC	WORD EA_SI_PLUS(2)
+	MOV	BX,EA_SI_PLUS(0)
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,AL
+	JNS	READ2
+	MOV	AX,4200H
+	XOR	CX,CX
+	MOV	DX,EA32_VAR_PLUS(PC,0)
+	call dossys_seek  ; Seek in file.
+	JC	READ8
+	MOV	AH,3FH
+	MOV	CX,8
+	MOV	DX,EA32_VAR_PLUS(BINBUF,0)
+	call dossys_read  ; Read from file.
+	JC	READ8
+	TEST	AX,AX
+	RETW
+READ1:	SUB	AX,AX
+	RETW
+READ2:	MOV	AH,3FH
+	MOV	CX,MAXLEN
+	MOV	DX,EA32_VAR_PLUS(TXTBUF,0)
+	call dossys_read  ; Read from file.
+	JC	READ8
+	TEST	AX,AX
+	JZ	READ1
+	MOV	CX,AX
+	MOV	DX,AX
+	XOR	BX,BX
+	MOV	DI,EA32_VAR_PLUS(TXTBUF,0)
+READ3:	FIX_CX
+	MOV	AL,EA_BX_DI_PLUS(0)
+	INC	BX
+	MOV	AH,0AH
+	CMP	AL,0DH
+	JZ	READ6
+	MOV	AH,0DH
+	CMP	AL,0AH
+	JZ	READ6
+	FIX_CX
+	LOOP	READ3
+	CMP	BX,MAXLEN
+	JNC	READ5
+	MOV	EA_BX_DI_PLUS(0),AH
+	INC	BX
+READ4:	MOV	EA32_VAR_PLUS(TXTLEN,0),BX
+	TEST	BX,BX
+	CLC
+	RETW
+READ5:	MOV	AL,0EH
+	JMP	SCREAM
+READ6:	JCXZ	READ7
+	CMP	EA_BX_DI_PLUS(0),AH
+	JNZ	READ7
+	INC	BX
+READ7:	XOR	AL,AL
+	MOV	EA_BX_DI_PLUS(0),AL
+	MOV	AX,BX
+	SUB	AX,DX
+	JZ	READ4
+	CWD
+	PUSHW	BX
+	MOV	CX,4201H
+	XCHG	AX,DX
+	XCHG	AX,CX
+	MOV	BX,EA_SI_PLUS(0)
+	call dossys_seek  ; Seek in file.
+	POPR	BX
+	JNC	READ4
+READ8:	MOV	DX,4
+	ADD	DX,SI
+	MOV	AL,0FH
+	JMP	SCREAM
+WRITE:	MOV EA32_VAR_PLUS(STK,0), ESP
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,AL
+	JS	WRITE5
+	TEST	AL,10H
+	JZ	WRITE0
+	MOV	CX,EA32_VAR_PLUS(BINLEN,0)
+	;JCXZ	WRITE5
+	TEST	CX,CX
+	JZ	WRITE5
+	MOV	DX,EA32_VAR_PLUS(USIZE,0)
+	TEST	DX,DX
+	JZ	WRITE3
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	CX,100H
+	XOR	AL,AL
+	CLD
+	FIX_CX
+	REP STOSB
+	FIX_CX
+WRITE1:	PUSHW	DX
+	MOV	CX,100H
+	CMP	CX,DX
+	JC	WRITE2
+	MOV	CX,DX
+WRITE2:	PUSHW	CX
+	MOV	AH,40H
+	MOV	DX,EA32_VAR_PLUS(TEMP,0)
+	MOV	BX,EA32_VAR_PLUS(OUTHDL,0)
+	call dossys_write  ; Write to file.
+	JC	WRITE4
+	POPR	CX
+	POPR	DX
+	SUB	DX,CX
+	JA	WRITE1
+WRITE3:	MOV	AH,40H
+	MOV	CX,EA32_VAR_PLUS(BINLEN,0)
+	MOV	DX,EA32_VAR_PLUS(BINBUF,0)
+	MOV	BX,EA32_VAR_PLUS(OUTHDL,0)
+	call dossys_write  ; Write to file.
+	JNC	WRITE0
+WRITE4:	MOV	DX,OUTFN
+	MOV	AL,0FH
+	JMP	SCREAM
+WRITE0:	XOR	AX,AX
+	MOV	EA32_VAR_PLUS(USIZE,0),AX
+WRITE5:	CLC
+	RETW
+CLOSE:	CALLW	CALF
+	JC	NOIN
+	MOV	AH,3EH
+	MOV	BX,EA_SI_PLUS(0)
+	call dossys_close  ; Close file.
+NOIN:	TEST	WORD EA32_VAR_PLUS(FUNC,0),4040H
+	JZ	NOLST
+	TEST	WORD EA32_VAR_PLUS(FUNC,0),8080H
+	JNZ	NOLST
+	MOV	AH,3EH
+	MOV	BX,EA32_VAR_PLUS(LSTHDL,0)
+	call dossys_close  ; Close file.
+NOLST:	TEST	WORD EA32_VAR_PLUS(FUNC,0),1010H
+	JZ	NOOUT
+	MOV	AH,3EH
+	MOV	BX,EA32_VAR_PLUS(OUTHDL,0)
+	call dossys_close  ; Close file.
+NOOUT:	RETW
+OPEN:	MOV	SI,INFN
+	CALLW	RFN2
+	CALLW	INCF
+	MOV	AL,0BH
+	JC	SCREAM
+	TEST	WORD EA32_VAR_PLUS(FUNC,0),1010H
+	JZ	OPEN2
+	MOV	AH,3CH
+	XOR	CX,CX
+	MOV	DX,OUTFN
+	call dossys_create  ; Create file.
+	JC	OPEN4
+	MOV	EA32_VAR_PLUS(OUTHDL,0),AX
+OPEN2:	TEST	WORD EA32_VAR_PLUS(FUNC,0),8080H
+	JNZ	OPEN3
+	TEST	WORD EA32_VAR_PLUS(FUNC,0),4040H
+	JZ	OPEN1
+	MOV	AH,3CH
+	XOR	CX,CX
+	MOV	DX,LSTFN
+	call dossys_create  ; Create file.
+	JC	OPEN5
+	MOV	EA32_VAR_PLUS(LSTHDL,0),AX
+OPEN1:	CLC
+	RETW
+OPEN3:	MOV	EA32_VAR_PLUS(LSTHDL,0),AX
+	CLC
+	RETW
+OPEN5:	CALLW	NOLST
+OPEN4:	MOV	AL,0BH
+SCREAM:	CLD
+	CBW
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	CX,AX
+	CMP	AL,0FH
+	JZ	SCRUM
+	CALLW	CALF
+	JC	SCROOM
+	LODSW
+	LODSW
+	PUSHW	AX
+	CALLW	WRM
+	MOV	AL,28H
+	STOSB
+	POPR	AX
+	PUSHW	CX
+	PUSHW	DX
+	MOV	CX,10
+	CALLW	WN
+	POPR	DX
+	POPR	CX
+	MOV	AX,2029H
+	STOSW
+SCROOM:	CMP	CL,5
+	JZ	SCROYM
+	CMP	CL,0BH
+	JNZ	SCROME
+SCRUM:	MOV	SI,DX
+	CALLW	WRM
+	JMP	SCROME
+SCROYM:	PUSHW	CX
+	MOV	AX,DX
+	MOV	CX,10
+	CALLW	WN
+	POPR	CX
+SCROME:	MOV	SI,EM0
+	JCXZ	SCRAM
+SCREM:  FIX_CX
+	LODSB
+	TEST	AL,AL
+	JNZ	SCREM
+	FIX_CX
+	LOOP	SCREM
+SCRAM:	CALLW	WRM
+PRUNT:	MOV	DX,EA32_VAR_PLUS(TEMP,0)
+	MOV	AX,0A0DH
+	STOSW
+	MOV	CX,DI
+	SUB	CX,DX
+	PUSHW	CX
+	PUSHW	DX
+	MOV	AH,40H
+	MOV	BX,1
+	call dossys_write  ; Write to file.
+	POPR	DX
+	POPR	CX
+	STC
+	RETW
+INIT:	MOV	AX,BUF1
+	MOV	EA32_VAR_PLUS(TXTBUF,0),AX
+	MOV	AX,BUF2
+	MOV	EA32_VAR_PLUS(BINBUF,0),AX
+	MOV	AX,BUF3
+	MOV	EA32_VAR_PLUS(TEMP,0),AX
+	MOV	AX,SYMBS
+	MOV	EA32_VAR_PLUS(SYM,0),AX
+	XOR	DI,DI
+	XCHG	DI,AX
+	STOSW
+	MOV	EA32_VAR_PLUS(INCLEV,0),AX
+	MOV	EA32_VAR_PLUS(FUNC,0),AX
+	MOV	EA32_VAR_PLUS(INFN,0),AX
+	MOV	EA32_VAR_PLUS(OUTFN,0),AX
+	MOV	EA32_VAR_PLUS(LSTFN,0),AX
+	MOV	EA32_VAR_PLUS(DEFFN,0),AX
+	INC	AX
+	MOV	EA32_VAR_PLUS(PASS,0),AX
+	RETW
+P2:	XOR	AL,AL
+	MOV	EA_BX_SI_PLUS(0),AL
+	CALLW	INCF
+P2F:	MOV	AL,0BH
+	RETW
+P3:	MOV	AX,3D00H
+	MOV	EA_BX_SI_PLUS(0),AL
+	MOV	DX,SI
+	call dossys_open  ; Open file.
+	JC	P2F
+	MOV	BX,AX
+P3L:	MOV	AH,3FH
+	MOV	DX,EA32_VAR_PLUS(TEMP,0)
+	MOV	CX,100H
+	call dossys_read  ; Read from file.
+	MOV	DX,SI
+	JC	P2F
+	ADD	EA32_VAR_PLUS(PC,0),AX
+	MOV	CX,AX
+	JCXZ	P3E
+	TEST	BYTE EA32_VAR_PLUS(FUNC,0),10H
+	JZ	P3S
+	PUSHW	AX
+	PUSHW	BX
+	MOV	AH,40H
+	MOV	DX,EA32_VAR_PLUS(TEMP,0)
+	MOV	BX,EA32_VAR_PLUS(OUTHDL,0)
+	call dossys_write  ; Write to file.
+	POPR	BX
+	POPR	AX
+P3S:	TEST	AX,AX
+	JNZ	P3L
+P3E:	MOV	AH,3EH
+	call dossys_close  ; Close file.
+	RETW
+P4:	CALLW	PRUNT
+	CLC
+	RETW
+P5:	CLD
+	MOV	DI,BUF7
+	MOV	CX,BX
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+	XOR	AL,AL
+	STOSB
+	CLC
+	RETW
+P6:	TEST	DX,DX
+	JNZ	P6S
+	MOV	AX,EA32_VAR_PLUS(PAGLEN,0)
+	MOV	EA32_VAR_PLUS(LSTLIN,0),AX
+	CLC
+	RETW
+P6S:	MOV	EA32_VAR_PLUS(PAGLEN,0),DX
+	CLC
+	RETW
+SYMLST:	TEST	BYTE EA32_VAR_PLUS(FUNC,0),40H
+	JNZ	SYMLS0
+	RETW
+SYMLS0:	CLD
+	PUSHW	SI
+	CALLW	SYMSRT
+	POPR	SI
+	LODSW
+	MOV	CX,AX
+	XOR	DX,DX
+	MOV	AX,EA32_VAR_PLUS(PAGLEN,0)
+	MOV	EA32_VAR_PLUS(LSTLIN,0),AX
+	;!!JCXZ	SYMLS8  ; This shouldn't make a difference.
+	test cx, cx
+	jnz cxnz
+	JMP	SYMLS8
+cxnz:	PUSHW	CX
+	PUSHW	SI
+SYMLS1: FIX_CX
+	XOR	BX,BX
+SYMLS2:	LODSB
+	INC	BX
+	TEST	AL,AL
+	JNZ	SYMLS2
+	LODSW
+	CMP	DX,BX
+	JNC	SYMLS3
+	MOV	DX,BX
+SYMLS3:
+	FIX_CX
+	LOOP	SYMLS1
+	POPR	SI
+	POPR	CX
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+SYMLS4:	CLD
+	PUSHW	CX
+	MOV	CX,DI
+SYMLS5:	LODSB
+	STOSB
+	TEST	AL,AL
+	JNZ	SYMLS5
+	DEC	DI
+	SUB	CX,DI
+	ADD	CX,DX
+	MOV	AL,20H
+	FIX_CX
+	REP STOSB
+	FIX_CX
+	LODSW
+	PUSHW	AX
+	MOV	AL,AH
+	CALLW	HALX
+	POPR	AX
+	CALLW	HALX
+	MOV	AX,2020H
+	STOSW
+	MOV	CX,DI
+	SUB	CX,EA32_VAR_PLUS(TEMP,0)
+	ADD	CX,DX
+	CMP	CX,4EH
+	POPR	CX
+	JB	SYMLS6
+	CALLW	SYMLS7
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+SYMLS6:	DEC	CX
+	JNZ	SYMLS4
+SYMLS7:	CMP	DI,EA32_VAR_PLUS(TEMP,0)
+	JBE	SYMLS8
+	DEC	DI
+	DEC	DI
+	MOV	AX,0A0DH
+	STOSW
+	PUSHW	CX
+	PUSHW	DX
+	PUSHW	SI
+	CALLW	WTITLE
+	MOV	AH,40H
+	MOV	DX,EA32_VAR_PLUS(TEMP,0)
+	MOV	CX,DI
+	SUB	CX,DX
+	MOV	BX,EA32_VAR_PLUS(LSTHDL,0)
+	call dossys_write  ; Write to file.
+	POPR	SI
+	POPR	DX
+	POPR	CX
+SYMLS8:	RETW
+SYMSRT:	CLD
+	LODSW
+	MOV	CX,AX
+	CMP	AX,2
+	JNC	SYMSR1
+	RETW
+SYMSR1:	MOV	DX,CX
+	PUSHW	CX
+	PUSHW	SI
+	MOV	DI,SI
+SYMSR2: FIX_CX
+	LODSB
+	AND	AL,7FH
+	STOSB
+	JNZ	SYMSR2
+	MOVSW
+	FIX_CX
+	LOOP	SYMSR2
+	POPR	SI
+	POPR	CX
+	PUSHW	CX
+	PUSHW	SI
+SYMSR3:	XOR	BX,BX
+SYMSR4:	MOV	AL,EA_BX_SI_PLUS(0)
+	INC	BX
+	TEST	AL,AL
+	JNZ	SYMSR4
+	INC	BX
+	INC	BX
+	lea di,[bx+si]
+	XOR	BP,BP
+SYMSR5:	MOV	AL,EA_BP_DI_PLUS(0)
+	INC	BP
+	TEST	AL,AL
+	JNZ	SYMSR5
+	INC	BP
+	INC	BP
+	MOV	CX,BX
+	CMP	CX,BP
+	JNB	SYMSR6
+	MOV	CX,BP
+SYMSR6:	PUSHW	SI
+	PUSHW	DI
+	FIX_CX
+	REPE CMPSB
+	FIX_CX
+	POPR	DI
+	POPR	SI
+	JB	SYMSR7
+	PUSHW	SI
+	PUSHW	DI
+	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+	MOV	CX,BX
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+	POPR	DI
+	POPR	SI
+	PUSHW	SI
+	XCHG	SI,DI
+	MOV	CX,BP
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+	MOV	SI,EA32_VAR_PLUS(TEMP,0)
+	MOV	CX,BX
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+	POPR	SI
+	MOV	BX,BP
+SYMSR7:	ADD	SI,BX
+	DEC	DX
+	CMP	DX,2
+	JNC	SYMSR3
+	POPR	SI
+	POPR	CX
+	DEC	CX
+	CMP	CX,2
+	JNC	SYMSR1
+	RETW
+
+;	INCLUDE	GENERIC.ASM
+CC:	XOR	BX,BX
+CCM:	MOV	AL,EA_BX_SI_PLUS(0)
+	CMP	AL,0
+	JZ	CCT
+	CMP	AL,0DH
+	JZ	CCT
+	CMP	AL,21H
+	JC	CCK
+	CMP	AL,22H
+	JZ	CCQ
+	CMP	AL,27H
+	JZ	CCQ
+	CMP	AL,30H
+	JC	CCS
+	CMP	AL,3AH
+	JC	CCL
+	CMP	AL,3BH
+	JZ	CCT
+	CMP	AL,41H
+	JC	CCS
+	CMP	AL,5BH
+	JC	CCL
+	CMP	AL,5FH
+	JZ	CCL
+	CMP	AL,61H
+	JC	CCS
+	CMP	AL,7BH
+	JNC	CCS
+	AND	AL,0DFH
+	MOV	EA_BX_SI_PLUS(0),AL
+CCL:	INC	BX
+	JMP	CCM
+CCK:	TEST	BX,BX
+	JNZ	CCT
+	INC	SI
+	JMP	CCM
+CCS:	TEST	BX,BX
+	JZ	CCE
+CCT:	MOV	AL,EA_SI_PLUS(0)
+	TEST	BX,BX
+	RETW
+CCQ:	TEST	BX,BX
+	JNZ	CCT
+CCW:	INC	BX
+	CMP	AL,EA_BX_SI_PLUS(0)
+	JNZ	CCW
+CCE:	INC	BX
+	RETW
+AA:	CMP	AX,80H
+	JC	AA1
+	CMP	AX,0FF80H
+	RETW
+AA1:	CMC
+	RETW
+SL:	CLD
+	MOV	DX,EA_DI_PLUS(0)
+SL1:	INC	DI
+	INC	DI
+	DEC	DX
+	JS	SL5
+	MOV	AL,EA_BX_DI_PLUS(0)
+	TEST	AL,AL
+	JNZ	SL3
+	MOV	CX,BX
+SL2:	DEC	BX
+	JS	SL4
+	MOV	AL,EA_BX_DI_PLUS(0)
+	AND	AL,7FH
+	XOR	AL,EA_BX_SI_PLUS(0)
+	JZ	SL2
+	MOV	BX,CX
+SL3:	STC
+	SBB	CX,CX
+	XOR	AL,AL
+	FIX_CX
+	REPNE SCASB
+	FIX_CX
+	JZ	SL1
+	JNZ	SL5
+SL4:	MOV	BX,CX
+	MOV	AX,EA_BX_DI_PLUS(1)
+	ADD	SI,BX
+	XOR	BX,BX
+SL5:	RETW
+HALX:	PUSHW	AX
+	SHR	AL,1
+	SHR	AL,1
+	SHR	AL,1
+	SHR	AL,1
+	CALLW	HALL
+	POPR	AX
+HALL:	AND	AL,0FH
+	OR	AL,30H
+	CMP	AL,3AH
+	JC	HALN
+	ADD	AL,7
+HALN:	STOSB
+	RETW
+RN:	CLD
+	XOR	DX,DX
+	CMP	CL,5
+	JC	RN1
+	XOR	CL,CL
+RN1:	TEST	CL,CL
+	JNZ	RN2
+	SHL	DX,1
+	MOV	AX,DX
+	SHL	DX,1
+	SHL	DX,1
+	ADD	DX,AX
+RN2:	SHL	DX,CL
+	XOR	AH,AH
+	LODSB
+	SUB	AL,30H
+	CMP	AL,0AH
+	JC	RN3
+	SUB	AL,7
+;	CMP	AL,10H
+;	JB	RN3
+;	SUB	AL,20H
+	CMP	AL,0FH
+	JNBE	RN0
+RN3:	ADD	DX,AX
+	DEC	BX
+	JNZ	RN1
+RN0:	RETW
+WN:	CLD
+	CMP	AX,CX
+	JNC	WN1
+	CMP	AX,10
+	JNC	WN1
+	OR	AL,30H
+	STOSB
+	RETW
+WN1:	MOV	SI,DI
+WN2:	XOR	DX,DX
+	DIV	CX
+	XCHG	AX,DX
+	CMP	AL,10
+	SBB	AL,105
+	DAS
+	STOSB
+	XCHG	AX,DX
+	TEST	AX,AX
+	JNZ	WN2
+	CMP	DL,58
+	JC	WN5
+	MOV	AL,48
+	STOSB
+WN5:	MOV	CX,DI
+	SUB	CX,SI
+	SHR	CX,1
+	JZ	WN0
+	SUB	DI,CX
+	ADD	SI,CX
+WN4:	FIX_CX
+	DEC	SI
+	MOV	AL,EA_DI_PLUS(0)
+	XCHG	EA_SI_PLUS(0),AL
+	STOSB
+	FIX_CX
+	LOOP	WN4
+WN0:	RETW
+LBL:	CALLW	CC
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	AND	AL,3
+	JZ	LBL2
+	MOV	DI,EA32_VAR_PLUS(SYM,0)
+	CALLW	SL
+	JZ	LBL3
+	MOV	CX,BX
+	CLD
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+	XOR	AL,AL
+	STOSB
+	PUSHW	DI
+	MOV	DI,EA32_VAR_PLUS(SYM,0)
+	INC	WORD EA_DI_PLUS(0)
+	POPR	DI
+LBL1:	MOV	BP,DI
+	MOV	AX,EA32_VAR_PLUS(PC,0)
+	ADD	AX,EA32_VAR_PLUS(VORG,0)
+	STOSW
+	XOR	BX,BX
+LBL2:	ADD	SI,BX
+	CALLW	CC
+	JZ	ERR3
+	CMP	AL,3AH
+	JNZ	LBL3S  ; !! Finally fixed the bug.
+	INC	SI
+LBL3S:	RETW
+LBL3:	ADD	DI,CX
+	INC	DI
+	MOV	AL,2
+	AND	AL,EA32_VAR_PLUS(FUNC,0)
+	JNZ	LBL1
+	MOV	AL,0AH
+	JMP	FAIL
+ERR3:	MOV	AL,3
+	JMP	FAIL
+SETDFB:	MOV	DI,EA32_VAR_PLUS(BINBUF,0)
+	XOR	CX,CX
+SETD1:	CALLW	CC
+	JZ	ERR8
+	CMP	AL,3FH
+	JZ	SETD5
+;	TEST	CL,CL
+;	JZ	SETD2
+	PUSHW	AX
+	XOR	AX,AX
+	FIX_CX
+	REP STOSB
+	FIX_CX
+	POPR	AX
+SETD2:	CMP	AL,22H
+	JZ	SETD6
+	CMP	AL,27H
+	JZ	SETD6
+SETD3:	PUSHW	CX
+	PUSHW	DI
+	CALLW	RI
+	POPR	DI
+	POPR	CX
+	STOSW
+	CMP	BYTE EA32_VAR_PLUS(OPCODE,0),2
+	JZ	SETD7
+	JNC	SETD4
+	DEC	DI
+	JMP	SETD7
+SETD4:	SHL	AX,1
+	SBB	AL,AL
+	PUSHW	CX
+	MOV	CL,EA32_VAR_PLUS(OPCODE,0)
+	SUB	CL,2
+	FIX_CX
+	REP STOSB
+	FIX_CX
+	POPR	CX
+	JMP	SETD7
+SETD5:	ADD	CL,EA32_VAR_PLUS(OPCODE,0)
+	INC	SI
+	JMP	SETD7
+SETD6:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	ADD	AL,3
+	CMP	BL,AL
+	JB	SETD3
+	PUSHW	CX
+	MOV	CX,BX
+	SUB	CX,2
+	INC	SI
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+	INC	SI
+	POPR	CX
+SETD7:	CALLW	CC
+	JZ	SETD8
+	CMP	AL,2CH
+	JNZ	ERR1
+	INC	SI
+	JMP	SETD1
+SETD8:	ADD	EA32_VAR_PLUS(USIZE,0),CX
+	ADD	EA32_VAR_PLUS(PC,0),CX
+	MOV	CX,DI
+	SUB	CX,EA32_VAR_PLUS(BINBUF,0)
+	ADD	EA32_VAR_PLUS(BINLEN,0),CX
+	ADD	EA32_VAR_PLUS(PC,0),CX
+	CLC
+	RETW
+ERR8:	MOV	AL,8
+	JMP	FAIL
+ERR1:	MOV	AL,1
+	JMP	FAIL
+SETINC:	CALLW	CC
+	JZ	ERR8
+	CMP	AL,22H
+	JZ	SETIN1
+	CMP	AL,27H
+	JNZ	SETIN2
+SETIN1:	INC	SI
+	SUB	BX,2
+	JBE	ERR8
+	JMP	SETEND  ;; RETW  ; Bugfix: make `include "filename"' work. Surprisingly it works with comments as well.
+SETIN2:	XOR	BX,BX
+SETIN3:	INC	BX
+	MOV	AL,EA_BX_SI_PLUS(0)
+	CMP	AL,3BH
+	JZ	SETEND
+	CMP	AL,21H
+	JNC	SETIN3
+SETEND:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+FAIL:	MOV ESP, EA32_VAR_PLUS(STK,0)
+	CMP	AL,5
+	JNZ	FAIL0
+	MOV	DX,EA32_VAR_PLUS(IMM,0)
+	TEST	DX,DX
+	JNS	FAIL1
+	NOT	DX
+FAIL1:	SUB	DX,7FH
+FAIL0:	STC
+	RETW
+RE:	XOR	CL,CL
+	XOR	AX,AX
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+REA:	CALLW	CC
+	JZ	RED
+	CMP	AL,2BH
+	JZ	REC
+	CMP	AL,2DH
+	JZ	REB
+	PUSHW	DX
+	CALLW	GV
+	POPR	DX
+	JC	RED
+	ADD	EA32_VAR_PLUS(IMM,0),AX
+	JMP	REA
+REB:	XOR	CL,80H
+REC:	AND	CL,0BFH
+	INC	SI
+	JMP	REA
+RED:	TEST	CL,40H
+	JZ	ERR8
+	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	RETW
+GV:	TEST	CL,40H
+	JNZ	GVA
+	CMP	AL,DL
+	JZ	GVC
+	CMP	AL,22H
+	JZ	GVQ
+	CMP	AL,27H
+	JZ	GVQ
+	CALLW	RNM
+	JZ	GV
+	CALLW	RNC
+	JNC	GVV
+	CMP	AL,40H
+	JC	GVA
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	AND	AL,3
+	JNZ	GVL
+GVC:	ADD	SI,BX
+	OR	CL,1
+	MOV	DX,EA32_VAR_PLUS(PC,0)
+	ADD	DX,EA32_VAR_PLUS(VORG,0)
+	JMP	GVV
+GVA:	STC
+	RETW
+GVQ:	MOV	DX,EA_SI_PLUS(1)
+	ADD	SI,BX
+	CMP	BX,5
+	JNC	GV7
+	CMP	BX,4
+	JNC	GVV
+	CMP	BX,3
+	JC	GV8
+	XOR	DH,DH
+	JMP	GVV
+GV7:	MOV	AL,7
+	JMP	FAIL
+GV8:	MOV	AL,8
+	JMP	FAIL
+GVL:	PUSHW	CX
+	MOV	DI,EA32_VAR_PLUS(SYM,0)
+	CALLW	SL
+	POPR	CX
+	MOV	DX,8002H
+	XCHG	DX,AX
+	JZ	GVL1
+	TEST	AL,EA32_VAR_PLUS(FUNC,0)
+	JZ	GVC
+	MOV	AL,4
+	JMP	FAIL
+GVL1:	TEST	DH,DH
+	JNZ	GVL3
+	TEST	AL,EA32_VAR_PLUS(FUNC,0)
+	JNZ	GVL2
+	OR	EA_DI_PLUS(0),AH
+GVL2:	TEST	EA_DI_PLUS(0),AH
+	JNZ	GVV
+GVL3:	OR	CL,2
+GVV:	OR	CL,40H
+	TEST	CL,CL
+	JNS	GVNS
+	XOR	CL,80H
+	NEG	DX
+GVNS:	TEST	CL,10H
+	JNZ	GVWO
+	TEST	CL,8
+	JNZ	GVHB
+	TEST	CL,4
+	JNZ	GVLB
+	JMP	GVWO
+GVHB:	TEST	CL,4
+	JNZ	GVWO
+	XCHG	DL,DH
+GVLB:	XOR	DH,DH
+	AND	CL,0FCH
+GVWO:	MOV	AX,DX
+	CLC
+	RETW
+SETORG:	CALLW	RI
+	MOV	EA32_VAR_PLUS(VORG,0),AX
+	CLC
+	RETW
+SETDFS:	CALLW	RI
+	ADD	EA32_VAR_PLUS(USIZE,0),AX
+	ADD	EA32_VAR_PLUS(PC,0),AX
+	CLC
+	RETW
+SETEQU:	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,3
+	JZ	SETEQ0
+	CALLW	RI
+	MOV	DI,BP
+	STOSW
+SETEQ0:	CLC
+	RETW
+
+;	INCLUDE	8086.ASM
+ASM:	MOV EA32_VAR_PLUS(STK,0), ESP
+	XOR	AX,AX
+	MOV	EA32_VAR_PLUS(BINLEN,0),AX
+	MOV	SI,EA32_VAR_PLUS(TXTBUF,0)
+	MOV	AL,EA32_VAR_PLUS(FUNC,0)
+	TEST	AL,AL
+	JNS	ASMLIN
+	XOR	AX,AX
+	MOV	EA32_VAR_PLUS(TXTLEN,0),AX
+	MOV	SI,EA32_VAR_PLUS(BINBUF,0)
+	MOV	DI,EA32_VAR_PLUS(TXTBUF,0)
+	JMP	DISASM
+ASMLBL:	CALLW	LBL  ; !! LBL may interfere with the stack return value.
+ASMLIN:	MOV ESP, EA32_VAR_PLUS(STK,0)
+	XOR	AX,AX
+	MOV	DI,WADJ
+	MOV	CX,7
+	CLD
+	FIX_CX
+	REP STOSW
+	FIX_CX
+	CALLW	CC
+	JZ	ASMEND
+	MOV	DI,I8086
+	MOV	DX,IHDL
+	CALLW	ASMCMD
+	JZ	WROUT
+	MOV	DI,D8086
+	MOV	DX,AHDL
+	CALLW	ASMCMD
+	JZ	WROUT
+	CALLW	SCREG
+	JNZ	ASMLBL
+	CALLW	GSPR
+	JC	D5
+G0AH:	MOV	AX,ASMLIN
+	PUSHW	AX
+WROUT:	XOR	DL,DL
+	XCHG	DL,EA32_VAR_PLUS(FLAGS,0)
+	SHL	DL,1
+	JZ	ASMEND
+	MOV	DI,EA32_VAR_PLUS(BINBUF,0)
+	ADD	DI,EA32_VAR_PLUS(BINLEN,0)
+	PUSHW	SI
+	PUSHW	DI
+	MOV	SI,SEGPRE
+	CLD
+WROUT1:	LODSB
+	SHL	DL,1
+	JNC	WROUT2
+	STOSB
+WROUT2:	JNZ	WROUT1
+	POPR	CX
+	POPR	SI
+	XCHG	CX,DI
+	SUB	CX,DI
+	ADD	EA32_VAR_PLUS(BINLEN,0),CX
+	ADD	EA32_VAR_PLUS(PC,0),CX
+ASMEND:	CLC
+	RETW
+RNM:	PUSHW	AX
+	CALLW	SW
+	JNZ	RNMEND
+	ADD	SI,BX
+	MOV	AH,4
+	CMP	AL,11H
+	JZ	RNMOFF
+	CMP	AL,12H
+	JZ	RNMLO
+	CMP	AL,13H
+	JZ	RNMHI
+D5:	MOV	AL,0CH
+	JMP	FAIL
+RNMOFF:	SHL	AH,1
+RNMHI:	SHL	AH,1
+RNMLO:	OR	CL,AH
+	CALLW	CC
+	JZ	RNMER8
+	CMP	AL,AL
+RNMEND:	POPR	AX
+	RETW
+RNMER8:	MOV	AL,8
+	JMP	FAIL
+BORW:	CALLW	CC
+	JZ	RNMER8
+	CALLW	SW
+	JNZ	BORW2
+	CMP	AL,10H
+	JZ	RA1
+	JNC	BORW2
+	ADD	SI,BX
+	MOV	DI,WADJ
+	CMP	AL,8
+	JC	BORW1
+	INC	DI
+BORW1:	XCHG	AL,EA_DI_PLUS(0)
+	TEST	AL,AL
+	JNZ	RA1
+	CALLW	CC
+	JZ	BORW2
+	CALLW	SW
+	JNZ	BORW2
+	CMP	AL,10H
+	JNZ	RA1
+	ADD	SI,BX
+	CALLW	CC
+BORW2:	RETW
+RA:	XOR	DX,DX
+	XOR	CX,CX
+	MOV	EA32_VAR_PLUS(WADJ,0),DX
+RAS:	CALLW	BORW
+	JC	RAIX
+	CMP	AL,5BH
+	JZ	RAM
+	CALLW	SCREG
+	JZ	RAR
+RAL:	CALLW	RI
+	MOV	DX,304H
+	XCHG	DH,CL
+	AND	DH,CL
+	JNZ	RAIW
+	TEST	AH,AH
+	JZ	RAIB
+	CALLW	AA
+	JC	RAIW
+RAIB:	DEC	CX
+RAIW:	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	TEST	AL,AL
+	JZ	RAIX
+	MOV	CL,2
+	DEC	AX
+	JZ	RAIX
+	INC	CX
+RAIX:	JMP	WARG
+RA1:	MOV	AL,1
+	JMP	FAIL
+RAR:	CALLW	GSPR
+	JNC	RAS
+	MOV	DH,AL
+	CMP	AL,10H
+	LAHF
+	CMP	AL,8
+	SBB	AL,AL
+	ADD	AL,2
+	MOV	EA32_VAR_PLUS(WADJ,0),AL
+	SAHF
+	SBB	AL,AL
+	ADD	AL,2
+	AND	DH,7
+	MOV	DL,AL
+	JMP	WARG
+RAM:	INC	SI
+	CALLW	BORW
+	XOR	DX,DX
+	XOR	CL,CL
+RAD:	CALLW	CC
+	JZ	RA8
+	CMP	AL,5DH
+	JZ	RADX
+	CMP	AL,2BH
+	JZ	RADP
+	CMP	AL,2DH
+	JZ	RADM
+	CALLW	SCREG
+	JZ	RADR
+	PUSHW	DX
+	MOV	DL,24H
+	CALLW	GV
+	POPR	DX
+	JC	RA1
+	ADD	EA32_VAR_PLUS(DISP,0),AX
+	JMP	RAD
+RADM:	XOR	CL,80H
+RADP:	AND	CL,0BFH
+	INC	SI
+	JMP	RAD
+RADR:	MOV	DL,1
+	CMP	AL,11
+	JZ	BXD
+	CMP	AL,13
+	JZ	BPD
+	CMP	AL,14
+	JZ	SID
+	CMP	AL,15
+	JZ	DID
+	CALLW	GSPR
+	JNC	RAD
+RA0D:	MOV	AL,0DH
+	JMP	FAIL
+RA2:	MOV	AL,2
+	JMP	FAIL
+SID:	SHL	DL,1
+DID:	SHL	DL,1
+BPD:	SHL	DL,1
+BXD:	TEST	DH,DL
+	JNZ	RA2
+	TEST	CL,80H
+	JNZ	RA2
+	OR	DH,DL
+	OR	CL,40H
+	JMP	RAD
+RA8:	MOV	AL,8
+	JMP	FAIL
+RADX:	TEST	CL,40H
+	JZ	RA8
+	INC	SI
+	MOV	AL,DH
+	MOV	BX,RM
+	XLATB
+	CMP	AL,0FFH
+	JZ	RA0D
+	MOV	DL,3
+	MOV	DH,AL
+	CMP	AL,0EH
+	JZ	RADW
+	AND	CL,DL
+	JNZ	RADW
+	MOV	AX,EA32_VAR_PLUS(DISP,0)
+	TEST	AX,AX
+	JNZ	RADB
+	CMP	DH,6
+	JNZ	WARG
+RADB:	MOV	CL,8
+	CALLW	AA
+	JNC	WARG
+RADW:	MOV	CL,0CH
+WARG:	OR	EA32_VAR_PLUS(FLAGS,0),CL
+	MOV	AX,EA32_VAR_PLUS(WADJ,0)
+	MOV	CL,4
+	TEST	BYTE EA32_VAR_PLUS(ARGS,0),0FH
+	JZ	NARGS
+	ROL	AX,CL
+	ROL	DX,CL
+NARGS:	OR	EA32_VAR_PLUS(ARGS,2),AX
+	OR	EA32_VAR_PLUS(ARGS,0),DX
+	CALLW	CC
+	JNZ	COMMA
+	MOV	AX,EA32_VAR_PLUS(ARGS,0)
+	MOV	CH,EA32_VAR_PLUS(ARGS,2)
+	RETW
+COMMA:	INC	SI
+	CMP	AL,3AH
+	JZ	COL
+	CMP	AL,2CH
+	JNZ	GSPR1
+	CALLW	CC
+	JZ	RA8
+	JMP	RA
+COL:	MOV	AL,EA32_VAR_PLUS(ARGS,0)
+	CMP	AL,4
+	JNZ	GSPR1
+	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	XCHG	AX,EA32_VAR_PLUS(DISP,0)
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+	CALLW	RI
+	MOV	DX,304H
+	AND	DH,CL
+	MOV	AL,2
+	MOV	CL,0FH
+	JMP	WARG
+GSPR1:	MOV	AL,1
+	JMP	FAIL
+GSPR:	CMP	AL,10H
+	JC	GSPR0
+	XCHG	AL,AH
+	CALLW	CC
+	XCHG	AL,AH
+	JZ	GSPR0
+	CMP	AH,3AH
+	JNZ	GSPR0
+	AND	AL,3
+	SHL	AL,1
+	SHL	AL,1
+	SHL	AL,1
+	OR	AL,26H
+GSPR2:	INC	SI
+	MOV	EA32_VAR_PLUS(SEGPRE,0),AL
+	MOV	AL,EA32_VAR_PLUS(FLAGS,0)
+	TEST	AL,40H
+	JNZ	GSPR1
+	OR	AL,40H
+	MOV	EA32_VAR_PLUS(FLAGS,0),AL
+	CLC
+	RETW
+RNC:	PUSHW	AX
+	PUSHW	CX
+	PUSHW	SI
+	MOV	CL,5
+	CMP	AL,30H
+	JB	RNC1
+	CMP	AL,3AH
+	JNB	RNC1
+	lea di, [bx+si]
+	DEC	BX
+	MOV	AL,EA_BX_SI_PLUS(0)
+	CMP	AL,42H
+	JE	RNC2
+	CMP	AL,48H
+	JE	RNC16
+	CMP	AL,4FH
+	JE	RNC8
+	CMP	AL,51H
+	JE	RNC8;RNC4
+	INC	BX
+	CMP	AL,30H
+	JB	RNC1
+	CMP	AL,3AH
+	JB	RNC10
+RNC1:	POPR	SI
+	POPR	CX
+	POPR	AX
+GSPR0:	STC
+	RETW
+RNC2:	DEC	CX
+RNC4:	DEC	CX
+RNC8:	DEC	CX
+RNC16:	DEC	CX
+RNC10:	CALLW	RN
+	JNZ	RNC1
+	POPR	SI
+	MOV	SI,DI
+RNC0:	POPR	CX
+	POPR	AX
+	CLC
+	RETW
+SCREG:	PUSHW	CX
+	CMP	BX,2
+	JNZ	SCREG0
+	MOV	AX,EA_SI_PLUS(0)
+	MOV	DI,REGS
+	MOV	CX,14H
+	CLD
+	FIX_CX
+	REPNE SCASW
+	FIX_CX
+	JNZ	SCREG0
+	ADD	SI,BX
+	MOV	AL,13H
+	SUB	AL,CL
+	XOR	BX,BX
+SCREG0:	POPR	CX
+	RETW
+SW:	PUSHW	CX
+	PUSHW	DX
+	PUSHW	BX
+	PUSHW	SI
+	MOV	DI,D8086
+	CALLW	SL
+	POPR	SI
+	POPR	BX
+	POPR	DX
+	POPR	CX
+	JNZ	SW1
+	CMP	AH,5
+	JZ	SW2
+SW1:	MOV	AX,EA_SI_PLUS(0)
+SW2:	RETW
+ASMCMD:	XOR	BYTE EA32_VAR_PLUS(FLAGS,0),20H
+	PUSHW	DX
+	CALLW	SL
+	POPR	DI
+	JNZ	SW2
+	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
+	XCHG	AL,AH
+	SHL	AX,1
+	ADD	DI,AX
+	CALLWW	EA_DI_PLUS(0)
+	CALLW	CC
+	JZ	SW2
+	MOV	AL,9
+	JMP	FAIL
+WA:	PUSHW	AX
+	PUSHW	CX
+	AND	AL,0F0H
+	MOV	AH,CH
+	XCHG	AL,CH
+	SHR	AH,CL
+	AND	AX,0F0FH
+	JZ	WAZ
+	TEST	AL,AL
+	JZ	WALZ
+	TEST	AH,AH
+	JZ	WAHZ
+	CMP	AL,AH
+	JZ	WAHZ
+	CMP	CH,40H
+	JZ	WAHZ
+WA6:	MOV	AL,6
+	JMP	FAIL
+WA0:	XOR	AL,AL
+	JMP	FAIL
+WALZ:	MOV	AL,AH
+WAHZ:	CMP	AL,3
+	JNC	WA0
+	DEC	AX
+WAZ:	MOV	EA32_VAR_PLUS(WADJ,0),AL
+	TEST	BYTE EA32_VAR_PLUS(FLAGS,0),2
+	JZ	WAE
+	TEST	AL,AL
+	JZ	WAB
+	CMP	AH,1
+	JZ	WAB
+	OR	BYTE EA32_VAR_PLUS(FLAGS,0),1
+WAE:	POPR	CX
+	POPR	AX
+	RETW
+WAB:	AND	BYTE EA32_VAR_PLUS(FLAGS,0),0FEH
+	TEST	BYTE EA32_VAR_PLUS(FUNC,0),1
+	JNZ	WAE
+	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	TEST	AH,AH
+	JZ	WAE
+	CALLW	AA
+	JNC	WAE
+WA7:	MOV	AL,7
+	JMP	FAIL
+MMODRM:	OR	BYTE EA32_VAR_PLUS(FLAGS,0),10H
+	MOV	AX,EA32_VAR_PLUS(ARGS,0)
+	MOV	CL,4
+	CMP	AL,11H
+	JZ	MREGR
+	CMP	AL,12H
+	JZ	MREGL
+	CMP	AL,13H
+	JZ	MMEMR
+	CMP	AL,21H
+	JZ	MREGR
+	CMP	AL,23H
+	JZ	MMEMR
+	CMP	AL,31H
+	JZ	MMEML
+	CMP	AL,32H
+	JZ	MMEML
+	AND	AX,0F0FH
+	CMP	AL,1
+	JZ	MREGR
+	CMP	AL,3
+	JZ	MMEMR
+	MOV	AX,EA32_VAR_PLUS(ARGS,0)
+	ROR	AX,CL
+	AND	AX,0F0FH
+	CMP	AL,1
+	JZ	MREGR
+	CMP	AL,3
+	JZ	MMEMR
+	RETW
+MMEML:	ROR	AH,CL
+MMEMR:	MOV	AL,AH
+	PUSHW	AX
+	AND	AX,7007H
+	ROR	AH,1
+	OR	AL,AH
+	OR	EA32_VAR_PLUS(MODRM,0),AL
+	POPR	AX
+	AND	AL,8
+	JNZ	MM0
+	MOV	AL,EA32_VAR_PLUS(FLAGS,0)
+	AND	AL,0CH
+	JZ	MM0
+	MOV	AH,40H
+	AND	AL,4
+	JZ	MM8
+	SHL	AH,1
+	JMP	MM8
+MREGL:	ROR	AH,CL
+MREGR:	MOV	AL,AH
+	ROR	AH,1
+	AND	AX,3807H
+	OR	AL,0C0H
+	OR	AH,AL
+MM8:	OR	EA32_VAR_PLUS(MODRM,0),AH
+MM0:	RETW
+G2:	CALLW	RA
+	PUSHW	AX
+	AND	AX,0F0FH
+	MOV	EA32_VAR_PLUS(ARGS,0),AX
+	MOV	AL,0D0H
+	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
+	MOV	EA32_VAR_PLUS(MODRM,0),AL
+	MOV	AL,CH
+	AND	AL,0FH
+	JZ	G2B
+	DEC	AX
+	JZ	G2B
+	OR	EA32_VAR_PLUS(OPCODE,0),AL
+G2B:	POPR	AX
+	AND	AX,0F0F0H
+	JZ	G2N
+	CMP	AX,1010H
+	JZ	G2CL
+	CMP	AL,40H
+	JNZ	G2F
+	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	CMP	AX,1
+	JZ	G2N
+G2F:	MOV	AL,1
+	JMP	FAIL
+G2CL:	OR	BYTE EA32_VAR_PLUS(OPCODE,0),2
+G2N:	AND	BYTE EA32_VAR_PLUS(FLAGS,0),0FCH
+	JMP	MMODRM
+G1:	CALLW	RA
+	CALLW	WA
+	MOV	CH,4
+	AND	AH,0FH
+	CMP	AX,41H
+	JZ	G1AI
+	CMP	AL,11H
+	JZ	G1MR
+	CMP	AL,13H
+	JZ	G1MR
+	CMP	AL,31H
+	JZ	G1RM
+	CMP	AL,41H
+	JZ	G1MI
+	CMP	AL,43H
+	JNZ	ERR0
+G1MI:	MOV	AL,80H
+	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
+	OR	EA32_VAR_PLUS(MODRM,0),AL
+	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	CALLW	AA
+	JC	G1MR
+	MOV	AL,EA32_VAR_PLUS(ARGS,2)
+	CMP	AL,22H
+	JZ	G1MR
+	AND	BYTE EA32_VAR_PLUS(FLAGS,0),0FEH
+	TEST	BYTE EA32_VAR_PLUS(WADJ,0),0FFH
+	JZ	G1MR
+G1RM:	OR	BYTE EA32_VAR_PLUS(OPCODE,0),2
+G1MR:	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	OR	EA32_VAR_PLUS(OPCODE,0),AL
+	JMP	MMODRM
+G1AI:	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	OR	AL,CH
+	OR	EA32_VAR_PLUS(OPCODE,0),AL
+	RETW
+ERR0:	MOV	AL,0
+	JMP	FAIL
+G3:	CALLW	RA
+	CALLW	WA
+	MOV	CH,0A8H
+	AND	AH,0FH
+	CMP	AX,41H
+	JZ	G1AI
+	MOV	CH,0F6H
+	CMP	AL,1
+	JZ	G3R
+	CMP	AL,3
+	JZ	G3R
+	CMP	AL,41H
+	JZ	G3R
+	CMP	AL,43H
+	JZ	G3R
+	MOV	CH,84H
+	CMP	AL,11H
+	JZ	G3R
+	CMP	AL,13H
+	JZ	G3R
+	CMP	AL,31H
+	JNZ	ERR0
+G3R:	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	OR	AL,CH
+	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
+	OR	EA32_VAR_PLUS(MODRM,0),AL
+	JMP	MMODRM
+G4:	CALLW	RA
+	CALLW	WA
+	CMP	AL,2
+	JZ	G4S
+	CMP	AL,3
+	JZ	G4M
+	CMP	AL,1
+	JNZ	ERR0
+	CMP	CH,2
+	JC	G4M
+	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	AND	AL,18H
+	OR	AL,40H
+	OR	AL,AH
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+	RETW
+G4M:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	CMP	AL,38H
+	MOV	AX,8FH
+	JZ	G4P
+	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	TEST	CH,CH
+	JNZ	G4W
+	INC	AX
+G4W:	OR	AL,0FEH
+	MOV	AH,EA32_VAR_PLUS(OPCODE,0)
+G4P:	MOV	EA32_VAR_PLUS(OPCODE,0),AX
+	JMP	MMODRM
+G4S:	DEC	CX
+	SHL	AH,CL
+	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	SHR	AL,CL
+	AND	AL,1
+	OR	AL,AH
+	OR	AL,6
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+	RETW
+G6:	CALLW	RA
+	CMP	AL,1
+	JZ	G6R
+	CMP	AL,4
+	JZ	G6I
+	CMP	AL,44H
+	JZ	G6IF
+	CMP	AL,3
+	JNZ	G6F0
+G6R:	MOV	AL,EA32_VAR_PLUS(ARGS,3)
+	CMP	AL,8
+	JZ	G6F0
+	CMP	AL,9
+	JZ	G6RN
+	CMP	AL,0AH
+	JZ	G6RF
+	MOV	AL,CH
+	CMP	AL,0
+	JZ	G6RN
+	CMP	AL,2
+	JZ	G6RN
+	CMP	AL,3
+	JNZ	G6F0
+G6RF:	OR	BYTE EA32_VAR_PLUS(MODRM,0),8
+G6RN:	MOV	CL,0FFH
+	XCHG	CL,EA32_VAR_PLUS(OPCODE,0)
+	MOV	AL,10H
+	SHL	AL,CL
+	OR	EA32_VAR_PLUS(MODRM,0),AL
+	JMP	MMODRM
+G6I:	MOV	AL,EA32_VAR_PLUS(ARGS,3)
+	CMP	AL,0
+	JZ	G6IN
+	CMP	AL,8
+	JZ	G6IS
+	CMP	AL,9
+	JZ	G6IN
+	CMP	AL,0AH
+	JNZ	G6F0
+G6IF:	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	XCHG	AX,EA32_VAR_PLUS(DISP,0)
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+	OR	BYTE EA32_VAR_PLUS(FLAGS,0),0FH
+	MOV	AX,9AEAH
+	XCHG	AH,EA32_VAR_PLUS(OPCODE,0)
+	TEST	AH,AH
+	JZ	G5X
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+G5X:	RETW
+G6IS:	MOV	AL,0EBH
+	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
+	TEST	AL,AL
+	JNZ	G5S
+G6F0:	MOV	AL,0
+	JMP	FAIL
+G6IN:	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	SUB	AX,EA32_VAR_PLUS(PC,0)
+	SUB	AX,EA32_VAR_PLUS(VORG,0)
+	SUB	AX,3
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+	OR	BYTE EA32_VAR_PLUS(FLAGS,0),3
+	OR	BYTE EA32_VAR_PLUS(OPCODE,0),0E8H
+	RETW
+G5:	CALLW	RA
+G5S:	AND	BYTE EA32_VAR_PLUS(FLAGS,0),0FEH
+	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	SUB	AX,EA32_VAR_PLUS(PC,0)
+	SUB	AX,EA32_VAR_PLUS(VORG,0)
+	SUB	AX,2
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+	TEST	BYTE EA32_VAR_PLUS(FUNC,0),2
+	JZ	G5X
+	CALLW	AA
+	JNC	G5X
+	MOV	AL,5
+	JMP	FAIL
+G8:	CALLW	RA
+	CMP	AL,31H
+	JNZ	G6F0
+	JMP	MMODRM
+G9:	CALLW	RA
+	CALLW	WA
+	XOR	CH,CH
+	CMP	AX,0E031H
+	JZ	G9A
+	CMP	AX,0E13H
+	JZ	G9A2
+	CMP	AL,11H
+	JZ	G9MR
+	CMP	AL,13H
+	JZ	G9MR
+	CMP	AL,21H
+	JZ	G9SR
+	CMP	AL,23H
+	JZ	G9SR
+	CMP	AL,43H
+	JZ	G9MI
+	MOV	CH,2
+	CMP	AL,12H
+	JZ	G9SR
+	CMP	AL,31H
+	JZ	G9MR
+	CMP	AL,32H
+	JZ	G9SR
+	MOV	CH,0B0H
+	CMP	AL,41H
+	JNZ	G9F0
+	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	DEC	CX
+	SHL	AL,CL
+	JMP	G9S
+G9A2:	MOV	CH,2
+G9A:	MOV	AX,EA32_VAR_PLUS(DISP,0)
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+	MOV	AL,EA32_VAR_PLUS(FLAGS,0)
+	AND	AX,0E3H
+	OR	AL,3
+	MOV	EA32_VAR_PLUS(FLAGS,0),AL
+	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	OR	AL,0A0H
+G9S:	OR	AL,AH
+	OR	AL,CH
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+	RETW
+G9SR:	MOV	AL,8CH
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+	JMP	G9M
+G9MI:	MOV	AL,0C6H
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+G9MR:	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+G9M:	OR	AL,CH
+	OR	EA32_VAR_PLUS(OPCODE,0),AL
+	JMP	MMODRM
+G0EH:	CALLW	RA
+	CMP	AL,14H
+	JZ	G0EHRM
+	CMP	AL,34H
+	JNZ	G9F0
+G0EHRM:	MOV	AX,EA32_VAR_PLUS(IMM,0)
+	CMP	AX,3FH
+	JA	G0CHF
+	MOV	AH,AL
+	DEC	CX
+	ROR	AL,CL
+	AND	AX,707H
+	ROL	AH,CL
+	OR	EA32_VAR_PLUS(OPCODE,0),AX
+	AND	BYTE EA32_VAR_PLUS(FLAGS,0),0FCH
+	JMP	MMODRM
+G9F0:	MOV	AL,0
+	JMP	FAIL
+G7:	CALLW	CC
+	JNZ	G7A
+	MOV	AX,0AH
+	MOV	EA32_VAR_PLUS(IMM,0),AX
+G7B:	OR	BYTE EA32_VAR_PLUS(FLAGS,0),2
+	RETW
+G7A:	CALLW	RI
+	TEST	AH,AH
+	JZ	G7B
+G0CHF:	MOV	AL,7
+	JMP	FAIL
+G0CH:	CALLW	RE
+	CMP	AX,3
+	JZ	G0CH3
+	TEST	AH,AH
+	JNZ	G0CHF
+	OR	BYTE EA32_VAR_PLUS(FLAGS,0),2
+	RETW
+G0CH3:	DEC	BYTE EA32_VAR_PLUS(OPCODE,0)
+	RETW
+G0DH:	CALLW	RA
+	AND	BYTE EA32_VAR_PLUS(FLAGS,0),0FEH
+	CMP	AL,41H
+	JZ	G0DHI
+	CMP	AL,14H
+	JZ	G0DHO
+	OR	BYTE EA32_VAR_PLUS(OPCODE,0),8
+	CMP	AX,2011H
+	JZ	G0DHI
+	CMP	AX,211H
+	JNZ	G9F0
+G0DHO:	SHR	CH,CL
+G0DHI:	MOV	AL,CH
+	AND	AL,0FH
+	CMP	AL,2
+	JC	G0DH0
+	INC	BYTE EA32_VAR_PLUS(OPCODE,0)
+G0DH0:	RETW
+G0FH:	CALLW	RA
+	CALLW	WA
+	CMP	AL,13H
+	JZ	G0FHM
+	CMP	AL,31H
+	JZ	G0FHM
+	CMP	AL,11H
+	JNZ	G9F0
+	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	TEST	AL,0FFH
+	JZ	G0FHM
+	MOV	AL,AH
+	TEST	AL,0FH
+	JZ	G0FHAR
+	TEST	AL,0F0H
+	JZ	G0FHRA
+G0FHM:	MOV	AL,EA32_VAR_PLUS(WADJ,0)
+	OR	AL,86H
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+	JMP	MMODRM
+G0FHAR:	SHR	AL,CL
+G0FHRA:	OR	AL,90H
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+G0BH:	CALLW	CC
+	JZ	G0
+	CALLW	RA
+	CMP	AL,4
+	JNZ	G0BH1
+	OR	BYTE EA32_VAR_PLUS(FLAGS,0),3
+	DEC	BYTE EA32_VAR_PLUS(OPCODE,0)
+G0BH1:	MOV	AL,EA32_VAR_PLUS(ARGS,3)
+	CMP	AL,9
+	JZ	G0
+	CMP	AL,10
+	JNZ	G0
+G0BH2:	OR	BYTE EA32_VAR_PLUS(OPCODE,0),8
+G0:	RETW
+D0:	MOV	AX,EA32_VAR_PLUS(PC,0)
+	SHR	AL,1
+	SBB	AL,AL
+	AND	AL,20H
+	MOV	EA32_VAR_PLUS(FLAGS,0),AL
+	XOR	CX,CX
+	RETW
+D6:	CALLW	CC
+	CMP	AL,3AH
+	JZ	D6SEG
+	JMP	SETDFS
+D6SEG:	MOV	AL,3EH
+	CALLW	GSPR2
+	XOR	CX,CX
+	JMP	G0AH
+D8:	MOV	DI,EA32_VAR_PLUS(TEMP,0)
+D8L:	CALLW	CC
+	JZ	D9X	;D8P
+	CMP	AL,27H
+	JZ	D8Q
+	CMP	AL,22H
+	JZ	D8Q
+	CMP	AL,2CH
+	JZ	D8C
+	PUSH	DWORD EA32_VAR_PLUS(STK,0)
+	PUSHW	DI
+	CALLW	D8F
+	POPR	DI
+	POP	DWORD EA32_VAR_PLUS(STK,0)
+	JC	D9X	;D8P
+	PUSHW	SI
+	MOV	CX,10
+	CALLW	WN
+	POPR	SI
+	JMP	D8L
+D8Q:	INC	SI
+	SUB	BX,2
+	JBE	D9X	;D8P
+	CLD
+	MOV	CX,BX
+	FIX_CX
+	REP MOVSB
+	FIX_CX
+D8C:	INC	SI
+	JMP	D8L
+;D8P:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+;	MOV	SI,EA32_VAR_PLUS(TEMP,0)
+;	MOV	BX,DI
+;	SUB	BX,SI
+;	JMP	FAIL
+D8F:	MOV EA32_VAR_PLUS(STK,0), ESP
+RI:	MOV	DL,24H
+	JMP	RE
+D9:	XOR	DX,DX
+	CALLW	CC
+	JZ	D9X
+	CALLW	RI
+	MOV	DX,AX
+D9X:	JMP	SETEND
+DISASM:	CLD
+	PUSHW	SI
+	LODSB
+	XOR	AH,AH
+	MOV	EA32_VAR_PLUS(OPCODE,0),AL
+	MOV	BX,AX
+	AND	AL,1
+	SHL	AL,1
+	SHL	AL,1
+	SHL	AL,1
+	SHL	AL,1
+	MOV	EA32_VAR_PLUS(WADJ,0),AX
+	MOV	AL,EA_BX_PLUS_VAR(BIN86)
+	MOV	CX,AX
+	MOV	AL,EA_BX_PLUS_VAR(HDL86)
+	MOV	BX,AX
+	CMP	CL,7FH
+	JNC	DISAS1
+	MOV	DX,I8086+2
+	CALLW	WMN
+	MOV	AL,9
+	STOSB
+DISAS1:	SHL	BX,1
+	CALLWW	EA_BX_PLUS_VAR(DHDL)
+	MOV	AX,0A0DH
+	STOSW
+	MOV	CX,SI
+	POPR	SI
+	SUB	CX,SI
+	MOV	EA32_VAR_PLUS(BINLEN,0),CX
+	ADD	EA32_VAR_PLUS(PC,0),CX
+	MOV	AX,DI
+	SUB	AX,EA32_VAR_PLUS(TXTBUF,0)
+	MOV	EA32_VAR_PLUS(TXTLEN,0),AX
+	CLC
+	RETW
+WMN:	CLD
+	PUSHW	SI
+	MOV	SI,DX
+	XOR	CH,CH
+	JCXZ	WMN2
+WMN1:	FIX_CX
+	LODSB
+	TEST	AL,AL
+	JNZ	WMN1
+	LODSW
+	FIX_CX
+	LOOP	WMN1
+WMN2:	LODSB
+	STOSB
+	TEST	AL,AL
+	JNZ	WMN2
+	DEC	DI
+	POPR	SI
+	RETW
+RELBD:	CMP	BYTE EA32_VAR_PLUS(OPCODE,0),0EBH
+	JNZ	NOTJMP
+	MOV	CL,20
+	MOV	DX,D8086+2
+	CALLW	WMN
+	MOV	AL,20H
+	STOSB
+NOTJMP:	LODSB
+	CBW
+	ADD	AX,2
+	ADD	AX,EA32_VAR_PLUS(PC,0)
+	ADD	AX,EA32_VAR_PLUS(VORG,0)
+	JMP	WHA
+;NOTJMP:	MOV	AX,2B24H
+;	STOSW
+;	LODSB
+;	ADD	AL,2
+;	JNS	RELBNM
+;	DEC	DI
+;RELBNM:	CBW
+WHAS:	TEST	AX,AX
+	JNS	WHA
+	NEG	AX
+	MOV	BYTE EA_DI_PLUS(0),2DH
+	INC	DI
+WHA:	PUSHW	SI
+	PUSHW	AX
+	MOV	CX,16
+	CALLW	WN
+	POPR	AX
+	POPR	SI
+	CMP	AX,9
+	JNA	WHA0
+	MOV	AL,48H
+	STOSB
+WHA0:	RETW
+MACCD:	MOV	AL,6
+	JMP	MRD1
+MRD:	LODSB
+MRD1:	PUSHW	AX
+	CALLW	WDISP
+	MOV	AL,2CH
+	STOSB
+	POPR	AX
+WREG:	CLD
+	PUSHW	SI
+	MOV	SI,AX
+	SHR	SI,1
+	SHR	SI,1
+	AND	SI,0EH
+	JMP	WDISP1
+WPTR:	LODSB
+	CMP	AL,0C0H
+	JNC	WDISP
+	MOV	DX,D8086+2
+	PUSHW	AX
+	MOV	CL,22
+	TEST	BYTE EA32_VAR_PLUS(WADJ,0),0FFH
+	JNZ	WSELF
+	XOR	CL,CL
+WSELF:	CALLW	WMN
+	MOV	AL,20H
+	STOSB
+	MOV	CL,19
+	CALLW	WMN
+	MOV	AL,20H
+	STOSB
+	POPR	AX
+WDISP:	PUSHW	SI
+	MOV	SI,AX
+	AND	SI,7
+	CMP	AL,0C0H
+	JC	WDD
+	SHL	SI,1
+WDISP1:	ADD	SI,REGS
+	ADD	SI,EA32_VAR_PLUS(WADJ,0)
+	MOVSW
+	POPR	SI
+	RETW
+WDD:	PUSHW	AX
+	MOV	AL,5BH
+	STOSB
+	POPR	AX
+	AND	AL,0C7H
+	CMP	AL,6
+	JNZ	WDC
+	POPR	SI
+	LODSW
+	CALLW	WHA
+	MOV	AL,5DH
+	STOSB
+	RETW
+WDC:	PUSHW	AX
+	ADD	SI,_DISP
+	MOV	DL,EA_SI_PLUS(0)
+	MOV	AL,2BH
+	MOV	CL,4
+WDL:	MOV	SI,DX
+	AND	SI,0FH
+	ADD	SI,REGS+16
+	MOVSW
+	STOSB
+	SHR	DL,CL
+	JNZ	WDL
+	POPR	AX
+	POPR	SI
+	CMP	AL,80H
+	JC	WDB
+	LODSW
+	JMP	WDW
+WDB:	CMP	AL,40H
+	JC	WDX
+	LODSB
+	CBW
+WDW:	TEST	AX,AX
+	JZ	WDX
+	JNS	WDM
+	DEC	DI
+WDM:	CALLW	WHAS
+	MOV	AL,5DH
+	STOSB
+	RETW
+WDX:	DEC	DI
+	MOV	AL,5DH
+	STOSB
+	RETW
+SINGD:	DEC	DI
+	RETW
+SPREFD:	CALLW	PSRD
+	MOV	AL,3AH
+	STOSB
+	RETW
+ACCID:	XOR	AL,AL
+	CALLW	WREG
+	JMP	G03DT
+PSRD:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+WSR:	SHR	AL,1
+	SHR	AL,1
+	AND	AX,6
+	ADD	AX,REGS+20H
+	XCHG	AX,SI
+	CLD
+	MOVSW
+	XCHG	AX,SI
+	RETW
+MSD:	MOV	AL,10H
+	MOV	EA32_VAR_PLUS(WADJ,0),AL
+	LODSB
+	PUSHW	AX
+	CALLW	WDISP
+	MOV	AL,2CH
+	STOSB
+	POPR	AX
+	JMP	WSR
+SMD:	MOV	AL,10H
+	MOV	EA32_VAR_PLUS(WADJ,0),AL
+	LODSB
+	PUSHW	AX
+	CALLW	WSR
+	MOV	AL,2CH
+	STOSB
+	POPR	AX
+	JMP	WDISP
+ACCRD:	MOV	AX,EA32_VAR_PLUS(REGS,10h)
+	STOSW
+	MOV	AL,2CH
+	STOSB
+REGWD:	MOV	AL,10H
+	MOV	EA32_VAR_PLUS(WADJ,0),AL
+	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	OR	AL,0C0H
+	JMP	WDISP
+RIMMD:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	PUSHW	SI
+	AND	AX,0FH
+	SHL	AL,1
+	PUSHW	AX
+	ADD	AX,REGS
+	MOV	SI,AX
+	MOVSW
+	POPR	AX
+	AND	AL,10H
+	POPR	SI
+	MOV	EA32_VAR_PLUS(WADJ,0),AL
+	JMP	G03DT
+RELWD:	LODSW
+	ADD	AX,3
+	ADD	AX,EA32_VAR_PLUS(PC,0)
+	ADD	AX,EA32_VAR_PLUS(VORG,0)
+	JMP	WHA
+;RELWD:	MOV	AX,2B24H
+;	STOSW
+;	LODSW
+;	ADD	AX,3
+;	JNS	RELWNM
+;	DEC	DI
+;RELWNM:	JMP	WHAS
+AAMD:	LODSB
+	CMP	AL,0AH
+	JZ	AAMD0
+	XOR	AH,AH
+	CALLW	WHA
+AAMD0:	RETW
+ESCD:	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	MOV	AH,EA_SI_PLUS(0)
+	MOV	CL,3
+	ROR	AH,CL
+	AND	AX,707H
+	ROL	AL,CL
+	OR	AL,AH
+	XOR	AH,AH
+	CALLW	WHA
+	MOV	AL,2CH
+	STOSB
+	LODSB
+	JMP	WDISP
+INTD:	LODSB
+	XOR	AH,AH
+	JMP	WHA
+INT3D:	MOV	AL,33H
+	STOSB
+	RETW
+RETFD:	MOV	CL,0AH
+	MOV	DX,D8086+2
+	CALLW	WMN
+	TEST	BYTE EA32_VAR_PLUS(OPCODE,0),1
+	JZ	RETD
+	DEC	DI
+	RETW
+RETD:	LODSW
+	JMP	WHA
+ADIOD:	MOV	AX,EA32_VAR_PLUS(WADJ,0)
+	ADD	AX,REGS
+	PUSHW	SI
+	MOV	SI,AX
+	LODSW
+	POPR	SI
+	MOV	DX,5844H
+	TEST	BYTE EA32_VAR_PLUS(OPCODE,0),2
+	JZ	ADIOD0
+	XCHG	AX,DX
+ADIOD0:	STOSW
+	MOV	AL,2CH
+	STOSB
+	XCHG	AX,DX
+	STOSW
+	RETW
+IBAPD:	LODSB
+	XOR	AH,AH
+	CALLW	WHA
+	MOV	AL,2CH
+	STOSB
+	MOV	AL,0C0H
+	JMP	WDISP
+SEGOFD:	LODSW
+	PUSHW	AX
+	LODSW
+	CALLW	WHA
+	MOV	AL,3AH
+	STOSB
+	POPR	AX
+	JMP	WHA
+GRPD:	PUSHW	SI
+	LODSB
+	SHR	AL,1
+	SHR	AL,1
+	SHR	AL,1
+	AND	AX,7
+	PUSHW	AX
+	MOV	SI,AX
+	ADD	SI,CX
+	MOV	CL,EA_SI_PLUS(0)
+	MOV	DX,I8086+2
+	CALLW	WMN
+	MOV	AL,9
+	STOSB
+	POPR	AX
+	POPR	SI
+	RETW
+ACCMD:	MOV	AL,6
+	JMP	RMD1
+RWMD:	MOV	BYTE EA32_VAR_PLUS(WADJ,0),10H
+RMD:	LODSB
+RMD1:	PUSHW	AX
+	CALLW	WREG
+	MOV	AL,2CH
+	STOSB
+	POPR	AX
+	JMP	WDISP
+G02D:	MOV	CX,_G02D
+	CALLW	GRPD
+	CALLW	WPTR
+	MOV	AL,2CH
+	STOSB
+	TEST	BYTE EA32_VAR_PLUS(OPCODE,0),2
+	JZ	G02D1
+	MOV	AX,EA32_VAR_PLUS(REGS,2)
+	STOSW
+	RETW
+G02D1:	MOV	AL,31H
+	STOSB
+	RETW
+G03D:	MOV	CX,_G03D
+	CALLW	GRPD
+	PUSHW	WORD EA_SI_PLUS(0)
+	CALLW	WPTR
+	POPR	AX
+	TEST	AL,30H
+	JZ	G03DT
+	RETW
+G01D:	MOV	CX,_G01D
+	CALLW	GRPD
+RMID:	CALLW	WPTR
+G03DT:	MOV	AL,2CH
+	STOSB
+	LODSW
+	TEST	BYTE EA32_VAR_PLUS(WADJ,0),0FFH
+	JZ	G03DB
+	CMP	BYTE EA32_VAR_PLUS(OPCODE,0),83H
+	JNZ	G03DW
+G03DB:	CBW
+	DEC	SI
+G03DW:	JMP	WHA
+G04D:	MOV	CX,_G04D
+	CALLW	GRPD
+	CMP	AL,7
+	JZ	INVD
+	CMP	AL,5
+	JZ	G04DF
+	CMP	AL,4
+	JZ	DISPD
+	CMP	AL,3
+	JZ	G04DF
+	CMP	AL,2
+	JZ	DISPD
+	JMP	WPTR
+G04DF:	MOV	CL,0AH
+	MOV	DX,D8086+2
+	CALLW	WMN
+DISPD:	LODSB
+	JMP	WDISP
+INVD:	MOV	AX,4244H
+	STOSW
+	MOV	AX,9
+	STOSB
+	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
+	JMP	WHA
+	EVEN
+IHDL:	DW	G0,G1,G2,G3
+	DW	G4,G5,G6,G7
+	DW	G8,G9,G0AH,G0BH
+	DW	G0CH,G0DH,G0EH,G0FH
+AHDL:	DW	D0,SETEQU,SETEND
+	DW	SETORG,SETDFB
+	DW	D5,D6,SETINC
+	DW	D8,D9
+DHDL:	DW	MRD,RMD,ACCID
+	DW	PSRD,SPREFD,SINGD
+	DW	REGWD,INVD,RELBD
+	DW	G01D,G03D,G04D
+	DW	MSD,SMD,DISPD
+	DW	ACCRD,SEGOFD,ACCMD
+	DW	MACCD,RIMMD,RETD
+	DW	RWMD,RMID,RETFD
+	DW	INT3D,INTD,G02D
+	DW	AAMD,ESCD,IBAPD
+	DW	RELWD,ADIOD
+HDL86:	DB	0,0,1,1,2,2,3,3
+	DB	0,0,1,1,2,2,3,3
+	DB	0,0,1,1,2,2,3,3
+	DB	0,0,1,1,2,2,3,3
+	DB	0,0,1,1,2,2,4,5
+	DB	0,0,1,1,2,2,4,5
+	DB	0,0,1,1,2,2,4,5
+	DB	0,0,1,1,2,2,4,5
+	DB	6,6,6,6,6,6,6,6
+	DB	6,6,6,6,6,6,6,6
+	DB	6,6,6,6,6,6,6,6
+	DB	6,6,6,6,6,6,6,6
+	DB	7,7,7,7,7,7,7,7
+	DB	7,7,7,7,7,7,7,7
+	DB	8,8,8,8,8,8,8,8
+	DB	8,8,8,8,8,8,8,8
+	DB	9,9,9,9,1,1,1,1
+	DB	0,0,1,1
+	DB	0CH,01H,0DH,0EH
+	DB	05H,0FH,0FH,0FH
+	DB	0FH,0FH,0FH,0FH
+	DB	05H,05H,10H,05H
+	DB	05H,05H,05H,05H
+	DB	11H,11H,12H,12H
+	DB	05H,05H,05H,05H
+	DB	02H,02H,05H,05H
+	DB	05H,05H,05H,05H
+	DB	13H,13H,13H,13H
+	DB	13H,13H,13H,13H
+	DB	13H,13H,13H,13H
+	DB	13H,13H,13H,13H
+	DB	07H,07H,14H,05H
+	DB	15H,01H,16H,16H
+	DB	07H,07H,17H,17H
+	DB	18H,19H,05H,05H
+	DB	1AH,1AH,1AH,1AH
+	DB	1BH,1BH,05H,05H
+	DB	1CH,1CH,1CH,1CH
+	DB	1CH,1CH,1CH,1CH
+	DB	08H,08H,08H,08H
+	DB	02H,02H,1DH,1DH
+	DB	1EH,1EH,10H,08H
+	DB	1FH,1FH,1FH,1FH
+	DB	05H,07H,05H,05H
+	DB	05H,05H,0AH,0AH
+	DB	05H,05H,05H,05H
+	DB	05H,05H,0BH,0BH
+BIN86:	DB	05H,05H,05H,05H
+	DB	05H,05H,55H,53H
+	DB	51H,51H,51H,51H
+	DB	51H,51H,55H,53H
+	DB	04H,04H,04H,04H
+	DB	04H,04H,55H,53H
+	DB	65H,65H,65H,65H
+	DB	65H,65H,55H,53H
+	DB	06H,06H,06H,06H
+	DB	06H,06H,7FH,11H
+	DB	6FH,6FH,6FH,6FH
+	DB	6FH,6FH,7FH,12H
+	DB	74H,74H,74H,74H
+	DB	74H,74H,7FH,00H
+	DB	0DH,0DH,0DH,0DH
+	DB	0DH,0DH,7FH,03H
+	DB	1AH,1AH,1AH,1AH
+	DB	1AH,1AH,1AH,1AH
+	DB	13H,13H,13H,13H
+	DB	13H,13H,13H,13H
+	DB	55H,55H,55H,55H
+	DB	55H,55H,55H,55H
+	DB	53H,53H,53H,53H
+	DB	53H,53H,53H,53H
+	DB	7FH,7FH,7FH,7FH
+	DB	7FH,7FH,7FH,7FH
+	DB	7FH,7FH,7FH,7FH
+	DB	7FH,7FH,7FH,7FH
+	DB	38H,34H,22H,2EH
+	DB	3DH,37H,2CH,1EH
+	DB	3CH,36H,39H,35H
+	DB	27H,32H,30H,25H
+	DB	7FH,7FH,7FH,7FH
+	DB	70H,70H,72H,72H
+	DB	4AH,4AH,4AH,4AH
+	DB	4AH,40H,4AH,53H
+	DB	4FH,72H,72H,72H
+	DB	72H,72H,72H,72H
+	DB	08H,10H,07H,71H
+	DB	56H,54H,61H,3EH
+	DB	4AH,4AH,4AH,4AH
+	DB	4BH,4CH,0EH,0FH
+	DB	70H,70H,6DH,6EH
+	DB	43H,44H,66H,67H
+	DB	4AH,4AH,4AH,4AH
+	DB	4AH,4AH,4AH,4AH
+	DB	4AH,4AH,4AH,4AH
+	DB	4AH,4AH,4AH,4AH
+	DB	7FH,7FH,5EH,5EH
+	DB	41H,3FH,4AH,4AH
+	DB	7FH,7FH,5EH,5EH
+	DB	1BH,1BH,1CH,1DH
+	DB	7FH,7FH,7FH,7FH
+	DB	02H,01H,63H,73H
+	DB	15H,15H,15H,15H
+	DB	15H,15H,15H,15H
+	DB	48H,49H,45H,23H
+	DB	19H,19H,52H,52H
+	DB	07H,29H,29H,29H
+	DB	19H,19H,52H,52H
+	DB	42H,7FH,5CH,5DH
+	DB	16H,0CH,7FH,7FH
+	DB	09H,6AH,0BH,6BH
+	DB	0AH,6CH,7FH,7FH
+_G01D:	DB	05H,51H,04H,65H
+	DB	06H,6FH,74H,0DH
+_G02D:	DB	5FH,60H,57H,58H
+	DB	68H,69H,62H,64H
+_G03D:	DB	60H,60H,50H,4EH
+	DB	4FH,18H,14H,17H
+_G04D:	DB	1AH,13H,07H,07H
+	DB	29H,29H,55H,7FH
+_DISP:	DB	0C6H,0E6H,0CAH,0EAH
+	DB	0CH,0EH,0AH,6
+RM:	DB	0EH,7,6,0FFH
+	DB	5,1,3,0FFH
+	DB	4,0,2,0FFH
+	DB	0FFH,0FFH,0FFH,0FFH
+REGS:	DB	"ALCLDLBLAHCHDHBH"
+	DB	"AXCXDXBXSPBPSIDI"
+	DB	"ESCSSSDS"
+I8086:	DW	117
+	DB	"AAA",0,37H,0
+	DB	"AAD",0,0D5H,7
+	DB	"AAM",0,0D4H,7
+	DB	"AAS",0,3FH,0
+	DB	"ADC",0,10H,1
+	DB	"ADD",0,0,1
+	DB	"AND",0,20H,1
+	DB	"CALL",0,0,6
+	DB	"CBW",0,98H,0
+	DB	"CLC",0,0F8H,0
+	DB	"CLD",0,0FCH,0
+	DB	"CLI",0,0FAH,0
+	DB	"CMC",0,0F5H,0
+	DB	"CMP",0,38H,1
+	DB	"CMPSB",0,0A6H,0
+	DB	"CMPSW",0,0A7H,0
+	DB	"CWD",0,99H,0
+	DB	"DAA",0,27H,0
+	DB	"DAS",0,2FH,0
+	DB	"DEC",0,8,4
+	DB	"DIV",0,30H,3
+	DB	"ESC",0,0D8H,0EH
+	DB	"HLT",0,0F4H,0
+	DB	"IDIV",0,38H,3
+	DB	"IMUL",0,28H,3
+	DB	"IN",0,0E4H,0DH
+	DB	"INC",0,0,4
+	DB	"INT",0,0CDH,0CH
+	DB	"INTO",0,0CEH,0
+	DB	"IRET",0,0CFH,0
+	DB	"JA",0,77H,5
+	DB	"JAE",0,73H,5
+	DB	"JB",0,72H,5
+	DB	"JBE",0,76H,5
+	DB	"JC",0,72H,5
+	DB	"JCXZ",0,0E3H,5
+	DB	"JE",0,74H,5
+	DB	"JG",0,7FH,5
+	DB	"JGE",0,7DH,5
+	DB	"JL",0,7CH,5
+	DB	"JLE",0,7EH,5
+	DB	"JMP",0,1,6
+	DB	"JNA",0,76H,5
+	DB	"JNAE",0,72H,5
+	DB	"JNB",0,73H,5
+	DB	"JNBE",0,77H,5
+	DB	"JNC",0,73H,5
+	DB	"JNE",0,75H,5
+	DB	"JNG",0,7EH,5
+	DB	"JNGE",0,7CH,5
+	DB	"JNL",0,7DH,5
+	DB	"JNLE",0,7FH,5
+	DB	"JNO",0,71H,5
+	DB	"JNP",0,7BH,5
+	DB	"JNS",0,79H,5
+	DB	"JNZ",0,75H,5
+	DB	"JO",0,70H,5
+	DB	"JP",0,7AH,5
+	DB	"JPE",0,7AH,5
+	DB	"JPO",0,7BH,5
+	DB	"JS",0,78H,5
+	DB	"JZ",0,74H,5
+	DB	"LAHF",0,9FH,0
+	DB	"LDS",0,0C5H,8
+	DB	"LEA",0,8DH,8
+	DB	"LES",0,0C4H,8
+	DB	"LOCK",0,0F0H,0AH
+	DB	"LODSB",0,0ACH,0
+	DB	"LODSW",0,0ADH,0
+	DB	"LOOP",0,0E2H,5
+	DB	"LOOPE",0,0E1H,5
+	DB	"LOOPNE",0,0E0H,5
+	DB	"LOOPNZ",0,0E0H,5
+	DB	"LOOPZ",0,0E1H,5
+	DB	"MOV",0,88H,9
+	DB	"MOVSB",0,0A4H,0
+	DB	"MOVSW",0,0A5H,0
+	DB	"MUL",0,20H,3
+	DB	"NEG",0,18H,3
+	DB	"NOP",0,90H,0
+	DB	"NOT",0,10H,3
+	DB	"OR",0,8,1
+	DB	"OUT",0,0E6H,0DH
+	DB	"POP",0,38H,4
+	DB	"POPF",0,9DH,0
+	DB	"PUSH",0,30H,4
+	DB	"PUSHF",0,9CH,0
+	DB	"RCL",0,10H,2
+	DB	"RCR",0,18H,2
+	DB	"REP",0,0F3H,0AH
+	DB	"REPE",0,0F3H,0AH
+	DB	"REPNE",0,0F2H,0AH
+	DB	"REPNZ",0,0F2H,0AH
+	DB	"REPZ",0,0F3H,0AH
+	DB	"RET",0,0C3H,0BH
+	DB	"ROL",0,0,2
+	DB	"ROR",0,8,2
+	DB	"SAHF",0,9EH,0
+	DB	"SAL",0,30H,2
+	DB	"SALC",0,0D6H,0
+	DB	"SAR",0,38H,2
+	DB	"SBB",0,18H,1
+	DB	"SCASB",0,0AEH,0
+	DB	"SCASW",0,0AFH,0
+	DB	"SHL",0,20H,2
+	DB	"SHR",0,28H,2
+	DB	"STC",0,0F9H,0
+	DB	"STD",0,0FDH,0
+	DB	"STI",0,0FBH,0
+	DB	"STOSB",0,0AAH,0
+	DB	"STOSW",0,0ABH,0
+	DB	"SUB",0,28H,1
+	DB	"TEST",0,0,3
+	DB	"WAIT",0,9BH,0
+	DB	"XCHG",0,86H,0FH
+	DB	"XLATB",0,0D7H,0
+	DB	"XOR",0,30H,1
+D8086:	DW	23
+	DB	"BYTE",0,1,5
+	DB	"DB",0,1,4
+	DB	"DD",0,4,4
+	DB	"DS",0,0,6
+	DB	"DW",0,2,4
+	DB	"DWORD",0,3,5
+	DB	"ECHO",0,0FCH,8
+	DB	"END",0,0FFH,2
+	DB	"EQU",0,0,1
+	DB	"EVEN",0,90H,0
+	DB	"FAR",0,0AH,5
+	DB	"INCBIN",0,0FDH,7
+	DB	"INCLUDE",0,0FEH,7
+	DB	"HIGH",0,13H,5
+	DB	"LOW",0,12H,5
+	DB	"NEAR",0,9,5
+	DB	"OFFSET",0,11H,5
+	DB	"ORG",0,0,3
+	DB	"PAGE",0,0FAH,9
+	DB	"PTR",0,10H,5
+	DB	"SHORT",0,8,5
+	DB	"TITLE",0,0FBH,7
+	DB	"WORD",0,2,5
+
+
+;	Back to a72.nasm
+ORIGIN:	DW	DEFORG
+PAGLEN:	DW	DEFPAG
+ADIR:	DW	P2,P3,P4,P5
+	DW	P6
+EM0:	DB	"INVALID OPERAND",0
+EM1:	DB	"SYNTAX ERROR",0
+EM2:	DB	"INVALID ADDRESSING",0
+EM3:	DB	"INVALID INSTRUCTION",0
+EM4:	DB	"UNDEFINED SYMBOL",0
+EM5:	DB	" BYTE(S) OUT OF RANGE",0
+EM6:	DB	"OPERAND SIZE MISMATCH",0
+EM7:	DB	"CONSTANT TOO LARGE",0
+EM8:	DB	"MISSING OPERAND",0
+EM9:	DB	"GARBAGE PAST END",0
+EMA:	DB	"DUPLICATE SYMBOL",0
+EMB:	DB	" NOT ACCESSIBLE",0
+EMC:	DB	"RESERVED WORD MISUSE",0
+EMD:	DB	"INVALID REGISTER",0
+EME:	DB	"LINE TOO LONG",0
+EMF:	DB	" FILE I/O ERROR",0
+DOTASM:	DB	"asm",0
+DOTCOM:	DB	"com",0
+DOTLST:	DB	"lst",0
+PASSM:	DB	"PASS ",0
+INM:	DB	"IN: ",0
+OUTM:	DB	"OUT: ",0
+AMSG:	DB	"PC-72 ASSEMBLER"
+	DB	" VERSION 1.05"
+	DB	13,10,36
+;DOSERR:	DB	"BAD DOS VERSION"
+;	DB	13,10,36
+NOPAR:	DB	"MISSING PARAMETER"
+	DB	13,10,36
+USAGE:	DB	"A72 IN [/SWITCH [OUT]"
+	DB	" [/SWITCH [OUT]] ...]"
+	DB	13,10
+	DB	"/A [OUT[.com]]",9
+	DB	"ASSEMBLE TO BINARY"
+	DB	13,10
+	DB	"/D [OUT[.asm]]",9
+	DB	"DISASSEMBLE WITH HEX"
+	DB	13,10
+	DB	"/L [OUT[.lst]]",9
+	DB	"ASSEMBLE TO LISTING"
+	DB	13,10
+	DB	"/O 100H",9,9
+	DB	"SET ORIGIN"
+	DB	13,10
+	DB	"/U [OUT[.asm]]",9
+	DB	"DISASSEMBLE PLAIN"
+	DB	13,10,36
+
+prebss:
+absolute $  ; Uninitialized data follows.
+alignb 4
+bss:
+
+BUF1:	DS	MAXLEN
+BUF2:	DS	100H
+BUF3:	DS	100H
+BUF4:	DS	100H
+BUF5:	DS	100H
+BUF6:	DS	100H
+BUF7:	DS	100H
+INCBUF:	DS	100H
+FUNC:	DS 4  ; !! This doesn't fix the EQU.
+SYMBS:
+	DS 10000H  ; !! Temporary area.
+	vars  ; For NASM.
+
+mem_end:
