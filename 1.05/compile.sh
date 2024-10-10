@@ -5,7 +5,7 @@ test "${0%/*}" = "$0" || cd "${0%/*}"
 test -f ../tools/nasm-0.98.39
 test -f ../tools/kvikdos
 export PATH="../tools:$PATH"
-rm -f a72*p[0-9].com a72*p[0-9].lst a72*p[0-9].dis GENERIC.ASM 8086.ASM
+rm -f a72*p[0-9].com a72*p[0-9].lst a72*p[0-9].dis GENERIC.ASM 8086.ASM bad.err bad2.err bad.com
 
 kvikdos a72.com a72.asm /a a72p0.com
 cmp a72.com a72p0.com
@@ -38,5 +38,22 @@ diff a72pp1.lst a72np1.lst
 ./a72 a72.com /d a72np1.dis
 <a72.dis >a72pp1.dis awk '{gsub(/A72[.]COM/,"a72.com");print}'
 diff a72pp1.dis a72np1.dis
+
+rm -f bad.com
+exit_code=0
+./a72 bad.asm /a >bad.err || exit_code="$?"
+test "$exit_code" = 2
+test -f bad.com
+test ! -s bad.com  # Must be empty.
+diff bad.err.exp bad.err
+
+rm -f bad.com
+exit_code=0
+kvikdos a72n.com bad.asm /a >bad.err || exit_code="$?"
+test "$exit_code" = 2
+test -f bad.com
+test ! -s bad.com  # Must be empty.
+<bad.err >bad2.err awk '{gsub(/BAD[.]ASM/,"bad.asm");print}'
+diff bad.err.exp bad2.err
 
 : "$0" OK.
