@@ -6,9 +6,8 @@
 ; Bootstrap with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72 a72l.nasm && chmod +x a72 && ./a72l /a a72tp1.com && cmp a72.com a72tp1.com && echo OK
 ;
 ; TODO(pts): Don't convert INCLUDE arguments to uppercase.
-; TODO(pts): Implement buffered reads and writes for speed. How much is the speed gain? Isn't it already buffered? Currently it does an lseek(2) syscall per line.
-; TODO(pts): Make the code smaller, especially call and ret, and then push and pop, and then inc and dec.
-; TODO(pts): Make the code shorter by replacing e.g. `test cx, cx' with `test ecx, ecx'.
+; TODO(pts): Implement buffered reads and writes for speed. How much is the speed gain? Currently each line read does a read(2) and an lseek(2) back; each write corresponding to an input line does a separate write(2) call.
+; TODO(pts): Make the code shorter, then push and pop, and then inc and dec, then replace e.g. `test cx, cx' with `test ecx, ecx'.
 ; TODO(pts): Check for symbol table overflow (now it reliably fails with SIGSEGV): perl -e 'for(1..20000){print"T$_:\n"}' >labels.asm
 ;
 
