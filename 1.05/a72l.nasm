@@ -26,10 +26,11 @@ Elf32_Phdr:
 
 ; --- .text
 
-%macro CODER 2  ; Code-relative jump. Example: CODER JMP MAIN
-	%1 CODE_%2
+%macro ASSERT_NONNEGATIVE 1  ; It doesn't stop compilation on failure.
+  times %1 times 0 nop
 %endm
 
+%macro LINUX_START 0
 _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[0], argv[1] etc., then NULL, then envp[0], envp[1] etc., then NULL, then ELF aux table.
 	pop eax  ; argc.
 	; Now ESP points to argv[0].
@@ -68,7 +69,8 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 	xor ecx, ecx
 	xor edx, edx
 	xor ebp, ebp
-	CODER	JMP,	START
+	; Fall through to the DOS program start.
+%endm
 
 %define EA_BX_PLUS_VAR(name) [name+ebx]
 %define EA_BX_BX_PLUS_VAR(name) [name+ebx+ebx]
@@ -81,153 +83,6 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 %define EA32_VAR_PLUS(name, x) [name+(x)]
 %define EA32_VAR_AX_AX(name) [name+eax+eax]
 
-; The dossys* functoins emulate the DOS `int 21h' syscall. The syscall
-; number is in AH. Based on https://stanislavs.org/helppc/idx_interrupt.html
-%if 0
-dossys:
-	cmp ah, 4ch  ; Exit.
-	je dossys_exit
-	cmp ah, 9
-	je dossys_printmsg
-	cmp ah, 3ch
-	je dossys_create
-	cmp ah, 3dh
-	je dossys_open
-	cmp ah, 3eh
-	je dossys_close
-	cmp ah, 3fh
-	je dossys_read
-	cmp ah, 40h
-	je dossys_write
-	cmp ah, 42h
-	je dossys_seek
-	push dword '!UN'|10<<24
-	; Fall through to dossys_fatal.
-%endif
-
-dossys_fatal:  ; Write 4 bytes at [esp] to stderr, and exit(1).
-	push byte 4  ; SYS_write.
-	pop eax
-	xor ebx, ebx
-	inc ebx
-	inc ebx  ; STDERR_FILENO.
-	mov ecx, esp
-	mov edx, eax  ; Number of bytes to write: 4.
-	int 80h  ; Linux i386 syscall.
-	mov al, 1  ; EXIT_FAILURE.
-	; Fall through to dossys_exit.
-
-dossys_exit:
-	movzx ebx, al
-	xor eax, eax
-	inc eax  ; SYS_exit.
-	int 80h  ; Linux i386 syscall.
-	; Not reached.
-
-dossys_printmsg:  ; Print message at DX terminated by '$' to stdout.
-	pushad
-	pushf
-	push byte 4  ; SYS_write.
-	pop eax
-	xor ebx, ebx
-	inc ebx  ; STDOUT_FILENO.
-	mov ecx, esi  ; Just for the high word.
-	mov cx, dx
-	or edx, -1
-.next:	inc edx
-	cmp byte [ecx+edx], '$'
-	jne .next
-	int 80h  ; Linux i386 syscall.
-	popf
-	popad
-	ret
-
-; Linux constants.
-O_RDWR equ 2
-O_CREAT equ 100o
-O_TRUNC equ 1000o
-
-badret:	popf
-	popad
-	stc
-	ret
-
-dossys_create:   ; Create file. CX is file attribute (ignored), DX points to the filename. Returns: CF indicating failure; AX (if CF=0) is the filehandle. We don't set the error code in AX.
-	pushad
-	pushf
-	mov eax, 666o
-	mov ecx, O_RDWR|O_CREAT|O_TRUNC
-.both:	mov ebx, esi  ; Just for the high word.
-	mov bx, dx
-	xchg eax, edx  ; EDX := EAX; EAX := junk.
-	push byte 5  ; SYS_open.
-.cax:	pop eax
-	int 80h  ; Linux i386 syscall.
-	test eax, eax
-	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
-	popf
-	mov [esp+4*7], ax  ; So that `popad' will keep this in AX.
-goodret:
-	popad
-	clc
-	ret  ; This function doesn't work if open(...) returns file descriptor values larger than 0ffffh. That would be very rare.
-
-dossys_open:   ; Open file. AL is access mode (0, 1 or 2). DX points to the filename. Returns: CF indicating failure; AX (if CF=0) is the filehandle. We don't set the error code in AX.
-	pushad
-	pushf
-	mov ecx, eax
-	and ecx, 3
-	jmp dossys_create.both
-	; Not reached.
-
-dossys_close:  ; Close file. BX is the file descriptor to close. Returns: CF indicating failure. We don't set the error code in AX.
-	pushad
-	pushf
-	push byte 6  ; SYS_close.
-	pop eax
-	int 80h  ; Linux i386 syscall.
-	test eax, eax
-	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
-	popf
-	jmp goodret
-
-dossys_read:   ; Read from file. BX is the file descriptor. CX is the number of bytes to read. DX is the data pointer. Returns: CF indicating failure; AX (if CF=0) is the number of bytes read. We don't set the error code in AX.
-	pushad
-	pushf
-	push byte 3  ; SYS_read.
-.do:	xchg edx, ecx
-	or ecx, $$  ; Just for the high word.
-	jmp dossys_create.cax
-	; Not reached.
-
-dossys_write:  ; Write to file. BX is the file descriptor. CX is the number of bytes to write. DX is the data pointer. Returns: CF indicating failure; AX (if CF=0) is the number of bytes written. We don't set the error code in AX. We don't support truncation on CX=0.
-	jcxz .truncate
-.write:	pushad
-	pushf
-	push byte 4  ; SYS_write.
-	jmp dossys_read.do
-	; Not reached.
-.truncate:
-	push dword '!TR'|10<<24  ; We don't implement truncation.
-	jmp dossys_fatal
-	; Not reached.
-
-dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SEEK_SET, 1 for SEEK_CUR, 2 for SEEK_END). CX is the high word of the offset. DX is the low word of the offset. Returns: CF indicating failure; AX (if CF=0) is the low word of the position; DX (if CF=0) is the high word of the position. We don't set the error code in AX. We don't support truncation on CX=0.
-	pushad
-	pushf
-	shl ecx, 16
-	mov cx, dx
-	movzx edx, al
-	push byte 19  ; SYS_lseek. (Only 32-bit offsets.)
-	pop eax
-	int 80h  ; Linux i386 syscall.
-	test eax, eax
-	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
-	popf
-	mov [esp+4*7], ax  ; So that `popad' will keep this in AX.
-	mov [esp+4*5], dx  ; So that `popad' will keep this in DX.
-	jmp goodret
-
 ; For NASM.
 %define PTR
 ;%define MM0 $MM0  ; Reserved word in NASM.
@@ -235,14 +90,16 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
 %macro DS 1
   resb %1
 %endm
+
 %macro EVEN 0
   align 2
 %endm
+
 %macro PAGE 1
 %endm
+
 %macro ORG 1
 %endm
-
 
 %macro XLATB 0
   ;call check_regs
@@ -302,6 +159,10 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
   movzx ecx, cx  ; Convert 0ffffffffh to 0ffffh after a LOOP instruction.
 %endm
 
+%macro CODER 2  ; Code-relative jump. Example: CODER JMP MAIN
+	%1 CODE_%2
+%endm
+
 ; --- Modified A72 source code follows.
 
 	PAGE	64
@@ -348,20 +209,21 @@ LSTFN	EQU	BUF4+80H
 DEFFN	EQU	BUF4+0C0H
 %endm  ; For NASM.
 
-CODE_START:	MOV	AH,9  ; TODO(pts): Remove these constant-setting instructions, only if not needed.
+	LINUX_START
+	MOV	AH,9  ; TODO(pts): Remove these constant-setting instructions, only if not needed.
 	MOV	DX,AMSG
 	call dossys_printmsg  ; Print message string.
-	CODER	JMP,	MAIN
+	CODER	JMP STRICT SHORT,	MAIN
 
 CODE_ERROR:	MOV	AH,9
 	call dossys_printmsg  ; Print message string.
-	; TODO(pts): Why exit successfully here? Why not fail?
+	; !! TODO(pts): Why exit successfully here? Why not fail?
 CODE_XSUCC:	MOV	AX,4C00H
-	call dossys_exit  ; Exit successfully.
+	call dossys_exit  ; Exit successfully. Doesn't return.
 CODE_BAH:
 	CODER	CALL,	CLOSE
 CODE_OVER:	MOV	AX,4C01H
-	call dossys_exit  ; Exit with failure.
+	call dossys_exit  ; Exit with failure. Doesn't return.
 CODE_MAIN:
 	CODER	CALL,	INIT
 	MOV	SI,CMDLINE_ADDR
@@ -3151,9 +3013,141 @@ CODE_INVD:	MOV	AX,4244H
 	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
 	CODER	JMP,	WHA  ; Tail call.
 
+	;ASSERT_NONNEGATIVE -($-$$)+0x2000  ; File size (== code size) so far is at most 0x2000 bytes. This is to make sure it fits to the initally provisioned pages.
+
+; --- DOS `int 31h' syscall implementations.
+;
+; The dossys* functions emulate the DOS `int 21h' syscall. The syscall
+; number is in AH. Based on https://stanislavs.org/helppc/idx_interrupt.html
+
+dossys_fatal:  ; Write 4 bytes at [esp] to stderr, and exit(1).
+	push byte 4  ; SYS_write.
+	pop eax
+	xor ebx, ebx
+	inc ebx
+	inc ebx  ; STDERR_FILENO.
+	mov ecx, esp
+	mov edx, eax  ; Number of bytes to write: 4.
+	int 80h  ; Linux i386 syscall.
+	mov al, 1  ; EXIT_FAILURE.
+	; Fall through to dossys_exit.
+
+dossys_exit:
+	movzx ebx, al
+	xor eax, eax
+	inc eax  ; SYS_exit.
+	int 80h  ; Linux i386 syscall.
+	; Not reached.
+
+dossys_printmsg:  ; Print message at DX terminated by '$' to stdout.
+	pushad
+	pushf
+	push byte 4  ; SYS_write.
+	pop eax
+	xor ebx, ebx
+	inc ebx  ; STDOUT_FILENO.
+	mov ecx, esi  ; Just for the high word.
+	mov cx, dx
+	or edx, -1
+.next:	inc edx
+	cmp byte [ecx+edx], '$'
+	jne .next
+	int 80h  ; Linux i386 syscall.
+	popf
+	popad
+	ret
+
+; Linux constants.
+O_RDWR equ 2
+O_CREAT equ 100o
+O_TRUNC equ 1000o
+
+badret:	popf
+	popad
+	stc
+	ret
+
+dossys_create:   ; Create file. CX is file attribute (ignored), DX points to the filename. Returns: CF indicating failure; AX (if CF=0) is the filehandle. We don't set the error code in AX.
+	pushad
+	pushf
+	mov eax, 666o
+	mov ecx, O_RDWR|O_CREAT|O_TRUNC
+.both:	mov ebx, esi  ; Just for the high word.
+	mov bx, dx
+	xchg eax, edx  ; EDX := EAX; EAX := junk.
+	push byte 5  ; SYS_open.
+.cax:	pop eax
+	int 80h  ; Linux i386 syscall.
+	test eax, eax
+	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
+	popf
+	mov [esp+4*7], ax  ; So that `popad' will keep this in AX.
+goodret:
+	popad
+	clc
+	ret  ; This function doesn't work if open(...) returns file descriptor values larger than 0ffffh. That would be very rare.
+
+dossys_open:   ; Open file. AL is access mode (0, 1 or 2). DX points to the filename. Returns: CF indicating failure; AX (if CF=0) is the filehandle. We don't set the error code in AX.
+	pushad
+	pushf
+	mov ecx, eax
+	and ecx, 3
+	jmp dossys_create.both
+	; Not reached.
+
+dossys_close:  ; Close file. BX is the file descriptor to close. Returns: CF indicating failure. We don't set the error code in AX.
+	pushad
+	pushf
+	push byte 6  ; SYS_close.
+	pop eax
+	int 80h  ; Linux i386 syscall.
+	test eax, eax
+	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
+	popf
+	jmp goodret
+
+dossys_read:   ; Read from file. BX is the file descriptor. CX is the number of bytes to read. DX is the data pointer. Returns: CF indicating failure; AX (if CF=0) is the number of bytes read. We don't set the error code in AX.
+	pushad
+	pushf
+	push byte 3  ; SYS_read.
+.do:	xchg edx, ecx
+	or ecx, $$  ; Just for the high word.
+	jmp dossys_create.cax
+	; Not reached.
+
+dossys_write:  ; Write to file. BX is the file descriptor. CX is the number of bytes to write. DX is the data pointer. Returns: CF indicating failure; AX (if CF=0) is the number of bytes written. We don't set the error code in AX. We don't support truncation on CX=0.
+	jcxz .truncate
+.write:	pushad
+	pushf
+	push byte 4  ; SYS_write.
+	jmp dossys_read.do
+	; Not reached.
+.truncate:
+	push dword '!TR'|10<<24  ; We don't implement truncation.
+	jmp dossys_fatal
+	; Not reached.
+
+dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SEEK_SET, 1 for SEEK_CUR, 2 for SEEK_END). CX is the high word of the offset. DX is the low word of the offset. Returns: CF indicating failure; AX (if CF=0) is the low word of the position; DX (if CF=0) is the high word of the position. We don't set the error code in AX. We don't support truncation on CX=0.
+	pushad
+	pushf
+	shl ecx, 16
+	mov cx, dx
+	movzx edx, al
+	push byte 19  ; SYS_lseek. (Only 32-bit offsets.)
+	pop eax
+	int 80h  ; Linux i386 syscall.
+	test eax, eax
+	js badret  ; Treat any negative values as error. This effectively limits the usable file size to <2 GiB (7fffffffh bytes). That's fine, Linux won't give us more without O_LARGEFILE anyway.
+	popf
+	mov [esp+4*7], ax  ; So that `popad' will keep this in AX.
+	mov [esp+4*5], dx  ; So that `popad' will keep this in DX.
+	jmp goodret
+
+
 ; --- .rodata and .data.
 
 	EVEN
+	;ASSERT_NONNEGATIVE ($-$$)-0x2000  ; File size (== code size) so far is at least 0x2000 bytes.
 FUNCT_IHDL:  ; Function call table.
 	DW	FABS_G0,FABS_G1,FABS_G2,FABS_G3
 	DW	FABS_G4,FABS_G5,FABS_G6,FABS_G7
