@@ -31,7 +31,53 @@ but it was heavily modified manually, like this:
    are very different, and also some x86 CPU instructions don't have
    equivalent 16-bit and 32-bit counterparts. (For example, the *call*
    instruction pushes 16 bits or 32 bits to the stack, depending on the mode.)
-3. Linux i385 ELF-32 headers and libc adapters (e.g. for file I/O) were added.
+3. Linux i386 ELF-32 headers and libc adapters (e.g. for file I/O) were added.
+
+Compatibility notes between the original DOS A72 1.05 and the Linux port:
+
+* The original A72 runs on DOS 8086 (and later) as a 16-bit DOS .com program.
+  The Linux port runs on Linux i386 and Linux amd64 systems as a statically
+  linked (libc-independent) Linux i386 executable program.
+* Both the original and the Linux port target the 16-bit 8086 (including
+  DOS .com programs). There is no support for e.g. 8087 (FPU), 186, 286,
+  386, protected mode, 32-bit mode, 64-bit mode, MMX, SEE.
+* The original is able to assemble itself (running as a 16-bit DOS .com
+  program on DOS, producing a 16-bit DOS .com program file from the a72.asm
+  assembly source code), the Linux port is not (because the Linux port uses
+  i386 instructions).
+* Both the original and the Linux port can produce output files (.com, .bin,
+  .lst and .asm) which are megabytes or even gigabytes long: 2 GiB minus 1
+  byte is supported by both if there is enough free space on the filesystem.
+* Both the original and the Linux port can read input files which are
+  megabytes or even gigabytes long (same as for output bytes).
+* Both the original and the Linux port can use up to 64 KiB of memory
+  (minus the assembler code, assembler data and buffers) for the symbol
+  table (i.e. labels).
+* The Linux port can use a little bit (about 4 KiB) more memory for the
+  symbol table than the original, because it moves most of the assembler
+  code outside the 64 KiB.
+* The original converts filenames to uppercase, the Linux port keeps
+  filenames intact. (Except for the first word of unquoted `include` and
+  `incbin` filenames: both convert the first word to uppercase, e.g.
+  `fOo.asm' gets converted to `FOO.asm'.)
+* The original generates filename extensions (e.g. .asm, .com and .lst) in
+  uppercase, the Linux port generates them in lowercase.
+* The original is affected by DOS filename limitations (e.g. 8.3
+  characters), the Linux port is affected by Linux filename limitations
+  (depends on the filesystem, it can be hundreds or thousands of bytes).
+* Maximum command-line size is 126 bytes for the original, and 254 bytes
+  for the Linux port. (This also limits the filename and pathnames.)
+
+In addition to the Linux i386 port with NASM syntax (`1.05/a72l.nasm`)
+above, pts-a72-linux-port also contains a source port from A72 to NASM
+syntax, still running on DOS 8086 (`1.05/a72.nasm`). This port also contains
+bugfixes, which are also included in the Linux i386 port. The following bugs
+have been fixed:
+
+* Quoted include filenames (`include 'FILENAME'`, `include "FILENAME"`, also
+  for `incbin`) now work (and use the original filename, not converted to
+  uppercase). Previously the (incorrect) compilation error `GARBAGE PAST
+  END` was reported.
 
 Tools used for building and testing:
 
