@@ -112,15 +112,10 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
   push %1
 %endm
 
-%macro CALLWW_DI 1  ; Like `CALLWW %1', but it is allowed to ruin DI.
-  mov di, %1
-  call edi  ; High dword of EDI is already correct (data_base>>16).
-%endm
-
 %macro CALLWWJ 1  ; Like `CALLWW %1', but shorter if only used once (and CALLWW 0 times).
   push dword %%ret  ; The function %1 will return to %%ret.
-  push dword %1  ; The high word doesn't matter, we replace it below with data_base>>16.
-  mov word [esp+2], data_base>>16
+  push dword %1  ; The high word doesn't matter, we replace it below with (data_base-code1_size)>>16.
+  mov word [esp+2], (data_base-code1_size)>>16  ; Provide high word of function table entry (always the same).
   ret
   %%ret:
 %endm
@@ -178,8 +173,6 @@ OUTFN	EQU	BUF4+40H
 LSTFN	EQU	BUF4+80H
 DEFFN	EQU	BUF4+0C0H
 %endm  ; For NASM.
-
-	times code1_size db 'H'  ; !! TODO(pts): Remove this padding.
 
 	LINUX_START
 	MOV	AH,9  ; TODO(pts): Remove these constant-setting instructions, only if not needed.
@@ -405,7 +398,8 @@ CODE_PROCF4:	TEST	AL,AL
 	CODER	JNZ,	PROCF5
 	CODER	CALL,	WLST
 CODE_PROCF5:	push eax
-	CALLWW_DI EA32_VAR_AX_AX(FUNCT_ADIR)
+	; We could ruin DI before the call.
+	CALLWWJ EA32_VAR_AX_AX(FUNCT_ADIR)
 	pop ecx  ; CX := old value of AX.
 	CODER	JC,	PROCF6
 	;JCXZ	PROCF1
@@ -1996,7 +1990,8 @@ CODE_ASMCMD:	XOR	BYTE EA32_VAR_PLUS(FLAGS,0),20H
 	CODER	JNZ,	SW2
 	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
 	XCHG	AL,AH
-	CALLWW_DI EA_DI_AX_AX  ; May ruin AX.
+	; We could ruin DI before the call.
+	CALLWWJ EA_DI_AX_AX  ; May ruin AX.
 	CODER	CALL,	CC
 	CODER	JZ,	SW2
 	MOV	AL,9
@@ -2986,7 +2981,7 @@ CODE_INVD:	MOV	AX,4244H
 	MOV	AL,EA32_VAR_PLUS(OPCODE,0)
 	CODER	JMP,	WHA  ; Tail call.
 
-	;ASSERT_NONNEGATIVE -($-$$)+0x2000  ; File size (== code size) so far is at most 0x2000 bytes. This is to make sure it fits to the initally provisioned pages.
+	ASSERT_NONNEGATIVE -($-$$)+code1_size  ; Check that all code so far is within code1_size. This is to make sure that function table entries work. If it fails, increase code1_size by 1000h increments.
 
 ; --- DOS `int 31h' syscall implementations.
 ;
@@ -3121,7 +3116,7 @@ dossys_seek:   ; Seek in file. BX is the file descriptor. AL is whence (0 for SE
 ; --- .rodata and .data.
 
 	EVEN
-	;ASSERT_NONNEGATIVE ($-$$)-0x2000  ; File size (== code size) so far is at least 0x2000 bytes.
+	ASSERT_NONNEGATIVE ($-$$)-code1_size  ; This is to make sure that data starts after code1_size, thus it's vaddr is at least data_base. That's needed for bit manipulation. If it fails, decrease code1_size by 1000h increments.
 FUNCT_IHDL:  ; Function call table.
 	DW	FABS_G0,FABS_G1,FABS_G2,FABS_G3
 	DW	FABS_G4,FABS_G5,FABS_G6,FABS_G7
