@@ -80,7 +80,7 @@ START:	MOV	AH,9
 	INT	20H
 ERROR:	MOV	AH,9
 	INT	21H
-	MOV	AX,4C00H
+	MOV	AX,4C03H  ;; MOV AX, 4C00H  ; Bugfix: exit with exit code 3 (rather than 0 (success)) on command-line argument parsing error.
 	INT	21H
 BAH:	CALL	CLOSE
 OVER:	MOV	AX,4C01H

@@ -40,16 +40,22 @@ diff a72pp1.lst a72np1.lst
 diff a72pp1.dis a72np1.dis
 
 rm -f bad.com
-exit_code=0
-./a72 bad.asm /a >bad.err || exit_code="$?"
+exit_code=0; ./a72 || exit_code="$?"
+test "$exit_code" = 3
+exit_code=0; ./a72 /x || exit_code="$?"
+test "$exit_code" = 3
+exit_code=0; ./a72 bad.asm /a >bad.err || exit_code="$?"
 test "$exit_code" = 2
 test -f bad.com
 test ! -s bad.com  # Must be empty.
 diff bad.err.exp bad.err
 
 rm -f bad.com
-exit_code=0
-kvikdos a72n.com bad.asm /a >bad.err || exit_code="$?"
+exit_code=0; kvikdos a72n.com || exit_code="$?"
+test "$exit_code" = 3
+exit_code=0; kvikdos a72n.com /x || exit_code="$?"
+test "$exit_code" = 3
+exit_code=0; kvikdos a72n.com bad.asm /a >bad.err || exit_code="$?"
 test "$exit_code" = 2
 test -f bad.com
 test ! -s bad.com  # Must be empty.

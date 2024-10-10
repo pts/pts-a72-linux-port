@@ -195,15 +195,15 @@ DEFFN	EQU	BUF4+0C0H
 	call dossys_printmsg  ; Print message string.
 	CODER	JMP STRICT SHORT,	MAIN
 
-CODE_ERROR:	MOV	AH,9
+CODE_ERROR:  ; Called when there is an error parsing the command-line arguments.
+	MOV	AH,9
 	call dossys_printmsg  ; Print message string.
-	; !! TODO(pts): Why exit successfully here? Why not fail?
-CODE_XSUCC:
-	push 0
-	call dossys_exit  ; Exit successfully. Doesn't return.
+	push 3
+	call dossys_exit  ; Exit with failure. Doesn't return.
 CODE_BAH:
 	CODER	CALL,	CLOSE
-CODE_OVER:
+	; Fall through.
+CODE_OVER:  ; Called when error opening files (also CODE_BAH falls through).
 	push 1
 	call dossys_exit  ; Exit with failure. Doesn't return.
 CODE_MAIN:

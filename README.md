@@ -80,6 +80,8 @@ have been fixed:
   for `incbin`) now work (and use the original filename, not converted to
   uppercase). Previously the (incorrect) compilation error `GARBAGE PAST
   END` was reported.
+* If there is an error parsing the command-line arguments, now it exits
+  with code 3. Previously it exited with code 0 (success).
 
 Tools used for building and testing:
 
