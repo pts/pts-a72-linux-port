@@ -218,11 +218,13 @@ DEFFN	EQU	BUF4+0C0H
 CODE_ERROR:	MOV	AH,9
 	call dossys_printmsg  ; Print message string.
 	; !! TODO(pts): Why exit successfully here? Why not fail?
-CODE_XSUCC:	MOV	AX,4C00H
+CODE_XSUCC:
+	push 0
 	call dossys_exit  ; Exit successfully. Doesn't return.
 CODE_BAH:
 	CODER	CALL,	CLOSE
-CODE_OVER:	MOV	AX,4C01H
+CODE_OVER:
+	push 1
 	call dossys_exit  ; Exit with failure. Doesn't return.
 CODE_MAIN:
 	CODER	CALL,	INIT
@@ -274,11 +276,11 @@ CODE_RUN:	MOV	DI,EA32_VAR_PLUS(TEMP,0)
 CODE_NOWLST:
 	CODER	CALL,	PRUNT
 	CODER	CALL,	CLOSE
-	MOV	AX,4C00H
+	push 0
 	call dossys_exit  ; Exit successfully.
 CODE_HUMBUG:
 	CODER	CALL,	CLOSE
-	MOV	AX,4C02H
+	push 2
 	call dossys_exit  ; Exit with failure.
 CODE_NOTHER:	TEST	EA32_VAR_PLUS(FUNC,0),AX
 	CODER	JZ,	NOTH0
@@ -3029,11 +3031,12 @@ dossys_fatal:  ; Write 4 bytes at [esp] to stderr, and exit(1).
 	mov ecx, esp
 	mov edx, eax  ; Number of bytes to write: 4.
 	int 80h  ; Linux i386 syscall.
-	mov al, 1  ; EXIT_FAILURE.
+	push 1  ; EXIT_FAILURE.
 	; Fall through to dossys_exit.
 
-dossys_exit:
-	movzx ebx, al
+dossys_exit:  ; Exit with exit code dword [esp].
+	pop ebx  ; Ignore return address of dossys_exit.
+	pop ebx  ; Exit code.
 	xor eax, eax
 	inc eax  ; SYS_exit.
 	int 80h  ; Linux i386 syscall.
