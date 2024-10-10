@@ -12,8 +12,9 @@
 
 bits 32
 cpu 386
-program_base equ 600000h  ; Must be divisible by 10000h, i.e. low word must be 0.
-org program_base
+data_base equ 600000h  ; Must be divisible by 10000h, i.e. low word must be 0.
+code1_size equ 2000h  ; Must be divisible by 1000h.
+org data_base-code1_size
 
 file_header:
 Elf32_Ehdr:
@@ -22,7 +23,7 @@ Elf32_Ehdr:
 	dd 1,_start,Elf32_Phdr-file_header,0,0
 	dw Elf32_Phdr-file_header,20h,1,0,0,0
 Elf32_Phdr:
-	dd 1,0,program_base,0,prebss-program_base,mem_end-program_base,7,1000h
+	dd 1,0,data_base-code1_size,0,prebss-$$,mem_end-$$,7,1000h
 
 ; --- .text
 
@@ -57,12 +58,12 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 
 	; Set final value of high words of all registers except for ESP.
 	;
-	; EDI and ESI will have their high word same as program_base; EAX,
+	; EDI and ESI will have their high word same as data_base; EAX,
 	; EBX, ECX, EDX and EBP will have their high word set to 0. This
 	; arrangement will make all of these work: string instructions (e.g.
 	; LODSB), EA_DI_PLUS(x), EA_SI_PLUS(x), EA_BP_DI_PLUS(x),
 	; EA_BX_DI_PLUS(x), EA_BX_SI_PLUS(x).
-	mov edi, $$  ; $$ == program_base.
+	mov edi, data_base
 	mov esi, edi
 	xor eax, eax
 	xor ebx, ebx
@@ -104,7 +105,7 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 %macro XLATB_AND_RUIN_AH 0  ; Like 8086 `xlatb', but it can change AH arbitrarily.
   mov ah, 0
   ;db 0d7h  ; Original XLATB instruction.
-  mov al, [program_base+eax+ebx]  ; This assumes that the high 3 bytes of EAX is 0, and the high word of EBX is 0.
+  mov al, [data_base+eax+ebx]  ; This assumes that the high 3 bytes of EAX is 0, and the high word of EBX is 0.
 %endm
 
 %macro PUSHW 1  ; It doesn't work if %1 is an immediate, but there are no such uses anyway.
@@ -113,13 +114,13 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 
 %macro CALLWW_DI 1  ; Like `CALLWW %1', but it is allowed to ruin DI.
   mov di, %1
-  call edi  ; High dword of EDI is already correct (program_base>>16).
+  call edi  ; High dword of EDI is already correct (data_base>>16).
 %endm
 
 %macro CALLWWJ 1  ; Like `CALLWW %1', but shorter if only used once (and CALLWW 0 times).
   push dword %%ret  ; The function %1 will return to %%ret.
-  push dword %1  ; The high word doesn't matter, we replace it below with program_base>>16.
-  mov word [esp+2], program_base>>16
+  push dword %1  ; The high word doesn't matter, we replace it below with data_base>>16.
+  mov word [esp+2], data_base>>16
   ret
   %%ret:
 %endm
@@ -177,6 +178,8 @@ OUTFN	EQU	BUF4+40H
 LSTFN	EQU	BUF4+80H
 DEFFN	EQU	BUF4+0C0H
 %endm  ; For NASM.
+
+	times code1_size db 'H'  ; !! TODO(pts): Remove this padding.
 
 	LINUX_START
 	MOV	AH,9  ; TODO(pts): Remove these constant-setting instructions, only if not needed.
@@ -1993,7 +1996,7 @@ CODE_ASMCMD:	XOR	BYTE EA32_VAR_PLUS(FLAGS,0),20H
 	CODER	JNZ,	SW2
 	XCHG	AL,EA32_VAR_PLUS(OPCODE,0)
 	XCHG	AL,AH
-	CALLWW_DI EA_DI_AX_AX  ; May ruin AX.  ; This won't work if code for FUNCT_IHDL or FUNCT_AHDL isn't in the program_base 64KiB.
+	CALLWW_DI EA_DI_AX_AX  ; May ruin AX.
 	CODER	CALL,	CC
 	CODER	JZ,	SW2
 	MOV	AL,9
@@ -3082,7 +3085,7 @@ dossys_read:   ; Read from file. BX is the file descriptor. CX is the number of 
 	pushf
 	push byte 3  ; SYS_read.
 .do:	xchg edx, ecx
-	or ecx, $$  ; Just for the high word.
+	or ecx, data_base  ; Just for the high word.
 	jmp dossys_create.cax
 	; Not reached.
 
@@ -3481,8 +3484,7 @@ BUF5:	DS	100H
 BUF6:	DS	100H
 BUF7:	DS	100H
 INCBUF:	DS	100H
-SYMBS:
-	DS 10000H-($-$$)-1  ; Temporary area in .bss for symbols. TODO(pts): Add bounds check. TODO(pts): Move the code (but not data) 12 KiB earlier to make it larger. TODO(pts): Make it larger (for that we'd need 32-bit address registers).
 	vars  ; For NASM.
+SYMBS:	DS 10000H-($-$$-code1_size)-1  ; Temporary area in .bss for symbols. TODO(pts): Add bounds check. TODO(pts): Move the code (but not data) 12 KiB earlier to make it larger. TODO(pts): Make it larger (for that we'd need 32-bit address registers).
 
 mem_end:
