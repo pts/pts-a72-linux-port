@@ -102,13 +102,10 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 %endm
 
 %macro XLATB 0
-  ;call check_regs
   push eax
   mov ah, 0
   ;db 0d7h  ; Original XLATB instruction.
-  add ax, bx
-  or eax, program_base
-  mov al, [eax]
+  mov al, [program_base+eax+ebx]  ; This assumes that the high 3 bytes of EAX is 0, and the high word of EBX is 0.
   mov [esp], al
   pop eax
 %endm
