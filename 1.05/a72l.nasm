@@ -5,6 +5,7 @@
 ; Compile with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72 a72l.nasm && chmod +x a72
 ; Bootstrap with: nasm-0.98.39 -O999999999 -w+orphan-labels -f bin -o a72 a72l.nasm && chmod +x a72 && ./a72l /a a72tp1.com && cmp a72.com a72tp1.com && echo OK
 ;
+; TODO(pts): Don't convert INCLUDE arguments to uppercase.
 ; TODO(pts): Implement buffered reads and writes for speed. How much is the speed gain? Isn't it already buffered? Currently it does an lseek(2) syscall per line.
 ; TODO(pts): Make the code smaller, especially call and ret, and then push and pop, and then inc and dec.
 ; TODO(pts): Make the code shorter by replacing e.g. `test cx, cx' with `test ecx, ecx'.
@@ -1234,7 +1235,7 @@ CODE_CCM:	MOV	AL,EA_BX_SI_PLUS(0)
 	CODER	JC,	CCS
 	CMP	AL,7BH
 	CODER	JNC,	CCS
-	AND	AL,0DFH
+	AND	AL,0DFH  ; Convert character to uppercase.
 	MOV	EA_BX_SI_PLUS(0),AL
 CODE_CCL:	INC	BX
 	CODER	JMP,	CCM
@@ -1471,21 +1472,22 @@ CODE_ERR8:	MOV	AL,8
 CODE_ERR1:	MOV	AL,1
 	CODER	JMP,	FAIL
 FABS_SETINC:
-CODE_SETINC:
-	CODER	CALL,	CC
+CODE_SETINC:  ; This gets invoked for INCLUDE and INCBIN.
+	CODER	CALL,	CC  ; Populates: SI := start of arg; BX := size of arg. It also converts the first non-quoted word to uppercase (e.g. fOo.asm --> FOO.asm).
 	CODER	JZ,	ERR8
-	CMP	AL,22H
+	CMP	AL,22H  ; Double quotes: "
 	CODER	JZ,	SETIN1
-	CMP	AL,27H
+	CMP	AL,27H  ; Single quotes: '  . They don't seem to work at all for INCLUDE.
 	CODER	JNZ,	SETIN2
-CODE_SETIN1:	INC	SI
+CODE_SETIN1:  ; Single quotes or double quotes.
+	INC	SI
 	SUB	BX,2
 	CODER	JBE,	ERR8
 	CODER	JMP,	SETEND  ;; RETW  ; Bugfix: make `include "filename"' work. Surprisingly it works with comments as well.
 CODE_SETIN2:	XOR	BX,BX
 CODE_SETIN3:	INC	BX
 	MOV	AL,EA_BX_SI_PLUS(0)
-	CMP	AL,3BH
+	CMP	AL,3BH  ; ';'
 	CODER	JZ,	SETEND  ; Tail call.
 	CMP	AL,21H
 	CODER	JNC,	SETIN3

@@ -58,8 +58,8 @@ Compatibility notes between the original DOS A72 1.05 and the Linux port:
   code outside the 64 KiB.
 * The original converts filenames to uppercase, the Linux port keeps
   filenames intact. (Except for the first word of unquoted `include` and
-  `incbin` filenames: both convert the first word to uppercase, e.g.
-  `fOo.asm' gets converted to `FOO.asm'.)
+  `incbin` filenames: both convert them to uppercase, e.g. `fOo.asm' gets
+  converted to `FOO.asm'.)
 * The original generates filename extensions (e.g. .asm, .com and .lst) in
   uppercase, the Linux port generates them in lowercase.
 * The original is affected by DOS filename limitations (e.g. 8.3
