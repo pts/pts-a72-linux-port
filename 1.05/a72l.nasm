@@ -101,13 +101,10 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
 %macro ORG 1
 %endm
 
-%macro XLATB 0
-  push eax
+%macro XLATB_AND_RUIN_AH 0  ; Like 8086 `xlatb', but it can change AH arbitrarily.
   mov ah, 0
   ;db 0d7h  ; Original XLATB instruction.
   mov al, [program_base+eax+ebx]  ; This assumes that the high 3 bytes of EAX is 0, and the high word of EBX is 0.
-  mov [esp], al
-  pop eax
 %endm
 
 %macro PUSHW 1  ; It doesn't work if %1 is an immediate, but there are no such uses anyway.
@@ -1842,7 +1839,7 @@ CODE_RADX:	TEST	CL,40H
 	INC	SI
 	MOV	AL,DH
 	MOV	BX,RM
-	XLATB
+	XLATB_AND_RUIN_AH
 	CMP	AL,0FFH
 	CODER	JZ,	RA0D
 	MOV	DL,3
