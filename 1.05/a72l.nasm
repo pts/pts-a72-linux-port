@@ -112,13 +112,26 @@ _start:  ; Entry point of the Linux i386 program. Stack: top is argc, then argv[
   push %1
 %endm
 
-%macro CALLWWJ 1  ; Like `CALLWW %1', but shorter if only used once (and CALLWW 0 times).
-  push dword %%ret  ; The function %1 will return to %%ret.
-  push dword %1  ; The high word doesn't matter, we replace it below with (data_base-code1_size)>>16.
-  mov word [esp+2], (data_base-code1_size)>>16  ; Provide high word of function table entry (always the same).
-  ret
-  %%ret:
-%endm
+%ifndef USE_LONG_CALLWWJ  ; With 3 calls to CALLWWJ, this implementation is 8 bytes shorter than the other one.
+  callwwj_helper:
+	pop eax  ; EAX := address of code after the CALLWWJ.
+	xchg eax, [esp+4]  ; Also restores EAX.
+	mov word [esp+2], (data_base-code1_size)>>16  ; Provide high word of function table entry (always the same).
+	ret  ; Jump to function table entry. Its `ret' will jump to the address of code after the CALLWWJ.
+  %macro CALLWWJ 1  ; Like `CALLWW %1', but shorter if only used once (and CALLWW 0 times).
+    push eax  ; Save EAX and provid room for the address of code after the CALLWWJ.
+    push dword %1  ; The high word doesn't matter, callwwj_helper replaces it with (data_base-code1_size)>>16.
+    call callwwj_helper
+  %endm
+%else
+  %macro CALLWWJ 1  ; Like `CALLWW %1', but shorter if only used once (and CALLWW 0 times).
+    push dword %%ret  ; The function table entry function %1 will return to %%ret.
+    push dword %1  ; The high word doesn't matter, we replace it below with (data_base-code1_size)>>16.
+    mov word [esp+2], (data_base-code1_size)>>16  ; Provide high word of function table entry (always the same).
+    ret
+    %%ret:
+  %endm
+%endif
 
 %macro FIX_CX_AT_LOOP_TARGET 0
   movzx ecx, cx  ; Convert 0ffffffffh to 0ffffh after a LOOP instruction.
